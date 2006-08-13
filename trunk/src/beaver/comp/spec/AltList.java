@@ -13,9 +13,4 @@ public class AltList extends NodeList
 	{
 		super(item);
 	}
-	
-	Alt first()
-	{
-		return (Alt) this.next;
-	}
 }

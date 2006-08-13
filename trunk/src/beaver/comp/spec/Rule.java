@@ -17,4 +17,9 @@ public class Rule extends Node
 		this.name = name;
 		this.alts = alts;
 	}
+	
+	void accept(NodeVisitor visitor)
+	{
+		visitor.visit(this);
+	}
 }

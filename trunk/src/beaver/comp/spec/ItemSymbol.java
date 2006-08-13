@@ -25,4 +25,9 @@ public class ItemSymbol extends Item
 		this.name = name;
 		this.close = close;
 	}
+	
+	void accept(NodeVisitor visitor)
+	{
+		visitor.visit(this);
+	}
 }

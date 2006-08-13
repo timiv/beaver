@@ -22,4 +22,9 @@ public class Alt extends Node
 	{
 		this.def = def;
 	}
+	
+	void accept(NodeVisitor visitor)
+	{
+		visitor.visit(this);
+	}
 }

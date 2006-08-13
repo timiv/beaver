@@ -15,4 +15,9 @@ public class Spec extends Node
 	{
 		rules = list;
 	}
+	
+	void accept(NodeVisitor visitor)
+	{
+		visitor.visit(this);
+	}
 }

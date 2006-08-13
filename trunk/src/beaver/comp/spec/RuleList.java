@@ -13,9 +13,4 @@ public class RuleList extends NodeList
 	{
 		super(item);
 	}
-	
-	public Rule first()
-	{
-		return (Rule) this.next;
-	}
 }

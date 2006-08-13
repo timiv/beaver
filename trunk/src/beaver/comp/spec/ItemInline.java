@@ -19,4 +19,9 @@ public class ItemInline extends Item
 		this.def = def;
 		this.close = close;
 	}
+	
+	void accept(NodeVisitor visitor)
+	{
+		visitor.visit(this);
+	}
 }

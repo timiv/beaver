@@ -9,5 +9,5 @@ package beaver.comp.spec;
  */
 public abstract class Item extends Node
 {
-
+	abstract void accept(NodeVisitor visitor);
 }

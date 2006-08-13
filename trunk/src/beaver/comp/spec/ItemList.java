@@ -13,9 +13,4 @@ public class ItemList extends NodeList
 	{
 		super(item);
 	}
-	
-	Item first()
-	{
-		return (Item) this.next;
-	}
 }

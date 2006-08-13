@@ -10,7 +10,7 @@ import beaver.Location;
  * 
  * @author Alexander Demenchuk
  */
-public class Node implements Location
+public abstract class Node implements Location
 {
 	/**
 	 * Next node in the doubly linked list of nodes
@@ -59,12 +59,6 @@ public class Node implements Location
 	 */
 	public void replaceWith(Node node)
 	{
-		node.next = this.next;
-		node.prev = this.prev;
-	}
-	
-	public void writeTo(StringBuilder str)
-	{
-		str.append(line).append(',').append(column).append("..").append(endLine).append(',').append(endColumn);
+		(node.next = this.next).prev = (node.prev = this.prev).next = node;
 	}
 }

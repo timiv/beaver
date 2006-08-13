@@ -15,4 +15,9 @@ public class ItemString extends Item
 	{
 		this.text = text;
 	}
+	
+	void accept(NodeVisitor visitor)
+	{
+		visitor.visit(this);
+	}
 }

@@ -29,6 +29,11 @@ public class NodeList extends Node
 		return length;
 	}
 	
+	public Node first()
+	{
+		return next;
+	}
+	
 	public Node end()
 	{
 		return this;
