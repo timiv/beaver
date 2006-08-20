@@ -8,34 +8,25 @@ package beaver.comp.spec;
 public class NodeList extends Node
 {
 	private int length;
-	// first := this.next
-	// last  := this.prev
+	protected ListElement root = new ListElement();
+	// first := root.next
+	// last  := root.prev
 	
 	protected NodeList(Node node)
 	{
-		this.next = this.prev = node;
-		node.next = node.prev = this;
+		root.next = root.prev = node;
+		node.next = node.prev = root;
 		length = 1;
 	}
 	
 	public void add(Node node)
 	{
-		this.prev = (node.prev = (node.next = this).prev).next = node;
+		root.prev = (node.prev = (node.next = root).prev).next = node;
 		length++;
 	}
 	
 	public int length()
 	{
 		return length;
-	}
-	
-	public Node first()
-	{
-		return next;
-	}
-	
-	public Node end()
-	{
-		return this;
 	}
 }

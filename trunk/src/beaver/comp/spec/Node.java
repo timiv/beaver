@@ -10,18 +10,8 @@ import beaver.Location;
  * 
  * @author Alexander Demenchuk
  */
-public abstract class Node implements Location
+public class Node extends ListElement implements Location
 {
-	/**
-	 * Next node in the doubly linked list of nodes
-	 */
-	protected Node next;
-	
-	/**
-	 * Previous node in the list
-	 */
-	protected Node prev;
-	
 	/**
 	 * A line where the first character of the symbol is found.
 	 */
@@ -51,14 +41,5 @@ public abstract class Node implements Location
 		this.column = column;
 		this.endLine = endLine;
 		this.endColumn = endColumn;
-	}
-	
-	/**
-	 * Replaces this node in the list with the specified one.
-	 *
-	 */
-	public void replaceWith(Node node)
-	{
-		(node.next = this.next).prev = (node.prev = this.prev).next = node;
 	}
 }

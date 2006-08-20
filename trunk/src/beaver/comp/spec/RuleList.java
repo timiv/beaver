@@ -13,4 +13,14 @@ public class RuleList extends NodeList
 	{
 		super(item);
 	}
+	
+	public Rule first()
+	{
+		return (Rule) super.root.next;
+	}
+	
+	public Rule next(Rule i)
+	{
+		return i.next == super.root ? null : (Rule) i.next;
+	}
 }

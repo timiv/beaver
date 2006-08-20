@@ -13,4 +13,14 @@ public class AltList extends NodeList
 	{
 		super(item);
 	}
+	
+	public Alt first()
+	{
+		return (Alt) super.root.next;
+	}
+	
+	public Alt next(Alt i)
+	{
+		return i.next == super.root ? null : (Alt) i.next;
+	}
 }
