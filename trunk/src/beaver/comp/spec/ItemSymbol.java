@@ -9,21 +9,21 @@ package beaver.comp.spec;
  */
 public class ItemSymbol extends Item
 {
-	Term ref;
-	Term name;
-	Term close;
+	Term refName;
+	Term symName;
+	Term operator;
 	
-	ItemSymbol(Term ref, Term name, Term close)
+	ItemSymbol(Term refName, Term symName, Term operator)
 	{
-		this.ref = ref;
-		this.name = name;
-		this.close = close;
+		this.refName = refName;
+		this.symName = symName;
+		this.operator = operator;
 	}
 
-	ItemSymbol(Term name, Term close)
+	ItemSymbol(Term symName, Term operator)
 	{
-		this.name = name;
-		this.close = close;
+		this.symName = symName;
+		this.operator = operator;
 	}
 	
 	void accept(NodeVisitor visitor)

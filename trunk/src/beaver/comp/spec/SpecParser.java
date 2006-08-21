@@ -26,9 +26,9 @@ public abstract class SpecParser extends Parser
 	protected abstract Alt  onAlt  (ItemList rhs);
 	protected abstract Alt  onAlt  (Term name, ItemList rhs);	
 	protected abstract Item onItemString (Term text);
-	protected abstract Item onItemSymbol (Term name, Term close);
-	protected abstract Item onItemSymbol (Term ref, Term name, Term close);
-	protected abstract Item onItemInline (Term ref, ItemList def, Term close);
+	protected abstract Item onItemSymbol (Term name, Term oper);
+	protected abstract Item onItemSymbol (Term ref, Term name, Term oper);
+	protected abstract Item onItemInline (Term ref, ItemList def, Term oper);
 
 	protected RuleList onRuleList(Rule item)
 	{
@@ -153,35 +153,35 @@ public abstract class SpecParser extends Parser
 				
 				return symbol( onItemString(text) );				
 			}
-			case 13: // opt$CLOSE = 
+			case 13: // opt$OP = 
 			{
 				return symbol(null);
 			}
-			case 14: // opt$CLOSE = CLOSE
+			case 14: // opt$OP = OP
 			{
 				return copy(symbols[at]);
 			}
-			case 15: // Item = NAME opt$CLOSE
+			case 15: // Item = NAME opt$OP
 			{
 				Term name = (Term) symbols[at].getValue();
-				Term close = (Term) symbols[at - 1].getValue();
-				return symbol( onItemSymbol(name, close) );
+				Term oper = (Term) symbols[at - 1].getValue();
+				return symbol( onItemSymbol(name, oper) );
 			}
-			case 16: // Item = NAME COLON NAME opt$CLOSE
+			case 16: // Item = NAME COLON NAME opt$OP
 			{
 				Term ref = (Term) symbols[at].getValue();
 				Term name = (Term) symbols[at - 2].getValue();
-				Term close = (Term) symbols[at - 3].getValue();
+				Term oper = (Term) symbols[at - 3].getValue();
 				
-				return symbol( onItemSymbol(ref, name, close) );
+				return symbol( onItemSymbol(ref, name, oper) );
 			}
-			case 17: // Item = NAME COLON LPAREN lst$Item RPAREN CLOSE
+			case 17: // Item = NAME COLON LPAREN lst$Item RPAREN OP
 			{
 				Term ref = (Term) symbols[at].getValue();
 				ItemList def = (ItemList) symbols[at - 3].getValue();
-				Term close = (Term) symbols[at - 5].getValue();
+				Term oper = (Term) symbols[at - 5].getValue();
 				
-				return symbol( onItemInline(ref, def, close) );				
+				return symbol( onItemInline(ref, def, oper) );				
 			}
 		}
 		throw new IllegalArgumentException("unknown production #" + rule);

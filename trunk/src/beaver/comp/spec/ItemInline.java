@@ -9,15 +9,15 @@ package beaver.comp.spec;
  */
 public class ItemInline extends Item
 {
-	Term ref;
+	Term refName;
 	ItemList def;
-	Term close;
+	Term operator;
 	
-	ItemInline(Term ref, ItemList def, Term close)
+	ItemInline(Term ref, ItemList def, Term operator)
 	{
-		this.ref = ref;
+		this.refName = ref;
 		this.def = def;
-		this.close = close;
+		this.operator = operator;
 	}
 	
 	void accept(NodeVisitor visitor)
