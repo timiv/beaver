@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import beaver.SyntaxErrorException;
 import beaver.comp.spec.AstBuilder;
+import beaver.comp.spec.InlineRulesExtractor;
 import beaver.comp.spec.Spec;
 import beaver.comp.spec.SpecScanner;
 
@@ -21,7 +22,7 @@ public class Compiler
 	public void compile(File src) throws IOException, SyntaxErrorException
 	{
 		Spec spec = (Spec) new AstBuilder().parse(new SpecScanner(new FileReader(src)));
-		
+		spec.accept(new InlineRulesExtractor());
 	}
 	
 }

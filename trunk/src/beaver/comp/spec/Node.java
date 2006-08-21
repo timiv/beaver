@@ -42,4 +42,15 @@ public class Node extends ListElement implements Location
 		this.endLine = endLine;
 		this.endColumn = endColumn;
 	}
+	
+	/**
+	 * Makes a Node "occupy" the same space in the source the the source Node
+	 */
+	public void copyLocation(Node node)
+	{
+		this.line = node.line;
+		this.column = node.column;
+		this.endLine = node.endLine;
+		this.endColumn = node.endColumn;
+	}
 }
