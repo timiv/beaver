@@ -13,6 +13,16 @@ public class ItemList extends NodeList
 	{
 		super(item);
 	}
+
+	ItemList()
+	{
+		super();
+	}
+
+	public ItemList add(Item item)
+	{
+		return (ItemList) super.add(item);
+	}
 	
 	public Item first()
 	{

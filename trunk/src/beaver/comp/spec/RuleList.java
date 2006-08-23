@@ -13,6 +13,16 @@ public class RuleList extends NodeList
 	{
 		super(item);
 	}
+
+	RuleList()
+	{
+		super();
+	}
+	
+	public RuleList add(Rule rule)
+	{
+		return (RuleList) super.add(rule);
+	}
 	
 	public Rule first()
 	{
