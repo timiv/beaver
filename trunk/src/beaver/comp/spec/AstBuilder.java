@@ -34,18 +34,18 @@ public class AstBuilder extends SpecParser
 		return new ItemString(text);
 	}
 	
-	protected Item onItemSymbol(Term name, Term close)
+	protected Item onItemSymbol(Term name, Term operator)
 	{
-		return new ItemSymbol(name, close);
+		return new ItemSymbol(name, operator);
 	}
 	
-	protected Item onItemSymbol(Term ref, Term name, Term close)
+	protected Item onItemSymbol(Term ref, Term name, Term operator)
 	{
-		return new ItemSymbol(ref, name, close);
+		return new ItemSymbol(ref, name, operator);
 	}
 	
-	protected Item onItemInline(Term ref, ItemList def, Term close)
+	protected Item onItemInline(Term ref, ItemList def, Term operator)
 	{
-		return new ItemInline(ref, def, close);
+		return new ItemInline(ref, def, operator);
 	}
 }
