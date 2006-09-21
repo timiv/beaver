@@ -11,9 +11,9 @@ package beaver.comp.spec;
  */
 public class Term extends Node
 {
-	String text;
+	public String text;
 	
-	Term(String value)
+	public Term(String value)
 	{
 		text = value;
 	}

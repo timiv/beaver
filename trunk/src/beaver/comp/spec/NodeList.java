@@ -7,10 +7,13 @@ package beaver.comp.spec;
  */
 public class NodeList extends Node
 {
-	private int length;
 	protected final ListElement root = new ListElement();
-	// first := root.next
-	// last  := root.prev
+	private int length;
+	
+	protected NodeList()
+	{
+		root.next = root.prev = root;
+	}
 	
 	protected NodeList(Node node)
 	{
@@ -20,14 +23,24 @@ public class NodeList extends Node
 		length = 1;
 	}
 	
-	protected NodeList()
-	{
-	}
-
 	public NodeList add(Node node)
 	{
 		root.prev = (node.prev = (node.next = root).prev).next = node;
+		
 		length++;
+		
+		return this;
+	}
+	
+	public NodeList remove(Node node)
+	{
+		ListElement prevNode = node.prev;
+		ListElement nextNode = node.next;
+		
+		prevNode.next = nextNode;
+		nextNode.prev = prevNode;
+		
+		length--;
 		
 		return this;
 	}

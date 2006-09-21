@@ -9,9 +9,9 @@ package beaver.comp.spec;
  */
 public class Spec extends Node
 {
-	RuleList rules;
+	public RuleList rules;
 	
-	Spec(RuleList list)
+	public Spec(RuleList list)
 	{
 		rules = list;
 	}

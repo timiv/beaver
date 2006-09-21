@@ -3,6 +3,7 @@
  */
 package beaver.comp.spec;
 
+
 /**
  * @author Alexander Demenchuk
  *
@@ -48,4 +49,39 @@ public class AstBuilder extends SpecParser
 	{
 		return new ItemInline(ref, def, operator);
 	}
+	
+	protected RuleList onRuleList(Rule item)
+	{
+		return new RuleList(item);
+	}
+	
+	protected RuleList onRuleList(RuleList list, Rule item)
+	{
+		return list.add(item);
+	}
+
+	protected AltList onAltList(Alt item)
+	{
+		return new AltList(item);
+	}
+	
+	protected AltList onAltList(AltList list, Alt item)
+	{
+		return list.add(item);
+	}
+
+	protected ItemList onItemList(Item item)
+	{
+		return new ItemList(item);
+	}
+	
+	protected ItemList onItemList(ItemList list, Item item)
+	{
+		return list.add(item);
+	}
+
+	protected Object makeTerm(Object value)
+	{
+		return new Term((String) value);
+	}	
 }

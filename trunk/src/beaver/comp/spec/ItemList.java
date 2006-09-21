@@ -9,14 +9,14 @@ package beaver.comp.spec;
  */
 public class ItemList extends NodeList
 {
-	ItemList(Item item)
-	{
-		super(item);
-	}
-
-	ItemList()
+	public ItemList()
 	{
 		super();
+	}
+
+	public ItemList(Item item)
+	{
+		super(item);
 	}
 
 	public ItemList add(Item item)
@@ -26,11 +26,11 @@ public class ItemList extends NodeList
 	
 	public Item first()
 	{
-		return (Item) super.root.next;
+		return super.root.next != super.root ? (Item) super.root.next : null;
 	}
 	
 	public Item next(Item i)
 	{
-		return i.next == super.root ? null : (Item) i.next;
+		return i.next != super.root ? (Item) i.next : null;
 	}
 }

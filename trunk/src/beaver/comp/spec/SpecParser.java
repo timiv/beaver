@@ -30,43 +30,12 @@ public abstract class SpecParser extends Parser
 	protected abstract Item onItemSymbol (Term ref, Term name, Term oper);
 	protected abstract Item onItemInline (Term ref, ItemList def, Term oper);
 
-	protected RuleList onRuleList(Rule item)
-	{
-		return new RuleList(item);
-	}
-	
-	protected RuleList onRuleList(RuleList list, Rule item)
-	{
-		list.add(item);
-		return list;
-	}
-
-	protected AltList onAltList(Alt item)
-	{
-		return new AltList(item);
-	}
-	
-	protected AltList onAltList(AltList list, Alt item)
-	{
-		list.add(item);
-		return list;
-	}
-	
-	protected ItemList onItemList(Item item)
-	{
-		return new ItemList(item);
-	}
-	
-	protected ItemList onItemList(ItemList list, Item item)
-	{
-		list.add(item);
-		return list;
-	}
-	
-	protected Object makeTerm(Object value)
-	{
-		return new Term((String) value);
-	}
+	protected abstract RuleList onRuleList (Rule item);
+	protected abstract RuleList onRuleList (RuleList list, Rule item);
+	protected abstract AltList  onAltList  (Alt item);
+	protected abstract AltList  onAltList  (AltList list, Alt item);
+	protected abstract ItemList onItemList (Item item);
+	protected abstract ItemList onItemList (ItemList list, Item item);
 	
 	/** 
 	 * @see beaver.Parser#reduce(beaver.Symbol[], int, int)
@@ -96,7 +65,7 @@ public abstract class SpecParser extends Parser
 			}
 			case  3: // Rule = NAME EQ AltList SEMI
 			{
-				Term name = (Term) symbols[at].getValue();
+				Term    name = (Term)    symbols[at].getValue();
 				AltList alts = (AltList) symbols[at - 2].getValue();
 				
 				return symbol( onRule(name, alts) );
@@ -110,7 +79,7 @@ public abstract class SpecParser extends Parser
 			case  5: // AltList = AltList BAR Alt
 			{
 				AltList list = (AltList) symbols[at].getValue();
-				Alt     item = (Alt) symbols[at - 2].getValue();
+				Alt     item = (Alt)     symbols[at - 2].getValue();
 				
 				return symbol( onAltList(list, item) );				
 			}
@@ -123,13 +92,13 @@ public abstract class SpecParser extends Parser
 			case  7: // lst$Item = lst$Item Item
 			{
 				ItemList list = (ItemList) symbols[at].getValue();
-				Item     item = (Item) symbols[at - 1].getValue();
+				Item     item = (Item)     symbols[at - 1].getValue();
 				
 				return symbol( onItemList(list, item) );				
 			}
 			case  8: // opt$lst$Item =
 			{
-				return symbol(null);
+				return symbol( null );
 			}
 			case  9: // opt$lst$Item = lst$Item
 			{
@@ -142,7 +111,7 @@ public abstract class SpecParser extends Parser
 			}
 			case 11: // Alt = LCURL NAME RCURL opt$lst$Item
 			{
-				Term name = (Term) symbols[at - 1].getValue();
+				Term    name = (Term)     symbols[at - 1].getValue();
 				ItemList rhs = (ItemList) symbols[at - 3].getValue();
 				
 				return symbol( onAlt(name, rhs) );                				
@@ -155,7 +124,7 @@ public abstract class SpecParser extends Parser
 			}
 			case 13: // opt$OP = 
 			{
-				return symbol(null);
+				return symbol( null );
 			}
 			case 14: // opt$OP = OP
 			{
@@ -169,7 +138,7 @@ public abstract class SpecParser extends Parser
 			}
 			case 16: // Item = NAME COLON NAME opt$OP
 			{
-				Term ref = (Term) symbols[at].getValue();
+				Term ref  = (Term) symbols[at].getValue();
 				Term name = (Term) symbols[at - 2].getValue();
 				Term oper = (Term) symbols[at - 3].getValue();
 				
@@ -177,9 +146,9 @@ public abstract class SpecParser extends Parser
 			}
 			case 17: // Item = NAME COLON LPAREN lst$Item RPAREN OP
 			{
-				Term ref = (Term) symbols[at].getValue();
+				Term     ref = (Term)     symbols[at].getValue();
 				ItemList def = (ItemList) symbols[at - 3].getValue();
-				Term oper = (Term) symbols[at - 5].getValue();
+				Term    oper = (Term)     symbols[at - 5].getValue();
 				
 				return symbol( onItemInline(ref, def, oper) );				
 			}

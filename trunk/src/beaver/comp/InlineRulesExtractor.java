@@ -1,7 +1,19 @@
 /**
  * 
  */
-package beaver.comp.spec;
+package beaver.comp;
+
+import beaver.comp.spec.Alt;
+import beaver.comp.spec.AltList;
+import beaver.comp.spec.Item;
+import beaver.comp.spec.ItemInline;
+import beaver.comp.spec.ItemSymbol;
+import beaver.comp.spec.Rule;
+import beaver.comp.spec.RuleList;
+import beaver.comp.spec.Spec;
+import beaver.comp.spec.Term;
+import beaver.comp.spec.TreeWalker;
+
 
 /**
  * @author Alexander Demenchuk

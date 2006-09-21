@@ -9,11 +9,11 @@ package beaver.comp.spec;
  */
 public class ItemInline extends Item
 {
-	Term refName;
-	ItemList def;
-	Term operator;
+	public Term     refName;
+	public ItemList def;
+	public Term     operator;
 	
-	ItemInline(Term ref, ItemList def, Term operator)
+	public ItemInline(Term ref, ItemList def, Term operator)
 	{
 		this.refName = ref;
 		this.def = def;

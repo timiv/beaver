@@ -1,10 +1,21 @@
 /**
  * 
  */
-package beaver.comp.spec;
+package beaver.comp;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import beaver.comp.spec.Alt;
+import beaver.comp.spec.AltList;
+import beaver.comp.spec.ItemList;
+import beaver.comp.spec.ItemSymbol;
+import beaver.comp.spec.Rule;
+import beaver.comp.spec.RuleList;
+import beaver.comp.spec.Spec;
+import beaver.comp.spec.Term;
+import beaver.comp.spec.TreeWalker;
+
 
 /**
  * @author Alexander Demenchuk
@@ -65,7 +76,7 @@ public class EbnfOperatorCompiler extends TreeWalker
 					new Term(optSymName),
 					new AltList(
 						new Alt(
-							new ItemList()
+							null // i.e. empty
 						)
 					).add(
 						new Alt(

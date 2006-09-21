@@ -9,16 +9,16 @@ package beaver.comp.spec;
  */
 public class Alt extends Node
 {
-	Term name;
-	ItemList def;
+	public Term     name;
+	public ItemList def;
 	
-	Alt(Term name, ItemList def)
+	public Alt(Term name, ItemList def)
 	{
 		this.name = name;
 		this.def = def;
 	}
 	
-	Alt(ItemList def)
+	public Alt(ItemList def)
 	{
 		this.def = def;
 	}

@@ -9,16 +9,16 @@ package beaver.comp.spec;
  */
 public class RuleList extends NodeList
 {
-	RuleList(Rule item)
+	public RuleList()
+	{
+		super();
+	}
+
+	public RuleList(Rule item)
 	{
 		super(item);
 	}
 
-	RuleList()
-	{
-		super();
-	}
-	
 	public RuleList add(Rule rule)
 	{
 		return (RuleList) super.add(rule);
@@ -26,11 +26,11 @@ public class RuleList extends NodeList
 	
 	public Rule first()
 	{
-		return (Rule) super.root.next;
+		return super.root.next != super.root ? (Rule) super.root.next : null;
 	}
 	
 	public Rule next(Rule i)
 	{
-		return i.next == super.root ? null : (Rule) i.next;
+		return i.next != super.root ? (Rule) i.next : null;
 	}
 }

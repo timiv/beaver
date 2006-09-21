@@ -9,14 +9,14 @@ package beaver.comp.spec;
  */
 public class AltList extends NodeList
 {
-	AltList(Alt item)
-	{
-		super(item);
-	}
-	
-	AltList()
+	public AltList()
 	{
 		super();
+	}
+
+	public AltList(Alt item)
+	{
+		super(item);
 	}
 	
 	public AltList add(Alt alt)
@@ -26,11 +26,11 @@ public class AltList extends NodeList
 	
 	public Alt first()
 	{
-		return (Alt) super.root.next;
+		return super.root.next != super.root ? (Alt) super.root.next : null;
 	}
 	
 	public Alt next(Alt i)
 	{
-		return i.next == super.root ? null : (Alt) i.next;
+		return i.next != super.root ? (Alt) i.next : null;
 	}
 }

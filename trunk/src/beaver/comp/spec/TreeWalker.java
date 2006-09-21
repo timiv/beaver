@@ -13,36 +13,48 @@ public class TreeWalker extends NodeVisitor
 	public void visit(Spec node)
 	{
 		RuleList list = node.rules;
-		for (Rule i = list.first(); i != null; i = list.next(i))
+		if (list != null)
 		{
-			i.accept(this);
+			for (Rule i = list.first(); i != null; i = list.next(i))
+			{
+				i.accept(this);
+			}
 		}
 	}
 
 	public void visit(Rule node)
 	{
 		AltList list = node.alts;
-		for (Alt i = list.first(); i != null; i = list.next(i))
+		if (list != null)
 		{
-			i.accept(this);
+			for (Alt i = list.first(); i != null; i = list.next(i))
+			{
+				i.accept(this);
+			}
 		}
 	}
 
 	public void visit(Alt node)
 	{
 		ItemList list = node.def;
-		for (Item i = list.first(); i != null; i = list.next(i))
+		if (list != null)
 		{
-			i.accept(this);
+			for (Item i = list.first(); i != null; i = list.next(i))
+			{
+				i.accept(this);
+			}
 		}
 	}
 
 	public void visit(ItemInline node)
 	{
 		ItemList list = node.def;
-		for (Item i = list.first(); i != null; i = list.next(i))
+		if (list != null)
 		{
-			i.accept(this);
+			for (Item i = list.first(); i != null; i = list.next(i))
+			{
+				i.accept(this);
+			}
 		}
 	}
 

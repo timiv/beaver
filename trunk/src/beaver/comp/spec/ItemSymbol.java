@@ -9,18 +9,18 @@ package beaver.comp.spec;
  */
 public class ItemSymbol extends Item
 {
-	Term refName;
-	Term symName;
-	Term operator;
+	public Term refName;
+	public Term symName;
+	public Term operator;
 	
-	ItemSymbol(Term refName, Term symName, Term operator)
+	public ItemSymbol(Term refName, Term symName, Term operator)
 	{
 		this.refName = refName;
 		this.symName = symName;
 		this.operator = operator;
 	}
 
-	ItemSymbol(Term symName, Term operator)
+	public ItemSymbol(Term symName, Term operator)
 	{
 		this.symName = symName;
 		this.operator = operator;

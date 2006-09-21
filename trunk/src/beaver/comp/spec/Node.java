@@ -15,22 +15,22 @@ public class Node extends ListElement implements Location
 	/**
 	 * A line where the first character of the symbol is found.
 	 */
-	int line;
+	protected int line;
 	
 	/**
 	 * A columns where the first character of the symbol is found. 
 	 */
-	int column;
+	protected int column;
 	
 	/**
 	 * A line where the last character of the symbol is found.
 	 */
-	int endLine;
+	protected int endLine;
 	
 	/**
 	 * A position of the next to last character of the symbol. 
 	 */
-	int endColumn;
+	protected int endColumn;
 	
 	/**
 	 * @see beaver.Location#setLocation(int, int, int, int)

@@ -9,10 +9,10 @@ package beaver.comp.spec;
  */
 public class ItemString extends Item
 {
-	Term text;
+	public Term text;
 	
-	ItemString(Term text)
-	{
+	public ItemString(Term text)
+	{		
 		this.text = text;
 	}
 	

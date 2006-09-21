@@ -9,8 +9,6 @@ import java.io.IOException;
 
 import beaver.SyntaxErrorException;
 import beaver.comp.spec.AstBuilder;
-import beaver.comp.spec.EbnfOperatorCompiler;
-import beaver.comp.spec.InlineRulesExtractor;
 import beaver.comp.spec.Spec;
 import beaver.comp.spec.SpecScanner;
 
@@ -25,6 +23,7 @@ public class Compiler
 		Spec spec = (Spec) new AstBuilder().parse(new SpecScanner(new FileReader(src)));
 		spec.accept(new InlineRulesExtractor());
 		spec.accept(new EbnfOperatorCompiler());
+		spec.accept(new InlineStringExractor());
 	}
 	
 }

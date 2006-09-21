@@ -9,7 +9,6 @@ package beaver.comp.spec;
  */
 public class ListElement
 {
-
 	/**
      * Next node in the doubly linked list of nodes
      */
@@ -18,7 +17,7 @@ public class ListElement
      * Previous node in the list
      */
     protected ListElement prev;
-
+    
 	/**
      * Replaces this node in the list with the specified one.
      *
@@ -27,5 +26,4 @@ public class ListElement
     {
     	(node.next = this.next).prev = (node.prev = this.prev).next = node;
     }
-
 }

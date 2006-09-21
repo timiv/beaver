@@ -9,10 +9,10 @@ package beaver.comp.spec;
  */
 public class Rule extends Node
 {
-	Term name;
-	AltList alts;
+	public Term name;
+	public AltList alts;
 	
-	Rule(Term name, AltList alts)
+	public Rule(Term name, AltList alts)
 	{
 		this.name = name;
 		this.alts = alts;
