@@ -40,12 +40,12 @@ public class InlineRulesExtractor extends TreeWalker
 		String nt = (node.refName != null ? node.refName.text : "SyntheticRule") + ++lastRuleId;
 		Term name = new Term(nt);
 		Alt ntDef = new Alt(node.def);
-		ntDef.copyLocation(node.def);
+		node.def.copyLocation(ntDef);
 		
 		rules.add(new Rule(name, new AltList(ntDef)));
 
 		Item rhsSym = new ItemSymbol(node.refName, new Term(nt), node.operator);
-		rhsSym.copyLocation(node);
+		node.copyLocation(rhsSym);
 		
 		node.replaceWith(rhsSym);
 	}
