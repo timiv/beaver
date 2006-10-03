@@ -11,9 +11,11 @@ package beaver.comp;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 import beaver.SyntaxErrorException;
+import beaver.comp.parser.Grammar;
 import beaver.comp.spec.AstBuilder;
 import beaver.comp.spec.Spec;
 import beaver.comp.spec.SpecScanner;
@@ -53,6 +55,13 @@ public class Compiler
 		
 		TerminalSymbolNamesCollector termCollector = new TerminalSymbolNamesCollector(nonterminals);
 		spec.accept(termCollector);
+		Map constTokens = termCollector.getConstTokens();
+		
+		spec.accept(new InlineTokenReplacer(constTokens));
+		
+		GrammarBuilder grammarBuilder = new GrammarBuilder(constTokens.values(), termCollector.getNamedTokens(), nonterminals);
+		spec.accept(grammarBuilder);
+		Grammar grammar = grammarBuilder.getGrammar();
 	}
 	
 }

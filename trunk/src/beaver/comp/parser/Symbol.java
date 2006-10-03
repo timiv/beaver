@@ -27,6 +27,17 @@ public class Symbol
 	
 	protected Symbol(char id, String name)
 	{
+		this.id   = id;
 		this.name = name;
+	}
+	
+	public char getId()
+	{
+		return id;
+	}
+	
+	public String getName()
+	{
+		return name;
 	}
 }

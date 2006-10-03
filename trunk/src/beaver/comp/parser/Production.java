@@ -18,7 +18,7 @@ public class Production
 	/**
 	 * Next definition of LHS non-terminal.
 	 */
-	Production next;
+	public Production next;
 	
 	/**
 	 * Rule ID.
@@ -45,17 +45,25 @@ public class Production
 	 */
 	RHSElement rhs;
 	
+	public Production(char id, String name, NonTerminal lhs, RHSElement rhs)
+	{
+		this.id   = id;
+		this.lhs  = lhs;
+		this.name = name;
+		this.rhs  = rhs;
+	}
+	
 	/**
 	 * Represents an element on the RHS of a production.
 	 * 
 	 * @author Alexander Demenchuk
 	 */
-	static class RHSElement
+	public static class RHSElement
 	{
 		/**
 		 * Next element in a singly linked list of RHS elements.
 		 */
-		RHSElement next;
+		public RHSElement next;
 		
 		/**
 		 * RHS element name. This creates a reference in a semantic action callback.
@@ -65,7 +73,14 @@ public class Production
 		/**
 		 * Symbol
 		 */
-		Symbol symbol;
+		Symbol sym;
+		
+		public RHSElement(String name, Symbol sym)
+		{
+			this.name = name;
+			this.sym = sym;
+		}
 		
 	}
+	
 }

@@ -31,6 +31,11 @@ public class ItemSymbol extends Item
 		this.operator = operator;
 	}
 	
+	public ItemSymbol(Term symName)
+	{
+		this.symName = symName;
+	}
+	
 	void accept(NodeVisitor visitor)
 	{
 		visitor.visit(this);

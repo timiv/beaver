@@ -15,18 +15,24 @@ package beaver.comp.parser;
 public class Grammar
 {
 	/**
-	 * Symbols that are created by parser, i.e. when a RHS of a production is reduced to a LHS.
-	 */
-	NonTerminal[] nonterminals;
-	
-	/**
 	 * Symbols are created by a scanner and represent input tokens for the partser. 
 	 */
 	Terminal[] terminals;
 	
 	/**
-	 * LHS symbol that is created by the very first production, a.k.a. the goal of the parser.
+	 * Symbols that are created by parser, i.e. when a RHS of a production is reduced to a LHS.
 	 */
-	NonTerminal goal;
+	NonTerminal[] nonterminals;
 	
+	/**
+	 * Start of the linked list of grammar rules
+	 */
+	Production firstProd;
+	
+	public Grammar(Production firstProd, NonTerminal[] nonterms, Terminal[] terms)
+	{
+		this.firstProd = firstProd;
+		this.nonterminals = nonterms;
+		this.terminals = terms;
+	}
 }

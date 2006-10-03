@@ -38,7 +38,7 @@ public class TerminalSymbolNamesCollector extends TreeWalker
 		if ( !constTokens.containsKey(tokenText) )
 		{
 			int n = constTokens.size() + 1;
-			constTokens.put(tokenText, "CSTERM" + n);
+			constTokens.put(tokenText, "TEXT" + n);
 		}
     }
 

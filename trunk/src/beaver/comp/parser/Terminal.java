@@ -23,7 +23,7 @@ public class Terminal extends Symbol
 	/**
 	 * 'L' - left, 'R' - right, 'N' - none
 	 */
-	char accociativity;
+	char associativity;
 
 	public Terminal(char id, String name)
 	{
