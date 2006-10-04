@@ -15,9 +15,9 @@ package beaver.comp.parser;
 public class Grammar
 {
 	/**
-	 * Symbols are created by a scanner and represent input tokens for the partser. 
+	 * Start of the linked list of grammar rules
 	 */
-	Terminal[] terminals;
+	Production firstProd;
 	
 	/**
 	 * Symbols that are created by parser, i.e. when a RHS of a production is reduced to a LHS.
@@ -25,14 +25,20 @@ public class Grammar
 	NonTerminal[] nonterminals;
 	
 	/**
-	 * Start of the linked list of grammar rules
+	 * Symbols are created by a scanner and represent input tokens for the partser. 
 	 */
-	Production firstProd;
+	Terminal[] terminals;
 	
-	public Grammar(Production firstProd, NonTerminal[] nonterms, Terminal[] terms)
+	/**
+	 * Cached "error" symbol, if used by the grammar
+	 */
+	NonTerminal error;
+	
+	public Grammar(Production firstProd, NonTerminal[] nonterms, Terminal[] terms, NonTerminal error)
 	{
-		this.firstProd = firstProd;
+		this.firstProd    = firstProd;
 		this.nonterminals = nonterms;
-		this.terminals = terms;
+		this.terminals    = terms;
+		this.error        = error;
 	}
 }

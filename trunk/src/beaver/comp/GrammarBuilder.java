@@ -31,6 +31,7 @@ public class GrammarBuilder extends TreeWalker
 {
 	private Map symbols = new HashMap();
 	private int nTextTerms, nNameTerms, nNonTerms;
+	private NonTerminal error;
 	private NonTerminal prodLHS;
 	private Production firstProd;
 	private Production lastProd;
@@ -52,10 +53,15 @@ public class GrammarBuilder extends TreeWalker
 			String name = (String) i.next();
 			symbols.put(name, new Terminal(id++, name));
 		}
+		boolean hasErrorSymbol = nonterms.remove("error");
 		for (Iterator i = nonterms.iterator(); i.hasNext(); )
 		{
 			String name = (String) i.next();
 			symbols.put(name, new NonTerminal(id++, name));
+		}
+		if (hasErrorSymbol)
+		{
+			symbols.put("error", error = new NonTerminal(id, "error"));
 		}
 	
 		nTextTerms = constTerms.size();
@@ -107,7 +113,7 @@ public class GrammarBuilder extends TreeWalker
 			else
 				nonterms[sym.getId() - nTerms] = (NonTerminal) sym;
 		}
-		return new Grammar(firstProd, nonterms, terms);
+		return new Grammar(firstProd, nonterms, terms, error);
 	}
 
 }

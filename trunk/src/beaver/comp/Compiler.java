@@ -42,16 +42,20 @@ public class Compiler
 		
 		NonTerminalSymbolNamesCollector nontermCollector = new NonTerminalSymbolNamesCollector();
 		spec.accept(nontermCollector);
-		Set nonterminals =nontermCollector.getNames(); 
+		Set nonterminals = nontermCollector.getNames();
 		
 		UnreferencedNonTerminalFinder unrefNontermFinder = new UnreferencedNonTerminalFinder(nonterminals);
 		spec.accept(unrefNontermFinder);
 		Set unreferencedNames = unrefNontermFinder.getSymbolNames();
 		
-		UnusedRuleRemover ruleRemover = new UnusedRuleRemover(unreferencedNames, log);
-		spec.accept(ruleRemover);
+		spec.accept(new UnusedRuleRemover(unreferencedNames, log));
+	
+		nonterminals.removeAll(unreferencedNames);
 		
-		nonterminals.removeAll(unreferencedNames);	
+		if (nontermCollector.isErrorSymbolFound())
+		{
+			nonterminals.add("error");
+		}
 		
 		TerminalSymbolNamesCollector termCollector = new TerminalSymbolNamesCollector(nonterminals);
 		spec.accept(termCollector);
