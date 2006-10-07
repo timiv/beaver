@@ -16,11 +16,6 @@ package beaver.comp.parser;
 public class Production
 {
 	/**
-	 * Next definition of LHS non-terminal.
-	 */
-	public Production next;
-	
-	/**
 	 * Rule ID.
 	 */
 	char id;
@@ -43,14 +38,30 @@ public class Production
 	/**
 	 * First element in the list of elements that define a LHS non-terminal. 
 	 */
-	RHSElement rhs;
+	RHSElement[] rhs;
 	
-	public Production(char id, String name, NonTerminal lhs, RHSElement rhs)
+	public Production(char id, String name, NonTerminal lhs, RHSElement[] rhs)
 	{
 		this.id   = id;
 		this.lhs  = lhs;
 		this.name = name;
 		this.rhs  = rhs;
+	}
+	
+	/**
+	 * Production can match an empty string only if all its RHS symbols also
+	 * match an empty string. 
+	 * 
+	 * @return true if the production matches an empty string
+	 */
+	boolean matchesEmptyString()
+	{
+		for (int i = 0; i < rhs.length; i++)
+        {
+			if ( !rhs[i].symbol.matchesEmptyString() )
+				return false;
+        }
+		return true;
 	}
 	
 	/**
@@ -61,11 +72,6 @@ public class Production
 	public static class RHSElement
 	{
 		/**
-		 * Next element in a singly linked list of RHS elements.
-		 */
-		public RHSElement next;
-		
-		/**
 		 * RHS element name. This creates a reference in a semantic action callback.
 		 */
 		String name;
@@ -73,12 +79,12 @@ public class Production
 		/**
 		 * Symbol
 		 */
-		Symbol sym;
+		Symbol symbol;
 		
 		public RHSElement(String name, Symbol sym)
 		{
 			this.name = name;
-			this.sym = sym;
+			this.symbol = sym;
 		}
 		
 	}

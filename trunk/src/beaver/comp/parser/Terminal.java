@@ -30,4 +30,13 @@ public class Terminal extends Symbol
 		super(id, name);
 	}
 
+	/**
+	 * Terminal cannot match an empty string.
+	 * 
+	 *  @return false
+	 */
+	boolean matchesEmptyString()
+	{
+		return false;
+	}
 }

@@ -42,7 +42,7 @@ public class UnusedRuleRemover extends TreeWalker
 		if ( names.contains(rule.name.text) )
 		{
 			rules.remove(rule);
-			log.warning(rule.name, "Symbol '" + rule.name.text + "' is not used. Defining rule removed.");
+			log.warning(rule.name, "Symbol '" + rule.name.text + "' is not used. Defining rule(s) removed.");
 		}
     }	
 }

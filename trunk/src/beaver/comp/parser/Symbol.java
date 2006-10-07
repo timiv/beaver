@@ -13,7 +13,7 @@ package beaver.comp.parser;
  * 
  * @author Alexander Demenchuk
  */
-public class Symbol
+public abstract class Symbol
 {
 	/**
 	 * Symbol's ID
@@ -40,4 +40,15 @@ public class Symbol
 	{
 		return name;
 	}
+	
+	/**
+	 * Informs the caller if this symbols can match an empty string.
+	 * This method always return false for terminals. For non-terminals
+	 * result depends on whether on of their derivation rules can match
+	 * an empty string.
+	 * 
+	 * @return true if symbol can match an empty string
+	 */
+	abstract boolean matchesEmptyString();
+
 }

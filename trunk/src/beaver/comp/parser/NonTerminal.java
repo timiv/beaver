@@ -8,6 +8,9 @@
  */
 package beaver.comp.parser;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import beaver.util.BitSet;
 
 /**
@@ -18,10 +21,10 @@ import beaver.util.BitSet;
 public class NonTerminal extends Symbol
 {
 	/**
-	 * First rule/production in the list of rules where this non-terminal is a LHS. 
+	 * Productions that define rules to derive this nonterminal (where this non-terminal is a LHS). 
 	 */
-	Production def;
-	
+	Production[] derivationRules;
+
 	/**
 	 * Non-terminal is nullable if any of its productions can derive an empty string.
 	 */
@@ -38,4 +41,53 @@ public class NonTerminal extends Symbol
 		super(id, name);
 	}
 
+	void findAndSetDerivationRules(Production[] allRules)
+	{
+		Collection defs = new ArrayList();
+        for (int i = 0; i < allRules.length; i++)
+        {
+            if (allRules[i].lhs == this)
+            {
+            	defs.add(allRules[i]);
+            }
+        }
+        if (defs.size() == 0)
+        	throw new IllegalStateException("Cannot find rules to derive symbol '" + name + "'");
+		derivationRules = (Production[]) defs.toArray(new Production[defs.size()]);
+	}
+	
+	/**
+	 * Nonterminal can match an empty string only if one of its derivation rules
+	 * matches an empty string. This method returns what has been found (so far)
+	 * by calculating nullability of this nonterminal.
+	 * 
+	 * @return true if the symbol is nullable
+	 */
+	public boolean matchesEmptyString()
+	{
+		return isNullable;
+	}
+
+	/**
+	 * This method is where we find out whether the nonterminal is nullable.
+	 * 
+	 * @return true if one of derivation rules matches an ampty string
+	 */
+	boolean isAnyDerivationRuleMatchesEmptyString()
+	{
+		for (int i = 0; i < derivationRules.length; i++)
+        {
+	        if ( derivationRules[i].matchesEmptyString() )
+	        	return true;
+        }
+		return false;
+	}
+	
+	/**
+	 * Sets the flag that this nonterminal can match empty strings. 
+	 */
+	void setMatchesEmptyString()
+	{
+		isNullable = true;
+	}
 }

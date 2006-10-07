@@ -8,6 +8,7 @@
  */
 package beaver.comp;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,12 +33,10 @@ public class GrammarBuilder extends TreeWalker
 	private Map symbols = new HashMap();
 	private int nTextTerms, nNameTerms, nNonTerms;
 	private NonTerminal error;
-	private NonTerminal prodLHS;
-	private Production firstProd;
-	private Production lastProd;
+	private NonTerminal lhs;
 	private char nextProdId;
-	private Production.RHSElement firstRHSItem;
-	private Production.RHSElement lastRHSItem;
+	private Collection  productions;
+	private Collection  rhs;
 	
 	public GrammarBuilder(Collection constTerms, Collection namedTerms, Collection nonterms)
 	{
@@ -67,37 +66,41 @@ public class GrammarBuilder extends TreeWalker
 		nTextTerms = constTerms.size();
 		nNameTerms = namedTerms.size();
 		nNonTerms  = nonterms.size();
+		
+		productions = new ArrayList();
+		rhs = new ArrayList();
 	}
 
 	public void visit(Rule rule)
     {
-		prodLHS = (NonTerminal) symbols.get(rule.name.text);
+		lhs = (NonTerminal) symbols.get(rule.name.text);
 	    super.visit(rule);
     }
 
 	public void visit(Alt alt)
     {
-		firstRHSItem = lastRHSItem = null;
+		rhs.clear();
 		
 	    super.visit(alt);
 
-	    String name = alt.name != null ? prodLHS.getName() + alt.name.text : prodLHS.getName();
-	    if (lastProd == null)
-	    	lastProd = firstProd = new Production(nextProdId++, name, prodLHS, firstRHSItem);
-	    else
-	    	lastProd = lastProd.next = new Production(nextProdId++, name, prodLHS, firstRHSItem);
+	    productions.add(
+	    	new Production(
+	    		nextProdId++,
+	    		alt.name != null ? lhs.getName() + alt.name.text : lhs.getName(),
+	    		lhs,
+	    		(Production.RHSElement[]) rhs.toArray(new Production.RHSElement[rhs.size()])
+	    	)
+	    );
     }
 
 	public void visit(ItemSymbol item)
     {
-		String refName = item.refName != null ? item.refName.text : null;
-		Symbol rhsItem = (Symbol) symbols.get(item.symName.text);
-		if (rhsItem == null)
+		String ref = item.refName != null ? item.refName.text : null;
+		Symbol sym = (Symbol) symbols.get(item.symName.text);
+		if (sym == null)
 			throw new IllegalStateException("Cannot find '" + item.symName.text + "' in the symbol dictionary.");
-		if (lastRHSItem == null)
-			lastRHSItem = firstRHSItem = new Production.RHSElement(refName, rhsItem);
-		else
-			lastRHSItem = lastRHSItem.next = new Production.RHSElement(refName, rhsItem);
+		
+		rhs.add( new Production.RHSElement(ref, sym) );
     }
 	
 	public Grammar getGrammar()
@@ -113,7 +116,9 @@ public class GrammarBuilder extends TreeWalker
 			else
 				nonterms[sym.getId() - nTerms] = (NonTerminal) sym;
 		}
-		return new Grammar(firstProd, nonterms, terms, error);
+		Production[] rules = (Production[]) productions.toArray(new Production[productions.size()]);
+		
+		return new Grammar(terms, nonterms, rules, error);
 	}
 
 }
