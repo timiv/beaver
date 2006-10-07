@@ -51,8 +51,7 @@ public class Grammar
 		/*
 		 * Mark nullable nonterminals
 		 */
-		boolean marking = true;
-		while ( marking )
+		for ( boolean marking = true; marking; )
 		{
 			marking = false;
 			
@@ -60,7 +59,7 @@ public class Grammar
             {
 	            NonTerminal nt = nonterms[i];
 	            
-	            if ( !nt.matchesEmptyString() && nt.isAnyDerivationRuleMatchesEmptyString() )
+	            if ( !nt.matchesEmptyString() && nt.derivationRuleMatchesEmptyString() )
 	            {
             		nt.setMatchesEmptyString();
             		/*

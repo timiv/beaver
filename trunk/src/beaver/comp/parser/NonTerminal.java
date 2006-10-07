@@ -73,7 +73,7 @@ public class NonTerminal extends Symbol
 	 * 
 	 * @return true if one of derivation rules matches an ampty string
 	 */
-	boolean isAnyDerivationRuleMatchesEmptyString()
+	boolean derivationRuleMatchesEmptyString()
 	{
 		for (int i = 0; i < derivationRules.length; i++)
         {
