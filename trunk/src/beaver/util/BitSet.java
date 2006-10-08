@@ -139,6 +139,16 @@ public class BitSet
 	}
 	
 	/**
+	 * Returns the size of the set.
+	 * 
+	 * @return number of bits in the set
+	 */
+	public int size()
+	{
+		return num_bits;
+	}
+	
+	/**
 	 * Invokes a bit processor for each set bit in the set.
 	 *
 	 * @param proc an action implmentation to be called

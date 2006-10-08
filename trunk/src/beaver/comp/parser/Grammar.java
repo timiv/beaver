@@ -8,6 +8,8 @@
  */
 package beaver.comp.parser;
 
+import beaver.util.BitSet;
+
 
 
 /**
@@ -42,7 +44,7 @@ public class Grammar
 		this.terminals    = terms;
 		this.error        = error;
 		/*
-		 * Link nonterminals to their derivation rules.
+		 * Link nonterminals to their derivation rules
 		 */
 		for (int i = 0; i < nonterms.length; i++)
         {
@@ -71,6 +73,79 @@ public class Grammar
             		marking = true;
 	            }
             }
+		}
+		/*
+		 * Build first sets.
+		 */
+		for (int i = 0; i < nonterms.length; i++)
+        {
+			nonterms[i].firstSet = new BitSet(terms.length);
+        }
+		/*
+		 * Create first generation of first set terminals
+		 */
+		for (int i = 0; i < rules.length; i++)
+        {
+			NonTerminal             lhs = rules[i].lhs;
+			Production.RHSElement[] rhs = rules[i].rhs;
+	        
+	        for (int j = 0; j < rhs.length; j++)
+            {
+	            Production.RHSElement e = rhs[j];
+
+	            if ( e.symbol instanceof Terminal )
+	            {
+	            	lhs.firstSet.add(e.symbol.id);
+	            }
+	            else
+	            {
+		            NonTerminal nt = (NonTerminal) e.symbol;
+		            if ( nt != lhs )
+		            {
+		            	lhs.firstSet.add(nt.firstSet);
+		            }
+	            }
+	            
+	            if ( !e.symbol.matchesEmptyString() )
+	            {
+	            	break;
+	            }
+            }
+        }
+		/*
+		 * Keep adding terminals from leading nonterminals
+		 */
+		for (boolean adding = true; adding; )
+		{
+			adding = false;
+			
+			for (int i = 0; i < rules.length; i++)
+	        {
+				NonTerminal             lhs = rules[i].lhs;
+				Production.RHSElement[] rhs = rules[i].rhs;
+		        
+		        for (int j = 0; j < rhs.length; j++)
+	            {
+		            Production.RHSElement e = rhs[j];
+
+		            if ( e.symbol instanceof NonTerminal )
+		            {
+			            NonTerminal nt = (NonTerminal) e.symbol;
+			            if ( nt != lhs )
+			            {
+			            	if ( lhs.firstSet.add(nt.firstSet) )
+			            	{
+			            		adding = true;
+			            	}
+			            }
+		            }
+		            
+		            if ( !e.symbol.matchesEmptyString() )
+		            {
+		            	break;
+		            }
+	            }
+	        }
 		}
 	}
 
