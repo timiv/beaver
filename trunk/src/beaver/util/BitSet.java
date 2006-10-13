@@ -86,7 +86,7 @@ public class BitSet
 	public boolean add(BitSet another_set)
 	{
 		boolean new_bits_added = false;
-		if (another_set.num_bits > 0)
+		if (another_set != null && another_set.num_bits > 0)
 		{
 			if (another_set.lb < this.lb || this.ub < another_set.ub)
 			{

@@ -21,13 +21,13 @@ import beaver.comp.spec.TreeWalker;
  * @author Alexander Demenchuk
  *
  */
-public class TerminalSymbolNamesCollector extends TreeWalker
+public class TerminalCollector extends TreeWalker
 {
 	private Map constTokens = new HashMap();
 	private Set namedTokens = new HashSet();
 	private Set nonterminalNames;
 	
-	public TerminalSymbolNamesCollector(Set nonterminalNames)
+	public TerminalCollector(Set nonterminalNames)
 	{
 		this.nonterminalNames = nonterminalNames;
 	}

@@ -35,29 +35,36 @@ public class Compiler
 	
 	public void compile(File src) throws IOException, SyntaxErrorException
 	{
-		Spec spec = (Spec) new AstBuilder().parse(new SpecScanner(new FileReader(src)));
+		compileGrammar(src);
+	}
+
+    Grammar compileGrammar(File src) throws IOException, SyntaxErrorException
+    {
+	    Spec spec = (Spec) new AstBuilder().parse(new SpecScanner(new FileReader(src)));
 		spec.accept(new InlineRulesExtractor());
 		spec.accept(new EbnfOperatorCompiler());
 		spec.accept(new InlineStringExractor());
 		
-		NonTerminalSymbolNamesCollector nontermCollector = new NonTerminalSymbolNamesCollector();
+		NonTerminalCollector nontermCollector = new NonTerminalCollector(log);
 		spec.accept(nontermCollector);
 		Set nonterminals = nontermCollector.getNames();
+		/*
+		 * Inject the 'error' nonterminal without a definition
+		 */
+		nonterminals.add("error");
 		
 		UnreferencedNonTerminalFinder unrefNontermFinder = new UnreferencedNonTerminalFinder(nonterminals);
 		spec.accept(unrefNontermFinder);
 		Set unreferencedNames = unrefNontermFinder.getSymbolNames();
 		
+		if ( unreferencedNames.remove("error") ) // because there is no rule for it to remove
+		{
+			nonterminals.remove("error");
+		}
 		spec.accept(new UnusedRuleRemover(unreferencedNames, log));
-	
 		nonterminals.removeAll(unreferencedNames);
 		
-		if (nontermCollector.isErrorSymbolFound())
-		{
-			nonterminals.add("error");
-		}
-		
-		TerminalSymbolNamesCollector termCollector = new TerminalSymbolNamesCollector(nonterminals);
+		TerminalCollector termCollector = new TerminalCollector(nonterminals);
 		spec.accept(termCollector);
 		Map constTokens = termCollector.getConstTokens();
 		
@@ -65,7 +72,7 @@ public class Compiler
 		
 		GrammarBuilder grammarBuilder = new GrammarBuilder(constTokens.values(), termCollector.getNamedTokens(), nonterminals);
 		spec.accept(grammarBuilder);
-		Grammar grammar = grammarBuilder.getGrammar();
-	}
+		return grammarBuilder.getGrammar();
+    }
 	
 }

@@ -33,16 +33,16 @@ public class Grammar
 	Production[] productions;
 	
 	/**
-	 * Cached "error" symbol, if used by the grammar
+	 * "error" symbol, if used by the grammar
 	 */
 	NonTerminal error;
 	
-	public Grammar(Terminal[] terms, NonTerminal[] nonterms, Production[] rules, NonTerminal error)
+	public Grammar(Terminal[] terms, NonTerminal[] nonterms, Production[] rules, NonTerminal err)
 	{
 		this.productions  = rules;
 		this.nonterminals = nonterms;
 		this.terminals    = terms;
-		this.error        = error;
+		this.error        = err;
 		/*
 		 * Link nonterminals to their derivation rules
 		 */

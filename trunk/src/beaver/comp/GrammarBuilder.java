@@ -31,8 +31,7 @@ import beaver.comp.spec.TreeWalker;
 public class GrammarBuilder extends TreeWalker
 {
 	private Map symbols = new HashMap();
-	private int nTextTerms, nNameTerms, nNonTerms;
-	private NonTerminal error;
+	private int numTerms, numNonTerms;
 	private NonTerminal lhs;
 	private char nextProdId;
 	private Collection  productions;
@@ -52,20 +51,20 @@ public class GrammarBuilder extends TreeWalker
 			String name = (String) i.next();
 			symbols.put(name, new Terminal(id++, name));
 		}
+		numTerms = id;
+		
 		boolean hasErrorSymbol = nonterms.remove("error");
 		for (Iterator i = nonterms.iterator(); i.hasNext(); )
 		{
 			String name = (String) i.next();
 			symbols.put(name, new NonTerminal(id++, name));
 		}
+		numNonTerms = id - numTerms;
+
 		if (hasErrorSymbol)
 		{
-			symbols.put("error", error = new NonTerminal(id, "error"));
+			symbols.put("error", new NonTerminal(id, "error"));
 		}
-	
-		nTextTerms = constTerms.size();
-		nNameTerms = namedTerms.size();
-		nNonTerms  = nonterms.size();
 		
 		productions = new ArrayList();
 		rhs = new ArrayList();
@@ -105,20 +104,24 @@ public class GrammarBuilder extends TreeWalker
 	
 	public Grammar getGrammar()
 	{
-		int nTerms = 1 + nTextTerms + nNameTerms;
-		Terminal[] terms = new Terminal[nTerms];
-		NonTerminal[] nonterms = new NonTerminal[nNonTerms];
+		Terminal[]       terms = new Terminal[numTerms];
+		NonTerminal[] nonterms = new NonTerminal[numNonTerms];
+		
+		NonTerminal err = (NonTerminal) symbols.remove("error");
+		
 		for (Iterator i = symbols.values().iterator(); i.hasNext(); )
 		{
 			Symbol sym = (Symbol) i.next();
+			
 			if (sym instanceof Terminal)
 				terms[sym.getId()] = (Terminal) sym;
 			else
-				nonterms[sym.getId() - nTerms] = (NonTerminal) sym;
+				nonterms[sym.getId() - numTerms] = (NonTerminal) sym;
 		}
+
 		Production[] rules = (Production[]) productions.toArray(new Production[productions.size()]);
 		
-		return new Grammar(terms, nonterms, rules, error);
+		return new Grammar(terms, nonterms, rules, err);
 	}
 
 }

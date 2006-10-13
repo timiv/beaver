@@ -11,39 +11,48 @@ package beaver.comp;
 import java.util.HashSet;
 import java.util.Set;
 
-import beaver.comp.spec.ItemSymbol;
 import beaver.comp.spec.Rule;
+import beaver.comp.spec.RuleList;
+import beaver.comp.spec.Spec;
 import beaver.comp.spec.TreeWalker;
 
 /**
  * @author Alexander Demenchuk
  *
  */
-public class NonTerminalSymbolNamesCollector extends TreeWalker
+public class NonTerminalCollector extends TreeWalker
 {
 	private Set names = new HashSet();
-	private boolean errorSymbolFound;
+	private RuleList rules;
+	private Log log;
+
+	public NonTerminalCollector(Log log)
+	{
+		this.log = log;
+	}
+	
+	public void visit(Spec node)
+    {
+		rules = node.rules;
+	    super.visit(node);
+    }
 
 	public void visit(Rule rule)
     {
-		names.add(rule.name.text);
-    }
-	
-	public void visit(ItemSymbol node)
-    {
-		if ( !errorSymbolFound && node.symName.text.equals("error"))
+		if ( rule.name.text.equals("error") )
 		{
-			errorSymbolFound = true;
+			log.error(rule.name, "Reserved rule is declared explicitly. Removed to continue.");
+			rules.remove(rule);
+		}
+		else
+		{
+			names.add(rule.name.text);
 		}
     }
-
-	Set getNames()
+	
+	public Set getNames()
 	{
 		return names;
 	}
 	
-	boolean isErrorSymbolFound()
-	{
-		return errorSymbolFound;
-	}
 }
