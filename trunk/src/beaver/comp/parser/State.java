@@ -59,7 +59,7 @@ public class State
 		
 		public State createStates(Grammar grammar)
 		{
-			NonTerminal goal      = grammar.productions[0].lhs;
+			NonTerminal goal      = grammar.goal;
 			Terminal[]  terminals = grammar.terminals;
 			
 			for (int i = 0; i < goal.derivationRules.length; i++)

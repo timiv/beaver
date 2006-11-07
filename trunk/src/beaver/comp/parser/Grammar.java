@@ -33,6 +33,11 @@ public class Grammar
 	Production[] productions;
 	
 	/**
+	 * "goal" symbol
+	 */
+	NonTerminal goal;
+	
+	/**
 	 * "error" symbol, if used by the grammar
 	 */
 	NonTerminal error;
@@ -43,6 +48,7 @@ public class Grammar
 		this.nonterminals = nonterms;
 		this.terminals    = terms;
 		this.error        = err;
+		
 		/*
 		 * Link nonterminals to their derivation rules
 		 */
@@ -52,10 +58,43 @@ public class Grammar
         }
 
 		/*
-		 * "error" nonterminal in "defined" implicitly, i.e.
+		 * "error" nonterminal is "defined" implicitly, i.e.
 		 * there are no explicit rules
 		 */
-		err.derivationRules = new Production[0];
+		error.derivationRules = new Production[0];
+		
+		this.goal = rules[0].lhs; 
+		/*
+		 * Augment grammar if needed
+		 */
+		if ( goal.derivationRules.length > 1 )
+		{
+			char goalId = error.id++;
+			
+			NonTerminal newGoal = new NonTerminal(goalId, "GoalAs" + goal.name);
+			
+			char goalRuleId = (char) rules.length;
+			Production goalRule = new Production(goalRuleId, newGoal.name, newGoal, new Production.RHSElement[] { new Production.RHSElement(null, goal) });
+			
+			newGoal.derivationRules = new Production[] { goalRule };
+			
+			/*
+			 * Add new symbol and new rule to the mix
+			 */
+			nonterminals = new NonTerminal[nonterms.length + 1];
+			System.arraycopy(nonterms, 0, nonterminals, 0, nonterms.length);
+			nonterminals[nonterms.length] = newGoal;
+			
+			nonterms = nonterminals;
+			
+			productions = new Production[rules.length + 1];
+			System.arraycopy(rules, 0, productions, 0, rules.length);
+			productions[rules.length] = goalRule;
+			
+			rules = productions;
+
+			goal = newGoal;
+		}
 		
 		/*
 		 * Mark nullable nonterminals
