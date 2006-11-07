@@ -63,15 +63,12 @@ public class State
 							reduceActions.remove(reduce);
 							continue;
 						}
-						else if (remove == shift)
+						if (remove == shift)
 						{
 							shiftActions.remove(shift);
 							break;
 						}
-						else
-						{
-							System.out.println("SR conflict");
-						}
+						System.out.println("SR conflict");
 					}
 				}
 			}
@@ -89,15 +86,12 @@ public class State
 						reduceActions.remove(reduce2);
 						continue;
 					}
-					else if (remove == reduce1)
+					if (remove == reduce1)
 					{
 						reduceActions.remove(reduce1);
 						break;
 					}
-					else
-					{
-						System.out.println("RR conflict");
-					}
+					System.out.println("RR conflict");
 				}
 			}
 		}
@@ -106,12 +100,35 @@ public class State
 
 	private Action resolveConflict(Action.Shift shift, Action.Reduce reduce)
 	{
-		
+		if ( shift.lookahead instanceof Terminal )
+		{
+			Terminal shiftLookahead = (Terminal) shift.lookahead; 
+			
+			if ( shiftLookahead.precedence > reduce.prod.precedence )
+				return reduce;
+
+			if ( reduce.prod.precedence > shiftLookahead.precedence )
+				return shift;
+			
+			switch ( shiftLookahead.associativity )
+			{
+				case 'L':
+					return shift;
+					
+				case 'R':
+					return reduce;
+			}
+		}
 		return null;
 	}
 
 	private Action resolveConflict(Action.Reduce reduce1, Action.Reduce reduce2)
 	{
+		if ( reduce1.prod.precedence > reduce2.prod.precedence )
+			return reduce2;
+		
+		if ( reduce2.prod.precedence > reduce1.prod.precedence )
+			return reduce1;
 		
 		return null;
 	}
