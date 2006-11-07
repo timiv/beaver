@@ -39,4 +39,6 @@ public class Terminal extends Symbol
 	{
 		return false;
 	}
+	
+	public static final Terminal EOF = new Terminal((char) 0, "$");
 }

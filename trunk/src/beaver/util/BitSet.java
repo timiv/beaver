@@ -149,6 +149,17 @@ public class BitSet
 	}
 	
 	/**
+	 * Returns the capacity of the set, i.e. the number of bit that'll fit in
+	 * without reallocation.
+	 * 
+	 * @return capacity of the set (in bits)
+	 */
+	public int capacity()
+	{
+		return bit_bags.length * 32;
+	}
+	
+	/**
 	 * Invokes a bit processor for each set bit in the set.
 	 *
 	 * @param proc an action implmentation to be called

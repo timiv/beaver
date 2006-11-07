@@ -52,11 +52,6 @@ public class ParsingTables
 	 */
 	int[] ruleDefs;
 	
-	/**
-	 * Number of RHS elements in the longest production.
-	 */
-	int maxRhsLength;
-	
 	/** 
 	 * Number of terminals
 	 */
@@ -185,7 +180,6 @@ public class ParsingTables
 		terminalOffsets    = new int[n]; for (int i = 0; i < n; i++) { terminalOffsets[i] = is.readInt(); }
 		nonTerminalOffsets = new int[n]; for (int i = 0; i < n; i++) { nonTerminalOffsets[i] = is.readInt(); }
 
-		int maxRhsLen = 0; 
 		int minSymId = 0xffff;
 		n = is.readShort();
 		ruleDefs = new int[n];
@@ -198,15 +192,8 @@ public class ParsingTables
 			{
 				minSymId = symId;
 			}
-			
-			int rhsLen = ruleDefs[i] & 0xffff;
-			if (maxRhsLen < rhsLen)
-			{
-				maxRhsLen = rhsLen;
-			}
 		}
 		numTerminals = minSymId;
-		maxRhsLength = maxRhsLen;
 
 		firstTerminalWithValueId = (char) is.readUnsignedShort();
 		errorSymbolId = (char) is.readUnsignedShort();

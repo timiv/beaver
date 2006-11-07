@@ -90,41 +90,5 @@ public class NonTerminal extends Symbol
 	{
 		isNullable = true;
 	}
-	
-	/**
-	 * The first set of a nonterminal is the set of all terminal symbols that could appear
-	 * at the beginning of a string derived from that nonterminal.
-	 * 
-	 * @param maxSize is the number of terminals in a grammar
-	 */
-	void buildFirstSet(int maxSize)
-	{
-		firstSet = new BitSet(maxSize);
-		
-		for (int i = 0; i < derivationRules.length; i++)
-        {
-			Production p = derivationRules[i];
-	        for (int j = 0; j < p.rhs.length; j++)
-            {
-	            Production.RHSElement e = p.rhs[j];
-	            if ( e.symbol instanceof Terminal )
-	            {
-	            	firstSet.add(e.symbol.id);
-	            	break;
-	            }
-	            
-	            NonTerminal nt = (NonTerminal) e.symbol;
-	            if ( nt != this && nt.firstSet != null )
-	            {
-	            	firstSet.add(nt.firstSet);
-	            }
-	            if ( !nt.isNullable )
-	            {
-	            	break;
-	            }
-            }
-        }
-		
-		
-	}
+
 }

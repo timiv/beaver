@@ -50,6 +50,13 @@ public class Grammar
         {
 	        nonterms[i].findAndSetDerivationRules(rules);
         }
+
+		/*
+		 * "error" nonterminal in "defined" implicitly, i.e.
+		 * there are no explicit rules
+		 */
+		err.derivationRules = new Production[0];
+		
 		/*
 		 * Mark nullable nonterminals
 		 */
@@ -76,12 +83,16 @@ public class Grammar
 		}
 		/*
 		 * Build first sets.
+		 * Phase 0: setup
 		 */
 		for (int i = 0; i < nonterms.length; i++)
         {
 			nonterms[i].firstSet = new BitSet(terms.length);
         }
+		err.firstSet = new BitSet(terms.length);
+		
 		/*
+		 * First Sets Phase 1:
 		 * Create first generation of first set terminals
 		 */
 		for (int i = 0; i < rules.length; i++)
@@ -113,6 +124,7 @@ public class Grammar
             }
         }
 		/*
+		 * First Sets Phase 2:
 		 * Keep adding terminals from leading nonterminals
 		 */
 		for (boolean adding = true; adding; )

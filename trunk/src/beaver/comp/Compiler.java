@@ -16,6 +16,7 @@ import java.util.Set;
 
 import beaver.SyntaxErrorException;
 import beaver.comp.parser.Grammar;
+import beaver.comp.parser.State;
 import beaver.comp.spec.AstBuilder;
 import beaver.comp.spec.Spec;
 import beaver.comp.spec.SpecScanner;
@@ -35,7 +36,8 @@ public class Compiler
 	
 	public void compile(File src) throws IOException, SyntaxErrorException
 	{
-		compileGrammar(src);
+		Grammar  grammar = compileGrammar(src);
+		State firstState = new State.Builder().createStates(grammar);
 	}
 
     Grammar compileGrammar(File src) throws IOException, SyntaxErrorException
@@ -74,5 +76,5 @@ public class Compiler
 		spec.accept(grammarBuilder);
 		return grammarBuilder.getGrammar();
     }
-	
+    
 }

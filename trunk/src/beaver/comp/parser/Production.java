@@ -64,6 +64,18 @@ public class Production
 		return true;
 	}
 	
+	public String toString()
+	{
+		StringBuffer text = new StringBuffer();
+		text.append(lhs.name)
+			.append(" =");
+		for (int i = 0; i < rhs.length; i++)
+        {
+			text.append(' ').append(rhs[i].symbol.name);
+        }
+		return text.toString();
+	}
+	
 	/**
 	 * Represents an element on the RHS of a production.
 	 * 
