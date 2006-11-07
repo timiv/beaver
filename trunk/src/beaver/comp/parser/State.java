@@ -59,9 +59,15 @@ public class State
 					{
 						Action remove = resolveConflict((Action.Shift) shift, (Action.Reduce) reduce);
 						if (remove == reduce)
+						{
+							reduceActions.remove(reduce);
 							continue;
+						}
 						else if (remove == shift)
+						{
+							shiftActions.remove(shift);
 							break;
+						}
 						else
 						{
 							System.out.println("SR conflict");
@@ -79,9 +85,15 @@ public class State
 				{
 					Action remove = resolveConflict((Action.Reduce) reduce1, (Action.Reduce) reduce2);
 					if (remove == reduce2)
+					{
+						reduceActions.remove(reduce2);
 						continue;
+					}
 					else if (remove == reduce1)
+					{
+						reduceActions.remove(reduce1);
 						break;
+					}
 					else
 					{
 						System.out.println("RR conflict");
