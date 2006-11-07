@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import beaver.SyntaxErrorException;
+import beaver.comp.parser.Action;
 import beaver.comp.parser.Grammar;
 import beaver.comp.parser.State;
 import beaver.comp.spec.AstBuilder;
@@ -34,10 +35,16 @@ public class Compiler
 		this.log = log;
 	}
 	
-	public void compile(File src) throws IOException, SyntaxErrorException
+	public void compile(File src) throws IOException, SyntaxErrorException, CompilationException
 	{
 		Grammar  grammar = compileGrammar(src);
 		State firstState = new State.Builder().createStates(grammar);
+		
+		Action.ConflictResolver conflictResolver = new Action.ConflictResolver();
+		if ( !conflictResolver.resolveConflicts(firstState) )
+		{
+			throw new CompilationException("there are conflicts");
+		}
 	}
 
     Grammar compileGrammar(File src) throws IOException, SyntaxErrorException
@@ -76,5 +83,4 @@ public class Compiler
 		spec.accept(grammarBuilder);
 		return grammarBuilder.getGrammar();
     }
-    
 }

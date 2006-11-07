@@ -44,95 +44,6 @@ public class State
 		reduceActions.add(act);
 	}
 
-	void resolveActionConflicts()
-	{
-		if (reduceActions == null)
-			return;
-		
-		if (shiftActions != null)
-		{
-			for ( Action shift = shiftActions.getFirstAction(); shift != null; shift = shiftActions.next(shift) )
-			{
-				for ( Action reduce = reduceActions.getFirstAction(); reduce != null; reduce = reduceActions.next(reduce) )
-				{
-					if ( shift.lookahead == reduce.lookahead )
-					{
-						Action remove = resolveConflict((Action.Shift) shift, (Action.Reduce) reduce);
-						if (remove == reduce)
-						{
-							reduceActions.remove(reduce);
-							continue;
-						}
-						if (remove == shift)
-						{
-							shiftActions.remove(shift);
-							break;
-						}
-						System.out.println("SR conflict");
-					}
-				}
-			}
-		}
-		
-		for ( Action reduce1 = reduceActions.getFirstAction(); reduce1 != null; reduce1 = reduceActions.next(reduce1) )
-		{
-			for ( Action reduce2 = reduceActions.next(reduce1); reduce2 != null; reduce2 = reduceActions.next(reduce2) )
-			{
-				if ( reduce1.lookahead == reduce2.lookahead )
-				{
-					Action remove = resolveConflict((Action.Reduce) reduce1, (Action.Reduce) reduce2);
-					if (remove == reduce2)
-					{
-						reduceActions.remove(reduce2);
-						continue;
-					}
-					if (remove == reduce1)
-					{
-						reduceActions.remove(reduce1);
-						break;
-					}
-					System.out.println("RR conflict");
-				}
-			}
-		}
-		
-	}
-
-	private Action resolveConflict(Action.Shift shift, Action.Reduce reduce)
-	{
-		if ( shift.lookahead instanceof Terminal )
-		{
-			Terminal shiftLookahead = (Terminal) shift.lookahead; 
-			
-			if ( shiftLookahead.precedence > reduce.prod.precedence )
-				return reduce;
-
-			if ( reduce.prod.precedence > shiftLookahead.precedence )
-				return shift;
-			
-			switch ( shiftLookahead.associativity )
-			{
-				case 'L':
-					return shift;
-					
-				case 'R':
-					return reduce;
-			}
-		}
-		return null;
-	}
-
-	private Action resolveConflict(Action.Reduce reduce1, Action.Reduce reduce2)
-	{
-		if ( reduce1.prod.precedence > reduce2.prod.precedence )
-			return reduce2;
-		
-		if ( reduce2.prod.precedence > reduce1.prod.precedence )
-			return reduce1;
-		
-		return null;
-	}
-	
 	public String toString()
 	{
 		StringBuffer text = new StringBuffer();
@@ -164,7 +75,6 @@ public class State
 			}
 			findLookaheads(firstState);
 			buildReduceActions(firstState, terminals);
-			resolveConflicts(firstState);
 			
 			return firstState;
 		}
@@ -253,14 +163,6 @@ public class State
 						item.accept(reduceActionBuilder);
 					}
 				}
-			}
-		}
-		
-		private static void resolveConflicts(State firstState)
-		{
-			for ( State state = firstState; state != null; state = state.next )
-			{
-				state.resolveActionConflicts();
 			}
 		}
 	}
