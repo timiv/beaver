@@ -21,6 +21,7 @@ import beaver.comp.parser.State;
 import beaver.comp.spec.AstBuilder;
 import beaver.comp.spec.Spec;
 import beaver.comp.spec.SpecScanner;
+import beaver.util.BitSet;
 
 /**
  * @author Alexander Demenchuk
@@ -44,6 +45,11 @@ public class Compiler
 		if ( !conflictResolver.resolveConflicts(firstState) )
 		{
 			throw new CompilationException("there are conflicts");
+		}
+		BitSet unreducibleProductions = grammar.findUnreducibleProductions(firstState);
+		if (unreducibleProductions.size() != 0)
+		{
+			throw new CompilationException("grammar has unreducible productions");
 		}
 	}
 
@@ -83,4 +89,5 @@ public class Compiler
 		spec.accept(grammarBuilder);
 		return grammarBuilder.getGrammar();
     }
+    
 }

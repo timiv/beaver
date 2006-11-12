@@ -47,6 +47,59 @@ public class BitSet
 	}
 	
 	/**
+	 * Adds all bits from the specified range to the set
+	 * 
+	 * @param lb lower bound
+	 * @param ub upper bound
+	 */
+	public void add(int lb, int ub)
+	{
+		if (num_bits == 0)
+		{
+			add(lb++);
+		}
+		int first_bit_bag_index = getBitBagIndex(lb);
+		int last_bit = ub - 1;
+		int last_bit_bag_index = getBitBagIndex(last_bit);
+		if (first_bit_bag_index == last_bit_bag_index)
+		{
+			int mask = 1 << (lb & 31);
+			int last_bit_mask = 1 << (last_bit & 31);
+			int setmask = last_bit_mask;
+			while (mask != last_bit_mask)
+			{
+				setmask |= mask;
+				mask <<= 1; 
+			}
+			int num_old_bits = countBits(bit_bags[first_bit_bag_index]);
+			bit_bags[first_bit_bag_index] |= setmask;
+			int num_new_bits = countBits(bit_bags[first_bit_bag_index]);
+			num_bits += num_new_bits - num_old_bits;
+		}
+		else
+		{
+			int num_old_bits = countBits(bit_bags[first_bit_bag_index]);
+			int mask = 0x80000000 >> (31 - (lb & 31));
+			bit_bags[first_bit_bag_index] |= mask;
+			int num_new_bits = countBits(bit_bags[first_bit_bag_index]);
+			num_bits += num_new_bits - num_old_bits;
+			
+			for (int i = first_bit_bag_index + 1; i < last_bit_bag_index; i++)
+			{
+				num_old_bits = countBits(bit_bags[i]);
+				bit_bags[i] = -1;
+				num_bits += 32 - num_old_bits; 
+			}
+			
+			num_old_bits = countBits(bit_bags[last_bit_bag_index]);
+			mask = ~((last_bit & 31) == 31 ? 0 : 0x80000000 >> (30 - (last_bit & 31)));
+			bit_bags[last_bit_bag_index] |= mask;
+			num_new_bits = countBits(bit_bags[last_bit_bag_index]);
+			num_bits += num_new_bits - num_old_bits;
+		}
+	}
+	
+	/**
 	 * Sets a single bit in the set to 0 
 	 * 
 	 * @param i bit number to be removed from the set
@@ -76,7 +129,7 @@ public class BitSet
 		lb = ub = 0;
 		Arrays.fill(bit_bags, 0);
 	}
-
+	
 	/**
 	 * Adds every element of another set to this set.
 	 *

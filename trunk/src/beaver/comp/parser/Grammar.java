@@ -200,4 +200,20 @@ public class Grammar
 		}
 	}
 
+	public BitSet findUnreducibleProductions(State firstState)
+	{
+		BitSet set = new BitSet(productions.length);
+		set.add(0, productions.length);
+		for (State st = firstState; st != null; st = st.next)
+		{
+			if (st.reduceActions != null)
+			{
+				for (Action.Reduce act = (Action.Reduce) st.reduceActions.getFirstAction(); act != null; act = (Action.Reduce) st.reduceActions.next(act) )
+				{
+					set.erase(act.prod.id);
+				}
+			}
+		}
+		return set;
+	}
 }
