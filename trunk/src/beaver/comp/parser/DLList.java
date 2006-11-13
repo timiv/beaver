@@ -42,6 +42,11 @@ class DLList
 		length--;
 	}
 	
+	int length()
+	{
+		return length;
+	}
+	
 	Element getFirstElement()
 	{
 		return root.next;

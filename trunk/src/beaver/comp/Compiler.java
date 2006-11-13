@@ -51,6 +51,7 @@ public class Compiler
 		{
 			throw new CompilationException("grammar has unreducible productions");
 		}
+		new Action.Compressor(grammar).compress(firstState);
 	}
 
     Grammar compileGrammar(File src) throws IOException, SyntaxErrorException

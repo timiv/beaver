@@ -9,6 +9,8 @@
 
 package beaver.comp.parser;
 
+import java.util.Arrays;
+
 import beaver.util.BitSet;
 
 /**
@@ -61,6 +63,7 @@ public abstract class Action extends DLList.Element
 	static class Reduce extends Action
 	{
 		Production prod;
+		boolean defaultAction;
 		
 		Reduce(Symbol lookahead, Production prod)
 		{
@@ -208,6 +211,53 @@ public abstract class Action extends DLList.Element
 				return reduce1;
 			
 			return null;
+		}
+	}
+
+	public static class Compressor
+	{
+		private int[] counters;
+		private int numSymbols;
+		
+		public Compressor(Grammar grammar)
+		{
+			counters = new int[grammar.productions.length];
+			numSymbols = grammar.terminals.length + grammar.nonterminals.length + 1;
+		}
+		
+		public void compress(State firstState)
+		{
+			for ( State st = firstState; st != null; st = st.next )
+			{
+				if ( st.reduceActions != null && st.reduceActions.length() > 1 )
+				{
+					Arrays.fill(counters, 0);
+					int maxCount = 0;
+					Production defaultRule = null;
+					for (Action.Reduce act = (Action.Reduce) st.reduceActions.getFirstAction(); act != null; act = (Action.Reduce) st.reduceActions.next(act) )
+					{
+						int c = ++counters[act.prod.id];
+						if ( maxCount < c )
+						{
+							maxCount = c;
+							defaultRule = act.prod;
+						}
+					}
+					if ( maxCount > 1 )
+					{
+						st.defaultReduceRule = defaultRule;
+						st.defaultReduceLookaheads = new BitSet(numSymbols);
+						for (Action.Reduce act = (Action.Reduce) st.reduceActions.getFirstAction(); act != null; act = (Action.Reduce) st.reduceActions.next(act) )
+						{
+							if ( act.prod == defaultRule )
+							{
+								act.defaultAction = true;
+								st.defaultReduceLookaheads.add(act.lookahead.id);
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }

@@ -12,17 +12,21 @@ package beaver.comp.parser;
 import java.util.HashMap;
 import java.util.Map;
 
+import beaver.util.BitSet;
+
 /**
  * @author Alexander Demenchuk
  *
  */
 public class State
 {
-	State       next;
-	int         id;
-	ItemSet     config;
-	Action.List shiftActions;
-	Action.List reduceActions;
+	State         next;
+	int           id;
+	ItemSet       config;
+	Action.List   shiftActions;
+	Action.List   reduceActions;
+	Production    defaultReduceRule;
+	BitSet        defaultReduceLookaheads;
 	
 	State(int id, ItemSet core)
 	{
