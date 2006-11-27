@@ -9,13 +9,14 @@
 package beaver.comp.spec;
 
 import beaver.Location;
+import beaver.util.IList;
 
 /**
  * Base class for all tree elements.
  * 
  * @author Alexander Demenchuk
  */
-public class Node extends ListElement implements Location
+public class Node extends IList.Element implements Location
 {
 	/**
 	 * A line where the first character of the symbol is found.

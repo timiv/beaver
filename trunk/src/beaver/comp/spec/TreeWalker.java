@@ -17,10 +17,9 @@ public class TreeWalker extends NodeVisitor
 
 	public void visit(Spec node)
 	{
-		RuleList list = node.rules;
-		if (list != null)
+		if (node.rules != null)
 		{
-			for (Rule i = list.first(); i != null; i = list.next(i))
+			for (Rule i = (Rule) node.rules.first(); i != null; i = (Rule) i.next())
 			{
 				i.accept(this);
 			}
@@ -29,10 +28,9 @@ public class TreeWalker extends NodeVisitor
 
 	public void visit(Rule node)
 	{
-		AltList list = node.alts;
-		if (list != null)
+		if (node.alts != null)
 		{
-			for (Alt i = list.first(); i != null; i = list.next(i))
+			for (Alt i = (Alt) node.alts.first(); i != null; i = (Alt) i.next())
 			{
 				i.accept(this);
 			}
@@ -41,10 +39,9 @@ public class TreeWalker extends NodeVisitor
 
 	public void visit(Alt node)
 	{
-		ItemList list = node.def;
-		if (list != null)
+		if (node.def != null)
 		{
-			for (Item i = list.first(); i != null; i = list.next(i))
+			for (Item i = (Item) node.def.first(); i != null; i = (Item) i.next())
 			{
 				i.accept(this);
 			}
@@ -53,10 +50,9 @@ public class TreeWalker extends NodeVisitor
 
 	public void visit(ItemInline node)
 	{
-		ItemList list = node.def;
-		if (list != null)
+		if (node.def != null)
 		{
-			for (Item i = list.first(); i != null; i = list.next(i))
+			for (Item i = (Item) node.def.first(); i != null; i = (Item) i.next())
 			{
 				i.accept(this);
 			}

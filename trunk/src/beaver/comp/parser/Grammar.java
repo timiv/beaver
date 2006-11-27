@@ -208,7 +208,7 @@ public class Grammar
 		{
 			if (st.reduceActions != null)
 			{
-				for (Action.Reduce act = (Action.Reduce) st.reduceActions.getFirstAction(); act != null; act = (Action.Reduce) st.reduceActions.next(act) )
+				for ( Action.Reduce act = (Action.Reduce) st.reduceActions.first(); act != null; act = (Action.Reduce) act.next() )
 				{
 					set.erase(act.prod.id);
 				}

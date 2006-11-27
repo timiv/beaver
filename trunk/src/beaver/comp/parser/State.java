@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import beaver.util.BitSet;
+import beaver.util.DList;
+import beaver.util.IList;
 
 /**
  * @author Alexander Demenchuk
@@ -20,13 +22,13 @@ import beaver.util.BitSet;
  */
 public class State
 {
-	State         next;
-	int           id;
-	ItemSet       config;
-	Action.List   shiftActions;
-	Action.List   reduceActions;
-	Production    defaultReduceRule;
-	BitSet        defaultReduceLookaheads;
+	State       next;
+	int         id;
+	ItemSet     config;
+	IList   	shiftActions;
+	IList     	reduceActions;
+	Production  defaultReduceRule;
+	BitSet      defaultReduceLookaheads;
 	
 	State(int id, ItemSet core)
 	{
@@ -37,14 +39,14 @@ public class State
 	void add(Action.Shift act)
 	{
 		if ( shiftActions == null )
-			shiftActions = new Action.List();
+			shiftActions = new DList();
 		shiftActions.add(act);
 	}
 	
 	void add(Action.Reduce act)
 	{
 		if ( reduceActions == null )
-			reduceActions = new Action.List();
+			reduceActions = new DList();
 		reduceActions.add(act);
 	}
 

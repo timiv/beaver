@@ -28,14 +28,4 @@ public class AltList extends NodeList
 	{
 		return (AltList) super.add(alt);
 	}
-	
-	public Alt first()
-	{
-		return super.root.next != super.root ? (Alt) super.root.next : null;
-	}
-	
-	public Alt next(Alt i)
-	{
-		return i.next != super.root ? (Alt) i.next : null;
-	}
 }

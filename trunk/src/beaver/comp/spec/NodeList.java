@@ -8,53 +8,57 @@
  */
 package beaver.comp.spec;
 
+import beaver.util.DList;
+import beaver.util.IList;
+
 /**
  * List of nodes.
  *  
  * @author Alexander Demenchuk
  */
-public class NodeList extends Node
+public class NodeList extends Node implements IList
 {
-	protected final ListElement root = new ListElement();
-	private int length;
+	protected final DList elements;
 	
 	protected NodeList()
 	{
-		root.next = root.prev = root;
+		elements = new DList();
 	}
 	
 	protected NodeList(Node node)
 	{
-		root.next = root.prev = node;
-		node.next = node.prev = root;
-		
-		length = 1;
+		elements = new DList(node);
 	}
 	
 	public NodeList add(Node node)
 	{
-		root.prev = (node.prev = (node.next = root).prev).next = node;
-		
-		length++;
-		
+		elements.add(node);
 		return this;
 	}
 	
 	public NodeList remove(Node node)
 	{
-		ListElement prevNode = node.prev;
-		ListElement nextNode = node.next;
-		
-		prevNode.next = nextNode;
-		nextNode.prev = prevNode;
-		
-		length--;
-		
+		elements.remove(node);
 		return this;
+	}
+	
+	public void add(IList.Element elem)
+	{
+		elements.add(elem);
+	}
+	
+	public void remove(IList.Element elem)
+	{
+		elements.remove(elem);
+	}
+	
+	public IList.Element first()
+	{
+		return elements.first();
 	}
 	
 	public int length()
 	{
-		return length;
+		return elements.length();
 	}
 }

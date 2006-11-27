@@ -12,12 +12,13 @@ package beaver.comp.parser;
 import java.util.Arrays;
 
 import beaver.util.BitSet;
+import beaver.util.IList;
 
 /**
  * @author Alexander Demenchuk
  *
  */
-public abstract class Action extends DLList.Element
+public abstract class Action extends IList.Element
 {
 	Symbol lookahead;
 	
@@ -27,19 +28,6 @@ public abstract class Action extends DLList.Element
 	}
 	
 	abstract int getCode();
-	
-	static class List extends DLList
-	{
-		Action getFirstAction()
-		{
-			return (Action) super.getFirstElement();
-		}
-		
-		Action next(Action current)
-		{
-			return (Action) super.getNextElement(current);
-		}
-	}
 	
 	static class Shift extends Action
 	{
@@ -122,20 +110,20 @@ public abstract class Action extends DLList.Element
 			return srCount == 0 && rrCount == 0;
 		}
 		
-		void resolveConflicts(Action.List shiftActions, Action.List reduceActions)
+		void resolveConflicts(IList shiftActions, IList reduceActions)
 		{
 			if (reduceActions == null)
 				return;
 			
 			if (shiftActions != null)
 			{
-				for ( Action shift = shiftActions.getFirstAction(); shift != null; shift = shiftActions.next(shift) )
+				for ( Action.Shift shift = (Action.Shift) shiftActions.first(); shift != null; shift = (Action.Shift) shift.next() )
 				{
-					for ( Action reduce = reduceActions.getFirstAction(); reduce != null; reduce = reduceActions.next(reduce) )
+					for ( Action.Reduce reduce = (Action.Reduce) reduceActions.first(); reduce != null; reduce = (Action.Reduce) reduce.next() )
 					{
 						if ( shift.lookahead == reduce.lookahead )
 						{
-							Action remove = resolveConflict((Action.Shift) shift, (Action.Reduce) reduce);
+							Action remove = resolveConflict(shift, reduce);
 							if (remove == reduce)
 							{
 								reduceActions.remove(reduce);
@@ -153,13 +141,13 @@ public abstract class Action extends DLList.Element
 				}
 			}
 			
-			for ( Action reduce1 = reduceActions.getFirstAction(); reduce1 != null; reduce1 = reduceActions.next(reduce1) )
+			for ( Action.Reduce reduce1 = (Action.Reduce) reduceActions.first(); reduce1 != null; reduce1 = (Action.Reduce) reduce1.next() )
 			{
-				for ( Action reduce2 = reduceActions.next(reduce1); reduce2 != null; reduce2 = reduceActions.next(reduce2) )
+				for ( Action.Reduce reduce2 = (Action.Reduce) reduce1.next(); reduce2 != null; reduce2 = (Action.Reduce) reduce2.next() )
 				{
 					if ( reduce1.lookahead == reduce2.lookahead )
 					{
-						Action remove = resolveConflict((Action.Reduce) reduce1, (Action.Reduce) reduce2);
+						Action remove = resolveConflict(reduce1, reduce2);
 						if (remove == reduce2)
 						{
 							reduceActions.remove(reduce2);
@@ -234,7 +222,7 @@ public abstract class Action extends DLList.Element
 					Arrays.fill(counters, 0);
 					int maxCount = 0;
 					Production defaultRule = null;
-					for (Action.Reduce act = (Action.Reduce) st.reduceActions.getFirstAction(); act != null; act = (Action.Reduce) st.reduceActions.next(act) )
+					for ( Action.Reduce act = (Action.Reduce) st.reduceActions.first(); act != null; act = (Action.Reduce) act.next() )
 					{
 						int c = ++counters[act.prod.id];
 						if ( maxCount < c )
@@ -247,7 +235,7 @@ public abstract class Action extends DLList.Element
 					{
 						st.defaultReduceRule = defaultRule;
 						st.defaultReduceLookaheads = new BitSet(numSymbols);
-						for (Action.Reduce act = (Action.Reduce) st.reduceActions.getFirstAction(); act != null; act = (Action.Reduce) st.reduceActions.next(act) )
+						for ( Action.Reduce act = (Action.Reduce) st.reduceActions.first(); act != null; act = (Action.Reduce) act.next() )
 						{
 							if ( act.prod == defaultRule )
 							{
