@@ -27,7 +27,7 @@ public abstract class Action extends IList.Element
 		this.lookahead = lookahead;
 	}
 	
-	abstract int getCode();
+	abstract short getCode();
 	
 	static class Shift extends Action
 	{
@@ -42,9 +42,9 @@ public abstract class Action extends IList.Element
 		 * "shift" action code is a state id to shift to, i.e. it's a positive
 		 * number in the range [1..NumberOfStates]
 		 */
-		int getCode()
+		short getCode()
 		{
-			return dest.id;
+			return (short) dest.id;
 		}
 	}
 	
@@ -63,9 +63,9 @@ public abstract class Action extends IList.Element
 		 * "reduce" action code is an inverse of the rule id that will be used to
 		 * reduce symbols on a stack to a new non-terminal.
 		 */
-		int getCode()
+		short getCode()
 		{
-			return ~prod.id;
+			return (short) ~prod.id;
 		}
 		
 		static class Builder implements BitSet.BitVisitor
@@ -234,13 +234,13 @@ public abstract class Action extends IList.Element
 					if ( maxCount > 1 )
 					{
 						st.defaultReduceRule = defaultRule;
-						st.defaultReduceLookaheads = new BitSet(numSymbols);
+						st.defaultReduceRuleLookaheads = new BitSet(numSymbols);
 						for ( Action.Reduce act = (Action.Reduce) st.reduceActions.first(); act != null; act = (Action.Reduce) act.next() )
 						{
 							if ( act.prod == defaultRule )
 							{
 								act.defaultAction = true;
-								st.defaultReduceLookaheads.add(act.lookahead.id);
+								st.defaultReduceRuleLookaheads.add(act.lookahead.id);
 							}
 						}
 					}

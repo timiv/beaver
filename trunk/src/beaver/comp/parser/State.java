@@ -9,6 +9,8 @@
 
 package beaver.comp.parser;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +30,8 @@ public class State
 	IList   	shiftActions;
 	IList     	reduceActions;
 	Production  defaultReduceRule;
-	BitSet      defaultReduceLookaheads;
+	BitSet      defaultReduceRuleLookaheads;
+	int         defaultReduceRuleLookaheadsSetIndex;
 	
 	State(int id, ItemSet core)
 	{
@@ -55,6 +58,34 @@ public class State
 		StringBuffer text = new StringBuffer();
 		text.append(id).append(':').append('\n').append(config);
 		return text.toString();
+	}
+	
+	public static Collection collateDefaultReduceRuleLookaheadsSets(State firstState)
+	{
+    	Collection sets = new ArrayList();
+    	Map definingStates = new HashMap();
+		for (State s = firstState; s != null; s = s.next)
+		{
+			if ( s.defaultReduceRuleLookaheads == null )
+			{
+				s.defaultReduceRuleLookaheadsSetIndex = -1;
+			}
+			else
+			{
+    			State def = (State) definingStates.get(s.defaultReduceRuleLookaheads);
+    			if (def != null)
+    			{
+    				s.defaultReduceRuleLookaheadsSetIndex = def.defaultReduceRuleLookaheadsSetIndex;
+    			}
+    			else
+    			{
+    				s.defaultReduceRuleLookaheadsSetIndex = sets.size();
+    				definingStates.put(s.defaultReduceRuleLookaheads, s);
+    				sets.add(s.defaultReduceRuleLookaheads);
+    			}
+			}
+		}
+    	return sets;
 	}
 	
 	public static class Builder

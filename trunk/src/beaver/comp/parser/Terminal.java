@@ -41,4 +41,15 @@ public class Terminal extends Symbol
 	}
 	
 	public static final Terminal EOF = new Terminal((char) 0, "$");
+	
+	public static class Const extends Terminal
+	{
+		String text;
+		
+		public Const(char id, String name, String text)
+		{
+			super(id, name);
+			this.text = text;
+		}
+	}
 }

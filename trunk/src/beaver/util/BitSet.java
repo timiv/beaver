@@ -202,7 +202,7 @@ public class BitSet
 	}
 	
 	/**
-	 * Returns the capacity of the set, i.e. the number of bit that'll fit in
+	 * Returns the capacity of the set, i.e. the number of bits that'll fit in
 	 * without reallocation.
 	 * 
 	 * @return capacity of the set (in bits)
@@ -210,6 +210,64 @@ public class BitSet
 	public int capacity()
 	{
 		return bit_bags.length * 32;
+	}
+	
+	/**
+	 * Checks whether two sets have the same bits
+	 */
+	public boolean equals(Object o)
+	{
+		if ( o instanceof BitSet )
+		{
+			BitSet other = (BitSet) o;
+			
+			if ( other.num_bits == this.num_bits )
+			{
+				if ( num_bits > 0 )
+				{
+    				int this_idx = 0;
+    				while ( this.bit_bags[this_idx] == 0 )
+    				{
+    					this_idx++;
+    				}
+    				int other_idx = 0;
+    				while ( other.bit_bags[other_idx] == 0 )
+    				{
+    					other_idx++;
+    				}
+    				if ( this.lb + this_idx * 32 != other.lb + other_idx * 32 )
+    				{
+    					return false;
+    				}
+    				while ( this_idx < this.bit_bags.length && other_idx < other.bit_bags.length )
+    				{
+    					if ( this.bit_bags[this_idx++] != other.bit_bags[other_idx++] )
+    						return false;
+    				}
+				}				
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Calculates a number that can be used as the set hash code
+	 */
+	public int hashCode()
+	{
+		int i = 0;
+		while ( i < bit_bags.length && bit_bags[i] == 0 ) i++;
+		int h = lb + i * 32;		
+		while ( i < bit_bags.length )
+        {
+			if ( bit_bags[i] != 0 )
+			{
+				h = h * 37 + bit_bags[i];
+			}
+			i++;
+        }
+		return h;
 	}
 	
 	/**

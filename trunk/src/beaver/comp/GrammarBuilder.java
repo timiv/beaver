@@ -37,14 +37,16 @@ public class GrammarBuilder extends TreeWalker
 	private Collection  productions;
 	private Collection  rhs;
 	
-	public GrammarBuilder(Collection constTerms, Collection namedTerms, Collection nonterms)
+	public GrammarBuilder(Map constTerms, Collection namedTerms, Collection nonterms)
 	{
 		char id = 0;
 		symbols.put("EOF", new Terminal(id++, "EOF"));
-		for (Iterator i = constTerms.iterator(); i.hasNext(); )
+		for (Iterator i = constTerms.entrySet().iterator(); i.hasNext(); )
 		{
-			String name = (String) i.next();
-			symbols.put(name, new Terminal(id++, name));
+			Map.Entry e = (Map.Entry) i.next();
+			String text = (String) e.getKey();
+			String name = (String) e.getValue();
+			symbols.put(name, new Terminal.Const(id++, name, text));
 		}
 		for (Iterator i = namedTerms.iterator(); i.hasNext(); )
 		{

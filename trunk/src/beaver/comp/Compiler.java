@@ -17,6 +17,7 @@ import java.util.Set;
 import beaver.SyntaxErrorException;
 import beaver.comp.parser.Action;
 import beaver.comp.parser.Grammar;
+import beaver.comp.parser.ParsingTables;
 import beaver.comp.parser.State;
 import beaver.comp.spec.AstBuilder;
 import beaver.comp.spec.Spec;
@@ -39,19 +40,10 @@ public class Compiler
 	public void compile(File src) throws IOException, SyntaxErrorException, CompilationException
 	{
 		Grammar  grammar = compileGrammar(src);
-		State firstState = new State.Builder().createStates(grammar);
+		State firstState = compileAutomaton(grammar);
 		
-		Action.ConflictResolver conflictResolver = new Action.ConflictResolver();
-		if ( !conflictResolver.resolveConflicts(firstState) )
-		{
-			throw new CompilationException("there are conflicts");
-		}
-		BitSet unreducibleProductions = grammar.findUnreducibleProductions(firstState);
-		if (unreducibleProductions.size() != 0)
-		{
-			throw new CompilationException("grammar has unreducible productions");
-		}
-		new Action.Compressor(grammar).compress(firstState);
+		ParsingTables tables = new ParsingTables(grammar, firstState);
+		tables.writeTo(null);
 	}
 
     Grammar compileGrammar(File src) throws IOException, SyntaxErrorException
@@ -86,9 +78,27 @@ public class Compiler
 		
 		spec.accept(new InlineTokenReplacer(constTokens));
 		
-		GrammarBuilder grammarBuilder = new GrammarBuilder(constTokens.values(), termCollector.getNamedTokens(), nonterminals);
+		GrammarBuilder grammarBuilder = new GrammarBuilder(constTokens, termCollector.getNamedTokens(), nonterminals);
 		spec.accept(grammarBuilder);
 		return grammarBuilder.getGrammar();
     }
     
+
+	State compileAutomaton(Grammar grammar) throws CompilationException
+    {
+	    State firstState = new State.Builder().createStates(grammar);
+		
+		Action.ConflictResolver conflictResolver = new Action.ConflictResolver();
+		if ( !conflictResolver.resolveConflicts(firstState) )
+		{
+			throw new CompilationException("there are conflicts");
+		}
+		BitSet unreducibleProductions = grammar.findUnreducibleProductions(firstState);
+		if ( unreducibleProductions.size() != 0 )
+		{
+			throw new CompilationException("grammar has unreducible productions");
+		}
+		new Action.Compressor(grammar).compress(firstState);
+	    return firstState;
+    }
 }
