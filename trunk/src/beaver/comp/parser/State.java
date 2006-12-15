@@ -66,11 +66,7 @@ public class State
     	Map definingStates = new HashMap();
 		for (State s = firstState; s != null; s = s.next)
 		{
-			if ( s.defaultReduceRuleLookaheads == null )
-			{
-				s.defaultReduceRuleLookaheadsSetIndex = -1;
-			}
-			else
+			if ( s.defaultReduceRuleLookaheads != null )
 			{
     			State def = (State) definingStates.get(s.defaultReduceRuleLookaheads);
     			if (def != null)
@@ -79,9 +75,9 @@ public class State
     			}
     			else
     			{
-    				s.defaultReduceRuleLookaheadsSetIndex = sets.size();
     				definingStates.put(s.defaultReduceRuleLookaheads, s);
     				sets.add(s.defaultReduceRuleLookaheads);
+    				s.defaultReduceRuleLookaheadsSetIndex = sets.size();
     			}
 			}
 		}

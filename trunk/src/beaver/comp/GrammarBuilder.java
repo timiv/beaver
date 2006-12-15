@@ -39,8 +39,8 @@ public class GrammarBuilder extends TreeWalker
 	
 	public GrammarBuilder(Map constTerms, Collection namedTerms, Collection nonterms)
 	{
-		char id = 0;
-		symbols.put("EOF", new Terminal(id++, "EOF"));
+		symbols.put("EOF", Terminal.EOF);
+		char id = Terminal.EOF.getId();
 		for (Iterator i = constTerms.entrySet().iterator(); i.hasNext(); )
 		{
 			Map.Entry e = (Map.Entry) i.next();

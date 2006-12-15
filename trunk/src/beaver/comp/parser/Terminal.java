@@ -51,5 +51,10 @@ public class Terminal extends Symbol
 			super(id, name);
 			this.text = text;
 		}
+		
+		public String getRepresentation()
+		{
+			return text;
+		}
 	}
 }

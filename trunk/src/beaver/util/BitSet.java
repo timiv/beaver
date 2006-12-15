@@ -367,7 +367,7 @@ public class BitSet
 	 * @param bits bag of bits
 	 * @return number of bits in a bag
 	 */
-	static int countBits(int bits)
+	public static int countBits(int bits)
 	{
 		bits = (bits & 0x55555555) + ((bits >>> 1) & 0x55555555);
 		bits = (bits & 0x33333333) + ((bits >>> 2) & 0x33333333);

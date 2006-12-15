@@ -8,7 +8,9 @@
  */
 package beaver.comp;
 
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
@@ -37,13 +39,12 @@ public class Compiler
 		this.log = log;
 	}
 	
-	public void compile(File src) throws IOException, SyntaxErrorException, CompilationException
+	public void compile(File src, File dstDir) throws IOException, SyntaxErrorException, CompilationException
 	{
 		Grammar  grammar = compileGrammar(src);
 		State firstState = compileAutomaton(grammar);
 		
-		ParsingTables tables = new ParsingTables(grammar, firstState);
-		tables.writeTo(null);
+		generateParsingTables(grammar, firstState, dstDir);
 	}
 
     Grammar compileGrammar(File src) throws IOException, SyntaxErrorException
@@ -100,5 +101,13 @@ public class Compiler
 		}
 		new Action.Compressor(grammar).compress(firstState);
 	    return firstState;
+    }
+
+	void generateParsingTables(Grammar grammar, State firstState, File dstDir) throws IOException
+    {
+	    ParsingTables tables = new ParsingTables(grammar, firstState);
+		DataOutputStream out = new DataOutputStream(new FileOutputStream(new File(dstDir, "ParsingTables.bin")));
+		tables.writeTo(out);
+		out.close();
     }
 }

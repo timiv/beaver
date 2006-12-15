@@ -40,6 +40,16 @@ public abstract class Symbol
 	{
 		return name;
 	}
+
+	/**
+	 * Text representing this symbol in some output.
+	 * This text is stored in parsing tables and available to
+	 * parsers for error reporting.
+	 */
+	public String getRepresentation()
+	{
+		return name;
+	}
 	
 	/**
 	 * Informs the caller if this symbols can match an empty string.
