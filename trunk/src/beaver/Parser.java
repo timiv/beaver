@@ -153,6 +153,7 @@ public abstract class Parser
 
 		Symbol lhs = reduce(symbols, rhsIndx, rule);
 		lhs.id = (char) (ruleDef >>> 16);
+		lhs.text = tables.symbolRepresentations[lhs.id];
 
 		if (rhsSize == 0)
 		{
@@ -309,6 +310,7 @@ public abstract class Parser
 			}
 		}
 		Symbol sym = alloc(id);
+		sym.text = tables.symbolRepresentations[id];
 		sym.value = id < tables.firstTerminalWithValueId ? null : makeTerm(scanner.getValue());
 
 		// read token location
