@@ -10,8 +10,10 @@ package beaver.comp;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import beaver.comp.parser.Grammar;
@@ -41,32 +43,32 @@ public class GrammarBuilder extends TreeWalker
 	{
 		symbols.put("EOF", Terminal.EOF);
 		char id = Terminal.EOF.getId();
-		for (Iterator i = constTerms.entrySet().iterator(); i.hasNext(); )
+		
+		List constTermRepresentations = new ArrayList(constTerms.keySet());
+		Collections.sort(constTermRepresentations);
+		for (Iterator i = constTermRepresentations.iterator(); i.hasNext(); )
 		{
-			Map.Entry e = (Map.Entry) i.next();
-			String text = (String) e.getKey();
-			String name = (String) e.getValue();
-			symbols.put(name, new Terminal.Const(id++, name, text));
+			String text = (String) i.next();
+			String name = (String) constTerms.get(text);
+			symbols.put(name, new Terminal.Const(++id, name, text));
 		}
 		for (Iterator i = namedTerms.iterator(); i.hasNext(); )
 		{
 			String name = (String) i.next();
-			symbols.put(name, new Terminal(id++, name));
+			symbols.put(name, new Terminal(++id, name));
 		}
-		numTerms = id;
+		numTerms = id + 1;
 		
-		boolean hasErrorSymbol = nonterms.remove("error");
+		nonterms.remove("error");
+		
 		for (Iterator i = nonterms.iterator(); i.hasNext(); )
 		{
 			String name = (String) i.next();
-			symbols.put(name, new NonTerminal(id++, name));
+			symbols.put(name, new NonTerminal(++id, name));
 		}
-		numNonTerms = id - numTerms;
+		numNonTerms = id + 1 - numTerms;
 
-		if (hasErrorSymbol)
-		{
-			symbols.put("error", new NonTerminal(id, "error"));
-		}
+		symbols.put("error", new NonTerminal(++id, "error"));
 		
 		productions = new ArrayList();
 		rhs = new ArrayList();

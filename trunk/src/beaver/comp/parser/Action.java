@@ -29,6 +29,11 @@ public abstract class Action extends IList.Element
 	
 	abstract short getCode();
 	
+	public static short getAcceptCode(Grammar g)
+	{
+		return (short) ~g.productions.length;
+	}
+	
 	static class Shift extends Action
 	{
 		State dest;

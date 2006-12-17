@@ -157,13 +157,13 @@ public abstract class ParserWithErrorRecovery extends Parser
 	 */
 	private short findActionInErrorShiftingState(Symbol error) throws SyntaxErrorException
 	{
-		short state = tables.findNonterminalAction(states[top], error.id);
+		short state = tables.findAction(states[top], error.id);
 		if (state <= 0)
 		{
 			Symbol sym = symbols[top];
 			if (++top == symbols.length) throw new SyntaxErrorException("cannot recover from syntax error");
 			
-			while ((state = tables.findNonterminalAction(states[top], error.id)) <= 0)
+			while ((state = tables.findAction(states[top], error.id)) <= 0)
 			{
 				reuse(sym);
 				sym = symbols[top];
@@ -364,7 +364,7 @@ public abstract class ParserWithErrorRecovery extends Parser
 				char symId = input[readPtr].id;
 				while (true)
 				{
-					short act = tables.findTerminalAction(states[top], symId);
+					short act = tables.findAction(states[top], symId);
 					if (act > 0)
 					{
 						shift(act);
@@ -377,7 +377,7 @@ public abstract class ParserWithErrorRecovery extends Parser
 					else if (act < 0)
 					{
 						char ntId = reduce(~act);
-						act = tables.findNonterminalAction(states[top], ntId);
+						act = tables.findAction(states[top], ntId);
 						if (act > 0)
 						{
 							shift(act);

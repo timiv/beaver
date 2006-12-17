@@ -40,7 +40,7 @@ public class Terminal extends Symbol
 		return false;
 	}
 	
-	public static final Terminal EOF = new Terminal((char) 0, "$");
+	public static final Terminal EOF = new Terminal((char) 0, "<EOF>");
 	
 	public static class Const extends Terminal
 	{
@@ -54,7 +54,7 @@ public class Terminal extends Symbol
 		
 		public String getRepresentation()
 		{
-			return text;
+			return '"' + text + '"';
 		}
 	}
 }

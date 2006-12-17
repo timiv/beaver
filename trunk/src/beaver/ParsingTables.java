@@ -36,13 +36,33 @@ public class ParsingTables
 	/**
 	 * Per state offset from the start of the actions table for terminal lookaheads.
 	 */
-	int[] terminalOffsets;
+	char[][] offsets;
 
 	/**
-	 * Per state offset from the start of the actions table for non-terminal lookaheads.
+	 * The number of bits to shift symbol id to the right to derive offset group index.
 	 */
-	int[] nonTerminalOffsets;
-
+	char indexShift;
+	
+	/**
+	 * The number to subtract from value in offsets table to get real offset into actions table.
+	 */
+	char offsetShift;
+	
+	/**
+	 * Sets of lookaheads for default actions  
+	 */
+	BitSet[] defaultActionLookaheadsSets;
+	      
+	/**
+	 * Per state indexes into the default lookaheads sets table 
+	 */
+	short[] defaultActionLookaheadsSetIndexes;
+	
+	/**
+	 * Per state "default" actions
+	 */
+	short[] defaultActions;
+	
 	/**
 	 * This array contains encoded information about grammar productions. Each element is a "struct":
 	 * <ul>
@@ -71,53 +91,107 @@ public class ParsingTables
 	char errorSymbolId;
 	
 	/**
-	 * Looks up an action code for the given terminal symbol when the parser is in the given state.
-	 * 
-	 * @param state current parser state
-	 * @param symId ID of the terminal parser has just got fromt he scanner 
-	 * @return action code
+	 * Textual representation of symbols.
 	 */
-	short findTerminalAction(int state, char symId)
+	String[] symbolRepresentations;
+	
+	public ParsingTables(DataInput inp) throws IOException
 	{
-		return findAction(terminalOffsets, state, symId);
+		if ( inp.readByte() != '#' )
+			throw new StreamCorruptedException("signature");
+		if ( inp.readByte() != 'A' )
+			throw new StreamCorruptedException("version");
+		
+		actions = new short[inp.readUnsignedShort()];	
+		for ( int i = 0; i < actions.length; i++ )
+		{ 
+			actions[i] = inp.readShort();
+		}
+		lookaheads = new char[inp.readUnsignedShort()];
+		for ( int i = 0; i < lookaheads.length; i++ )
+		{
+			lookaheads[i] = inp.readChar(); 
+		}
+
+		int numStates = inp.readUnsignedShort();
+		offsets = new char[numStates][inp.readUnsignedShort()];
+		for (int i = 0; i < offsets.length; i++)
+        {
+	        for (int j = 0; j < offsets[0].length; j++)
+            {
+	        	offsets[i][j] = inp.readChar();
+            }
+        }
+		
+		indexShift = inp.readChar();
+		offsetShift = inp.readChar();
+		
+		defaultActionLookaheadsSets = new BitSet[inp.readUnsignedShort()];
+		for (int i = 0; i < defaultActionLookaheadsSets.length; i++)
+        {
+	        defaultActionLookaheadsSets[i] = new BitSet(inp);
+        }
+		
+		defaultActionLookaheadsSetIndexes = new short[inp.readUnsignedShort()];
+		if ( defaultActionLookaheadsSetIndexes.length != numStates )
+			throw new StreamCorruptedException("default action indexes");
+		
+		for (int i = 0; i < defaultActionLookaheadsSetIndexes.length; i++)
+		{
+			defaultActionLookaheadsSetIndexes[i] = (short) (inp.readChar() - 1);
+			if ( defaultActionLookaheadsSetIndexes[i] >= defaultActionLookaheadsSets.length )
+				throw new StreamCorruptedException("bitset index");
+		}
+		
+		defaultActions = new short[inp.readUnsignedShort()];
+		if ( defaultActions.length != numStates )
+			throw new StreamCorruptedException("default actions");
+			
+		for (int i = 0; i < defaultActions.length; i++)
+		{
+			defaultActions[i] = inp.readShort();
+		}
+		
+		ruleDefs = new int[inp.readUnsignedShort()];
+		for (int i = 0; i < ruleDefs.length; i++) 
+		{ 
+			ruleDefs[i] = inp.readInt();
+		}
+
+		firstTerminalWithValueId = inp.readChar();
+		errorSymbolId = inp.readChar();
+		
+		symbolRepresentations = new String[inp.readUnsignedShort()];
+		for ( int i = 0; i < symbolRepresentations.length; i++ )
+        {
+	        symbolRepresentations[i] = inp.readUTF();
+        }
+	}
+	
+	public String getSymbolRepresentation(char id)
+	{
+		return symbolRepresentations[id];
 	}
 	
 	/**
-	 * Looks up an action code for the given non-terminal symbol when the parser is in the given state.
-	 * 
-	 * @param state current parser state
-	 * @param symId ID of the non-terminal parser has just got fromt he scanner 
-	 * @return action code
-	 */
-	short findNonterminalAction(int state, char symId)
-	{
-		return findAction(nonTerminalOffsets, state, symId);
-	}
-
-	/**
-	 * Perform actual action code lookup.
+	 * Looks up an action code for the given symbol when the parser is in the given state.
 	 * 
 	 * @param offsets either terminal or non-teminal offsets table 
 	 * @param state current parser state
 	 * @param symId symbol for which parser looks up an action
 	 * @return action code or 0 if the specified lookahead is unexpected in the specified state
 	 */
-	private short findAction(int[] offsets, int state, char symId)
+	short findAction(int state, char symId)
 	{
-		int index = offsets[state] + symId;
-		try
+		int index = offsets[state][symId >> indexShift] - offsetShift + symId;
+		if (0 <= index && index < lookaheads.length && lookaheads[index] == symId)
 		{
-			if (lookaheads[index] == symId)
-			{
-				return actions[index]; 
-			}
+			return actions[index]; 
 		}
-		catch (IndexOutOfBoundsException _)
+		if ( (index = defaultActionLookaheadsSetIndexes[state]) >= 0 && defaultActionLookaheadsSets[index].isSet(symId) )
 		{
-			// Try-catch eliminates an explicit bounds check for the most common case - correct syntax.
-			// If the lookahead is not one that is expected parser will enter error recovery, and at
-			// that point an exception toll is quite ignorable. 
-		}
+			return defaultActions[state];
+		}	
 		return 0;
 	}
 	
@@ -130,13 +204,7 @@ public class ParsingTables
 	 */
 	int findFirstTerminal(int state)
 	{
-		int offset = terminalOffsets[state];
-		int prevId = -1;
-		if (offset < 0)
-		{
-			prevId -= offset;
-		}
-		return findNextTerminal(state, prevId);
+		return findNextTerminal(state, -1); 
 	}
 	
 	/**
@@ -149,117 +217,64 @@ public class ParsingTables
 	 */
 	int findNextTerminal(int state, int termId)
 	{
-		int offset = terminalOffsets[state];
-
-		int endIdx = offset + numTerminals;
-		if (endIdx > lookaheads.length)
+		char[] stateOffsets = offsets[state];
+		for ( char t = (char) (termId + 1); t < numTerminals; t++ )
 		{
-			endIdx = lookaheads.length;
-		}
-		termId++;
-		int i = offset + termId;
-		if (i > 0)
-		{
-			while (i < endIdx)
+			int index = stateOffsets[t >> indexShift] - offsetShift + t;
+			if (0 <= index && index < lookaheads.length && lookaheads[index] == t)
 			{
-				if (lookaheads[i++] == termId)
-					return termId;
-				termId++;
+				return t;
+			}
+		}
+		
+		BitSet deftActLaSet = defaultActionLookaheadsSetIndexes[state] >= 0 ? defaultActionLookaheadsSets[defaultActionLookaheadsSetIndexes[state]] : null;
+		if ( deftActLaSet != null )
+		{
+			for ( char t = (char) (termId + 1); t < numTerminals; t++ )
+			{
+				if ( deftActLaSet.isSet(t) )
+				{
+					return t;
+				}
 			}
 		}
 		return -1;
 	}
 	
-	ParsingTables(DataInput is) throws IOException
+	static class BitSet
 	{
-		int n = is.readInt();
-		actions    = new short[n];       for (int i = 0; i < n; i++) { actions[i] = is.readShort(); }
-		lookaheads = new char[n];        for (int i = 0; i < n; i++) { lookaheads[i] = (char) is.readUnsignedShort(); }
-
-		n = is.readShort();
-		terminalOffsets    = new int[n]; for (int i = 0; i < n; i++) { terminalOffsets[i] = is.readInt(); }
-		nonTerminalOffsets = new int[n]; for (int i = 0; i < n; i++) { nonTerminalOffsets[i] = is.readInt(); }
-
-		int minSymId = 0xffff;
-		n = is.readShort();
-		ruleDefs = new int[n];
-		for (int i = 0; i < n; i++) 
-		{ 
-			ruleDefs[i] = is.readInt();
+		char   lb;
+		char[] bits;
+		
+		BitSet(DataInput inp) throws IOException
+		{
+			lb = inp.readChar();
+			bits = new char[inp.readUnsignedShort()];
+			for ( int i = 0; i < bits.length; i++ )
+            {
+	            bits[i] = inp.readChar();
+            }
+		}
+		
+		boolean isSet(char i)
+		{
+			int dist = i - lb;
+			if ( dist == 0 )
+				return true;
+			if ( dist < 0 )
+				return false;
+			//
+			// lb is at bit index -1, hence the distance from
+			// the first bit in a set is 1 less than what was
+			// calculated for lb
+			//
+			dist--;
 			
-			char symId = (char) (ruleDefs[i] >>> 16);
-			if (symId < minSymId)
-			{
-				minSymId = symId;
-			}
+			int index = dist >> 4;
+			if ( index >= bits.length )
+				return false;
+			
+			return (bits[index] & (1 << (dist & 15))) != 0; 
 		}
-		numTerminals = minSymId;
-
-		firstTerminalWithValueId = (char) is.readUnsignedShort();
-		errorSymbolId = (char) is.readUnsignedShort();
-	}
-
-	public static class Compressed extends ParsingTables
-	{
-		/** 
-		 * Per state actions that will be taken if nothing is found in the actions table.
-		 * This table is used (and applicable) only if actions are compressed and default
-		 * actions has been selected.  
-		 */
-		short[] defaultActions;
-		
-		/**
-		 * Looks up an action code for the given terminal symbol when the parser is in the given state.
-		 */
-		short findTerminalAction(int state, char symId)
-		{
-			return findAction(terminalOffsets, state, symId);
-		}
-
-		/**
-		 * Looks up an action code for the given non-terminal symbol when the parser is in the given state.
-		 */
-		short findNonterminalAction(int state, char symId)
-		{
-			return findAction(nonTerminalOffsets, state, symId);
-		}
-		
-		/**
-		 * Perform actual action code lookup.
-		 * 
-		 * @param offsets either terminal or non-teminal offsets table 
-		 * @param state current parser state
-		 * @param symId symbol for which parser looks up an action
-		 * @return action code or 0 if the specified lookahead is unexpected in the specified state
-		 */
-		private short findAction(int[] offsets, int state, char symId)
-		{
-			int index = offsets[state] + symId;
-			if (index <= 0 && index < lookaheads.length && lookaheads[index] == symId)
-			{
-				return actions[index]; 
-			}
-			return defaultActions[state];
-		}
-		
-		Compressed(DataInput is) throws IOException
-		{
-			super(is);
-			int n = terminalOffsets.length;	 
-			defaultActions = new short[n];  for (int i = 0; i < n; i++) { defaultActions[i] = is.readShort(); }
-		}
-	}
-	
-	public static ParsingTables from(DataInput is) throws IOException
-	{
-		switch (is.readByte())
-		{
-			case 'U':
-				return new ParsingTables(is);
-				
-			case 'C':
-				return new ParsingTables.Compressed(is);
-		}
-		throw new StreamCorruptedException("serialization type");
 	}
 }

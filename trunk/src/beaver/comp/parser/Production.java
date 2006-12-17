@@ -71,7 +71,7 @@ public class Production
 			.append(" =");
 		for (int i = 0; i < rhs.length; i++)
         {
-			text.append(' ').append(rhs[i].symbol.name);
+			text.append(' ').append(rhs[i].symbol.getRepresentation());
         }
 		return text.toString();
 	}

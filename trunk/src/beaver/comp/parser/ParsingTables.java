@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import beaver.comp.parser.ParsingTables.ActionTableBuilder.ActionGroup;
 import beaver.util.BitSet;
 
 /**
@@ -39,6 +38,7 @@ public class ParsingTables
 	char          symbolIdToGroupIndexShift;
 	Collection 	  defaultReduceRuleLookaheadsSets;
 	char[]		  defaultReduceRuleLookaheadsSetIndexes;
+	short[]       defaultActions;
 	
     public ParsingTables(Grammar grammar, State firstState)
     {
@@ -67,22 +67,23 @@ public class ParsingTables
         this.parserActions = builder.parserActions;
         this.actLookaheads = builder.actLookaheads;
         this.offsetShift   = builder.offsetShift;
-        this.symbolIdToGroupIndexShift = (char) BitSet.countBits(~builder.grouppingMask);
-        
-        this.offsets = new char[builder.numStates + 1][builder.groupsPerState];
-        for ( Iterator i = builder.actionGroups.iterator(); i.hasNext(); )
-        {
-	        ActionGroup g = (ActionGroup) i.next();
-	        if (g.offset == 0)
-	        	throw new IllegalStateException("undefined offset");
-	        offsets[g.state][g.lb >> symbolIdToGroupIndexShift] = g.offset;	        
-        }
+        this.symbolIdToGroupIndexShift = (char) BitSet.countBits(~builder.grouppingMask);       
+        this.offsets = builder.offsets;
         
         this.defaultReduceRuleLookaheadsSets = State.collateDefaultReduceRuleLookaheadsSets(firstState);       
         this.defaultReduceRuleLookaheadsSetIndexes = new char[builder.numStates + 1];
         for ( State s = firstState; s != null; s = s.next )
         {
         	defaultReduceRuleLookaheadsSetIndexes[s.id] = (char) s.defaultReduceRuleLookaheadsSetIndex;
+        }
+        
+        this.defaultActions = new short[builder.numStates + 1];
+        for ( State s = firstState; s != null; s = s.next )
+        {
+        	if ( s.defaultReduceRule != null )
+        	{
+        		defaultActions[s.id] = (short) ~s.defaultReduceRule.id;
+        	}
         }
     }
     
@@ -92,22 +93,22 @@ public class ParsingTables
     	out.writeByte('A'); // format version
     	
     	out.writeChar(parserActions.length);
-    	for (int i = 0; i < parserActions.length; i++)
+    	for ( int i = 0; i < parserActions.length; i++ )
         {
 	        out.writeShort(parserActions[i]);
         }   	
 
     	out.writeChar(actLookaheads.length);
-    	for (int i = 0; i < actLookaheads.length; i++)
+    	for ( int i = 0; i < actLookaheads.length; i++ )
         {
 	        out.writeChar(actLookaheads[i]);
         }
     	
     	out.writeChar(offsets.length);
     	out.writeChar(offsets[0].length);   	
-		for (int i = 0; i < offsets.length; i++)
+		for ( int i = 0; i < offsets.length; i++ )
         {
-	        for (int j = 0; j < offsets[0].length; j++)
+	        for ( int j = 0; j < offsets[0].length; j++ )
             {
 	            out.writeChar(offsets[i][j]);
             }
@@ -126,13 +127,19 @@ public class ParsingTables
         }
 		
 		out.writeChar(defaultReduceRuleLookaheadsSetIndexes.length);
-		for (int i = 0; i < defaultReduceRuleLookaheadsSetIndexes.length; i++)
+		for ( int i = 0; i < defaultReduceRuleLookaheadsSetIndexes.length; i++ )
         {
             out.writeChar(defaultReduceRuleLookaheadsSetIndexes[i]);
         }
 		
+		out.writeChar(defaultActions.length);
+    	for ( int i = 0; i < defaultActions.length; i++ )
+    	{
+    		out.writeShort(defaultActions[i]);
+    	}
+		
     	out.writeChar(ruleDefs.length);
-    	for (int i = 0; i < ruleDefs.length; i++)
+    	for ( int i = 0; i < ruleDefs.length; i++ )
         {
 	        out.writeInt(ruleDefs[i]);
         }
@@ -141,11 +148,11 @@ public class ParsingTables
     	out.writeChar(errorSymbolId);
     	
     	out.writeChar(terminals.length + nonterminals.length);
-    	for (int i = 0; i < terminals.length; i++)
+    	for ( int i = 0; i < terminals.length; i++ )
         {
 	        out.writeUTF(terminals[i].getRepresentation());
         }
-    	for (int i = 0; i < nonterminals.length; i++)
+    	for ( int i = 0; i < nonterminals.length; i++ )
         {
 	        out.writeUTF(nonterminals[i].getRepresentation());
         }
@@ -197,20 +204,21 @@ public class ParsingTables
     
     static class ActionTableBuilder
     {
-    	short[] parserActions;
-		char[]  actLookaheads;
+    	short[]  parserActions;
+		char[]   actLookaheads;
+		char[][] offsets;
 
-		short[] backupActions;
-		char[]  backupLookaheads;
+		short[]  backupActions;
+		char[]   backupLookaheads;
 
-		int 	numStates;
-		int     numTerminals;
-		char    maxSymbolId;
-		char    offsetShift;
-		
-		List    actionGroups;
-		int     grouppingMask;
-		int     groupsPerState;
+		int      numStates;
+		int      numTerminals;
+		char     maxSymbolId;
+		char     offsetShift;
+
+		List     actionGroups;
+		int      grouppingMask;
+		int      groupsPerState;
 		
     	ActionTableBuilder(Grammar grammar, State firstState)
     	{
@@ -229,6 +237,11 @@ public class ParsingTables
     		
             actionGroups = new ArrayList();
             List actions = new ArrayList();
+            //
+            // add ACCEPT action to the first state   
+            //
+			actions.add(new ActionEntry(grammar.goal.id, Action.getAcceptCode(grammar)));
+			
             for ( State s = firstState; s != null; s = s.next )
             {
             	if ( s.shiftActions != null )
@@ -264,26 +277,36 @@ public class ParsingTables
     	}
     	
     	void buildTables()
-    	{
-    		short[] minParserActions = new short[parserActions.length];
-    		char[]  minActLookaheads = new char [actLookaheads.length];
-    		
+    	{   		
     		int curSize = parserActions.length, minSize = curSize;
     		int minTotalSize = Integer.MAX_VALUE;
     		int curTotalSize = getSerializedSize(curSize = rebuildTables());
-    		
-    		while ( curTotalSize < minTotalSize  )
+    		char[][] curOffsets = getOffsets();
+    		char[][] minOffsets;
+
+    		short[] minParserActions = new short[curSize];
+    		char[]  minActLookaheads = new char [curSize];
+    		do 
     		{
     			System.arraycopy(parserActions, 0, minParserActions, 0, curSize);
     			System.arraycopy(actLookaheads, 0, minActLookaheads, 0, curSize);
+    			minSize = curSize;    			
+    			minOffsets = curOffsets;
+    			minTotalSize = curTotalSize;
     		
     			splitGroups();    			
     			
-    			minSize = curSize; 
-    			
-    			minTotalSize = curTotalSize;
     			curTotalSize = getSerializedSize(curSize = rebuildTables());
+    			curOffsets = getOffsets();
     		}
+    		while ( curTotalSize < minTotalSize  );
+    		
+    		grouppingMask <<= 1; // rollback last split changes
+    		groupsPerState >>= 1;
+    		offsets = minOffsets;
+    		if ( offsets[0].length != groupsPerState )
+    			throw new IllegalStateException("wrong offsets table dimensions");
+    		
     		parserActions = new short[minSize];
     		actLookaheads = new char [minSize];
 			System.arraycopy(minParserActions, 0, parserActions, 0, minSize);
@@ -294,6 +317,20 @@ public class ParsingTables
     	int getSerializedSize(int numEntries)
     	{
     		return numEntries * 4 + numStates * groupsPerState * 2;
+    	}
+    	
+    	private
+    	char[][] getOffsets()
+    	{
+    		int groupIndexShift = BitSet.countBits(~grouppingMask);
+    		
+    		char[][] offs = new char[numStates + 1][groupsPerState];
+    		for (Iterator i = actionGroups.iterator(); i.hasNext();)
+            {
+	            ActionGroup g = (ActionGroup) i.next();
+	            offs[g.state][g.lb >> groupIndexShift] = g.offset;
+            }
+    		return offs;
     	}
     	
     	private

@@ -11,7 +11,7 @@ package beaver;
 import java.io.IOException;
 
 /**
- * LALR parsing engine. To become a real parser it also needs parsing tables and implementation of semantic actions.
+ * LALR parsing engine.
  *
  * @author Alexander Demenchuk
  */
@@ -82,7 +82,7 @@ public abstract class Parser
 			Symbol sym = read(input);
 			while (true)
 			{
-				short act = tables.findTerminalAction(states[top], sym.id);
+				short act = tables.findAction(states[top], sym.id);
 				if (act > 0)
 				{
 					shift(sym, act);
@@ -96,7 +96,7 @@ public abstract class Parser
 				else if (act < 0)
 				{
 					Symbol nt = reduce(~act);
-					act = tables.findNonterminalAction(states[top], nt.id);
+					act = tables.findAction(states[top], nt.id);
 					if (act > 0)
 					{
 						shift(nt, act);
