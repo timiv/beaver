@@ -1,6 +1,6 @@
 /***
- * Beaver: compiler builder framework for Java                       
- * Copyright (c) 2003-2006 Alexander Demenchuk <alder@softanvil.com>  
+ * Beaver: compiler front-end construction toolkit                       
+ * Copyright (c) 2003-2007 Alexander Demenchuk <alder@softanvil.com>  
  * All rights reserved.                       
  *                          
  * See the file "LICENSE" for the terms and conditions for copying,    
@@ -28,7 +28,7 @@ public class Grammar
 	NonTerminal[] nonterminals;
 	
 	/**
-	 * Rules to derives nonterminal symbols.
+	 * Rules to derive nonterminal symbols.
 	 */
 	Production[] productions;
 	
@@ -74,7 +74,7 @@ public class Grammar
 			NonTerminal newGoal = new NonTerminal(goalId, "GoalAs" + goal.name);
 			
 			char goalRuleId = (char) rules.length;
-			Production goalRule = new Production(goalRuleId, newGoal.name, newGoal, new Production.RHSElement[] { new Production.RHSElement(null, goal) });
+			Production goalRule = new Production(goalRuleId, newGoal.name, newGoal, new Production.RHSItem[] { new Production.RHSItem(goal) });
 			
 			newGoal.derivationRules = new Production[] { goalRule };
 			
@@ -136,27 +136,27 @@ public class Grammar
 		 */
 		for (int i = 0; i < rules.length; i++)
         {
-			NonTerminal             lhs = rules[i].lhs;
-			Production.RHSElement[] rhs = rules[i].rhs;
+			NonTerminal          lhs = rules[i].lhs;
+			Production.RHSItem[] rhs = rules[i].rhs;
 	        
 	        for (int j = 0; j < rhs.length; j++)
             {
-	            Production.RHSElement e = rhs[j];
+	            Symbol e = rhs[j].symbol;
 
-	            if ( e.symbol instanceof Terminal )
+	            if ( e instanceof Terminal )
 	            {
-	            	lhs.firstSet.add(e.symbol.id);
+	            	lhs.firstSet.add(e.id);
 	            }
 	            else
 	            {
-		            NonTerminal nt = (NonTerminal) e.symbol;
+		            NonTerminal nt = (NonTerminal) e;
 		            if ( nt != lhs )
 		            {
 		            	lhs.firstSet.add(nt.firstSet);
 		            }
 	            }
 	            
-	            if ( !e.symbol.matchesEmptyString() )
+	            if ( !e.matchesEmptyString() )
 	            {
 	            	break;
 	            }
@@ -172,16 +172,16 @@ public class Grammar
 			
 			for (int i = 0; i < rules.length; i++)
 	        {
-				NonTerminal             lhs = rules[i].lhs;
-				Production.RHSElement[] rhs = rules[i].rhs;
+				NonTerminal          lhs = rules[i].lhs;
+				Production.RHSItem[] rhs = rules[i].rhs;
 		        
 		        for (int j = 0; j < rhs.length; j++)
 	            {
-		            Production.RHSElement e = rhs[j];
+		            Symbol e = rhs[j].symbol;
 
-		            if ( e.symbol instanceof NonTerminal )
+		            if ( e instanceof NonTerminal )
 		            {
-			            NonTerminal nt = (NonTerminal) e.symbol;
+			            NonTerminal nt = (NonTerminal) e;
 			            if ( nt != lhs )
 			            {
 			            	if ( lhs.firstSet.add(nt.firstSet) )
@@ -191,7 +191,7 @@ public class Grammar
 			            }
 		            }
 		            
-		            if ( !e.symbol.matchesEmptyString() )
+		            if ( !e.matchesEmptyString() )
 		            {
 		            	break;
 		            }

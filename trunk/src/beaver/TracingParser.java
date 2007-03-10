@@ -15,7 +15,7 @@ import java.io.IOException;
  *
  * @author Alexander Demenchuk
  */
-public abstract class Parser
+public abstract class TracingParser
 {
 	/**
 	 * The automaton tables.
@@ -52,7 +52,7 @@ public abstract class Parser
 	 *
 	 * @param tables loaded parsing tables
 	 */
-	protected Parser(ParsingTables tables)
+	protected TracingParser(ParsingTables tables)
 	{
 		this.tables  = tables;
 		this.accept  = (short) ~tables.ruleDefs.length;
@@ -136,6 +136,8 @@ public abstract class Parser
 		}
 		symbols[top] = sym;
 		states[top] = state;
+		
+		printStack(state);
 	}
 
 	/**
@@ -168,8 +170,21 @@ public abstract class Parser
 			reuse(rhsSize);
 		}
 		top = reduced;
+		
+		printStack(rule);
 
 		return lhs;
+	}
+	
+	private void printStack(int marker)
+	{
+		for (int i = symbols.length - 1; i >= top; i-- )
+		{
+			System.out.print(tables.getSymbolRepresentation(symbols[i].id));
+			System.out.print(' ');
+		}
+		System.out.print('#');
+		System.out.println(marker);
 	}
 
 	/**
@@ -327,9 +342,8 @@ public abstract class Parser
 	 * might reference (store away).
 	 * There are no constraints on what this object might be, but if it implements the
 	 * Location protocol, Parser will use it to set token's location.
-	 * @param id terminal ID
-	 * @param value a token value recognized by the scanner 
 	 * 
+	 * @param value a token value recognized by the scanner 
 	 * @return an object that carries a terminal payload
 	 */
 	protected abstract Object makeTerm(char id, String value);
@@ -368,7 +382,7 @@ public abstract class Parser
 	 */
 	protected void onSyntaxError(Symbol sym)
 	{
-		// Do nothing here. Implementation overrides it for reporting.
+		System.err.println("Unexpected " + tables.getSymbolRepresentation(sym.id) + " @ " + sym.startLine + "," + sym.startColumn);
 	}
 
 	/**

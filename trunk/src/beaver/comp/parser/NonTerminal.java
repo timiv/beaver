@@ -1,6 +1,6 @@
 /***
- * Beaver: compiler builder framework for Java                       
- * Copyright (c) 2003-2006 Alexander Demenchuk <alder@softanvil.com>  
+ * Beaver: compiler front-end construction toolkit                       
+ * Copyright (c) 2003-2007 Alexander Demenchuk <alder@softanvil.com>  
  * All rights reserved.                       
  *                          
  * See the file "LICENSE" for the terms and conditions for copying,    
@@ -69,7 +69,7 @@ public class NonTerminal extends Symbol
 	}
 
 	/**
-	 * This method is where we find out whether the nonterminal is nullable.
+	 * Finds out whether the nonterminal is nullable.
 	 * 
 	 * @return true if one of derivation rules matches an ampty string
 	 */
@@ -90,5 +90,4 @@ public class NonTerminal extends Symbol
 	{
 		isNullable = true;
 	}
-
 }

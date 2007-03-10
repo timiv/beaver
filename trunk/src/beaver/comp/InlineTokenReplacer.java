@@ -1,6 +1,6 @@
 /***
- * Beaver: compiler builder framework for Java                       
- * Copyright (c) 2003-2006 Alexander Demenchuk <alder@softanvil.com>  
+ * Beaver: compiler front-end construction toolkit                       
+ * Copyright (c) 2003-2007 Alexander Demenchuk <alder@softanvil.com>  
  * All rights reserved.                       
  *                          
  * See the file "LICENSE" for the terms and conditions for copying,    
@@ -11,7 +11,7 @@ package beaver.comp;
 
 import java.util.Map;
 
-import beaver.comp.spec.ItemString;
+import beaver.comp.spec.ItemStatic;
 import beaver.comp.spec.ItemSymbol;
 import beaver.comp.spec.Term;
 import beaver.comp.spec.TreeWalker;
@@ -29,7 +29,7 @@ public class InlineTokenReplacer extends TreeWalker
 		this.constTokens = constTokens;
 	}
 
-	public void visit(ItemString item)
+	public void visit(ItemStatic item)
     {
 		String newSymbolName = (String) constTokens.get(item.text.text);
 		if ( newSymbolName == null )

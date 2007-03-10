@@ -1,72 +1,120 @@
-/***
- * Beaver: compiler builder framework for Java                       
- * Copyright (c) 2003-2006 Alexander Demenchuk <alder@softanvil.com>  
- * All rights reserved.                       
- *                          
- * See the file "LICENSE" for the terms and conditions for copying,    
- * distribution and modification of Beaver.                            
+/**
+ * Beaver: compiler front-end construction toolkit
+ * Copyright (c) 2007 Alexander Demenchuk <alder@softanvil.com>
+ * All rights reserved.
+ *
+ * See the file "LICENSE" for the terms and conditions for copying,
+ * distribution and modification of Beaver.
  */
 package beaver.comp.spec;
 
 /**
- * @author Alexander Demenchuk
- *
+ * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
  */
-public class TreeWalker extends NodeVisitor
+public class TreeWalker implements NodeVisitor
 {
 
-	public void visit(Spec node)
+	public void visit(ItemSymbol node)
 	{
-		if (node.rules != null)
-		{
-			for (Rule i = (Rule) node.rules.first(); i != null; i = (Rule) i.next())
-			{
-				i.accept(this);
-			}
-		}
+		if ( node.ref  != null ) node.ref  .accept(this);
+		if ( node.oper != null ) node.oper .accept(this);
+		if ( node.name != null ) node.name .accept(this);
 	}
 
-	public void visit(Rule node)
+	public void visit(ParserSpec node)
 	{
-		if (node.alts != null)
-		{
-			for (Alt i = (Alt) node.alts.first(); i != null; i = (Alt) i.next())
-			{
-				i.accept(this);
-			}
-		}
+		if ( node.ruleList       != null ) node.ruleList       .accept(this);
+		if ( node.precedenceDecl != null ) node.precedenceDecl .accept(this);
+	}
+
+	public void visit(ItemStatic node)
+	{
+		if ( node.text != null ) node.text .accept(this);
 	}
 
 	public void visit(Alt node)
 	{
-		if (node.def != null)
-		{
-			for (Item i = (Item) node.def.first(); i != null; i = (Item) i.next())
-			{
-				i.accept(this);
-			}
-		}
+		if ( node.name     != null ) node.name     .accept(this);
+		if ( node.itemList != null ) node.itemList .accept(this);
+	}
+
+	public void visit(PrecItemSymbol node)
+	{
+		if ( node.name != null ) node.name .accept(this);
+	}
+
+	public void visit(Precedence node)
+	{
+		if ( node.assoc        != null ) node.assoc        .accept(this);
+		if ( node.precItemList != null ) node.precItemList .accept(this);
+	}
+
+	public void visit(Spec node)
+	{
+		if ( node.parserSpec != null ) node.parserSpec .accept(this);
+	}
+
+	public void visit(PrecItemStatic node)
+	{
+		if ( node.text != null ) node.text .accept(this);
+	}
+
+	public void visit(Rule node)
+	{
+		if ( node.name    != null ) node.name    .accept(this);
+		if ( node.altList != null ) node.altList .accept(this);
 	}
 
 	public void visit(ItemInline node)
 	{
-		if (node.def != null)
+		if ( node.oper     != null ) node.oper     .accept(this);
+		if ( node.itemList != null ) node.itemList .accept(this);
+		if ( node.name     != null ) node.name     .accept(this);
+	}
+
+	public void visit(RuleList list)
+	{
+		for ( Rule item = (Rule) list.first(); item != null; item = (Rule) item.next() )
 		{
-			for (Item i = (Item) node.def.first(); i != null; i = (Item) i.next())
-			{
-				i.accept(this);
-			}
+			item.accept(this);
 		}
 	}
 
-	public void visit(ItemString node)
+	public void visit(ItemList list)
 	{
-		// leaf
+		for ( Item item = (Item) list.first(); item != null; item = (Item) item.next() )
+		{
+			item.accept(this);
+		}
 	}
 
-	public void visit(ItemSymbol node)
+	public void visit(AltList list)
 	{
-		// leaf
+		for ( Alt item = (Alt) list.first(); item != null; item = (Alt) item.next() )
+		{
+			item.accept(this);
+		}
+	}
+
+	public void visit(PrecedenceList list)
+	{
+		for ( Precedence item = (Precedence) list.first(); item != null; item = (Precedence) item.next() )
+		{
+			item.accept(this);
+		}
+	}
+
+	public void visit(PrecItemList list)
+	{
+		for ( PrecItem item = (PrecItem) list.first(); item != null; item = (PrecItem) item.next() )
+		{
+			item.accept(this);
+		}
+	}
+
+	public void visit(Term node)
+	{
+		// leaf node
 	}
 
 }

@@ -1,6 +1,6 @@
 /***
- * Beaver: compiler builder framework for Java                       
- * Copyright (c) 2003-2006 Alexander Demenchuk <alder@softanvil.com>  
+ * Beaver: compiler front-end construction toolkit                       
+ * Copyright (c) 2003-2007 Alexander Demenchuk <alder@softanvil.com>  
  * All rights reserved.                       
  *                          
  * See the file "LICENSE" for the terms and conditions for copying,    
@@ -29,6 +29,12 @@ public class Terminal extends Symbol
 	{
 		super(id, name);
 	}
+	
+	public void setPrecedence(char prec, char assoc)
+	{
+		precedence = prec;
+		associativity = assoc;
+	}
 
 	/**
 	 * Terminal cannot match an empty string.
@@ -40,7 +46,7 @@ public class Terminal extends Symbol
 		return false;
 	}
 	
-	public static final Terminal EOF = new Terminal((char) 0, "<EOF>");
+	public static final Terminal EOF = new Terminal((char) 0, "EOF");
 	
 	public static class Const extends Terminal
 	{

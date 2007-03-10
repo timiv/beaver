@@ -1,6 +1,6 @@
 /***
- * Beaver: compiler builder framework for Java                       
- * Copyright (c) 2003-2006 Alexander Demenchuk <alder@softanvil.com>  
+ * Beaver: compiler front-end construction toolkit                       
+ * Copyright (c) 2003-2007 Alexander Demenchuk <alder@softanvil.com>  
  * All rights reserved.                       
  *                          
  * See the file "LICENSE" for the terms and conditions for copying,    
@@ -19,9 +19,11 @@ import java.util.Set;
 import beaver.SyntaxErrorException;
 import beaver.comp.parser.Action;
 import beaver.comp.parser.Grammar;
+import beaver.comp.parser.ParserWriter;
 import beaver.comp.parser.ParsingTables;
 import beaver.comp.parser.State;
 import beaver.comp.spec.AstBuilder;
+import beaver.comp.spec.ParserSpec;
 import beaver.comp.spec.Spec;
 import beaver.comp.spec.SpecScanner;
 import beaver.util.BitSet;
@@ -33,29 +35,46 @@ import beaver.util.BitSet;
 public class Compiler
 {
 	private Log log;
+	private String[] termOrder;
 	
 	public Compiler(Log log)
 	{
 		this.log = log;
 	}
 	
+	public void setTerminalsOrder(String[] terms)
+	{
+		termOrder = terms;
+	}
+	
 	public void compile(File src, File dstDir) throws IOException, SyntaxErrorException, CompilationException
 	{
 		Grammar  grammar = compileGrammar(src);
-		State firstState = compileAutomaton(grammar);
-		
-		generateParsingTables(grammar, firstState, dstDir);
+		if ( grammar != null )
+		{
+    		State firstState = compileAutomaton(grammar);
+    		
+    		generateParsingTables(grammar, firstState, dstDir);
+    		generateParserSource(grammar, null, null, dstDir);
+		}
 	}
 
     Grammar compileGrammar(File src) throws IOException, SyntaxErrorException
     {
 	    Spec spec = (Spec) new AstBuilder().parse(new SpecScanner(new FileReader(src)));
-		spec.accept(new InlineRulesExtractor());
-		spec.accept(new EbnfOperatorCompiler());
-		spec.accept(new InlineStringExractor());
+	    
+	    ParserSpec parserSpec;
+	    if ( (parserSpec = spec.parserSpec) == null )
+	    {
+	    	return null;
+	    }
+	    
+		parserSpec.accept(new InlineRulesExtractor());
+		parserSpec.accept(new EbnfOperatorCompiler());
+		parserSpec.accept(new InlineStringExractor());
 		
 		NonTerminalCollector nontermCollector = new NonTerminalCollector(log);
-		spec.accept(nontermCollector);
+		parserSpec.accept(nontermCollector);
 		Set nonterminals = nontermCollector.getNames();
 		/*
 		 * Inject the 'error' nonterminal without a definition
@@ -63,24 +82,24 @@ public class Compiler
 		nonterminals.add("error");
 		
 		UnreferencedNonTerminalFinder unrefNontermFinder = new UnreferencedNonTerminalFinder(nonterminals);
-		spec.accept(unrefNontermFinder);
+		parserSpec.accept(unrefNontermFinder);
 		Set unreferencedNames = unrefNontermFinder.getSymbolNames();
 		
 		if ( unreferencedNames.remove("error") ) // because there is no rule for it to remove
 		{
 			nonterminals.remove("error");
 		}
-		spec.accept(new UnusedRuleRemover(unreferencedNames, log));
+		parserSpec.accept(new UnusedRuleRemover(unreferencedNames, log));
 		nonterminals.removeAll(unreferencedNames);
 		
 		TerminalCollector termCollector = new TerminalCollector(nonterminals);
-		spec.accept(termCollector);
+		parserSpec.accept(termCollector);
 		Map constTokens = termCollector.getConstTokens();
 		
-		spec.accept(new InlineTokenReplacer(constTokens));
+		parserSpec.accept(new InlineTokenReplacer(constTokens));
 		
-		GrammarBuilder grammarBuilder = new GrammarBuilder(constTokens, termCollector.getNamedTokens(), nonterminals);
-		spec.accept(grammarBuilder);
+		GrammarBuilder grammarBuilder = new GrammarBuilder(constTokens, termCollector.getNamedTokens(), termOrder, nonterminals, log);
+		parserSpec.accept(grammarBuilder);
 		return grammarBuilder.getGrammar();
     }
     
@@ -89,10 +108,10 @@ public class Compiler
     {
 	    State firstState = new State.Builder().createStates(grammar);
 		
-		Action.ConflictResolver conflictResolver = new Action.ConflictResolver();
+		Action.ConflictResolver conflictResolver = new Action.ConflictResolver(log);
 		if ( !conflictResolver.resolveConflicts(firstState) )
 		{
-			throw new CompilationException("there are conflicts");
+			throw new CompilationException("conflicts");
 		}
 		BitSet unreducibleProductions = grammar.findUnreducibleProductions(firstState);
 		if ( unreducibleProductions.size() != 0 )
@@ -106,8 +125,25 @@ public class Compiler
 	void generateParsingTables(Grammar grammar, State firstState, File dstDir) throws IOException
     {
 	    ParsingTables tables = new ParsingTables(grammar, firstState);
-		DataOutputStream out = new DataOutputStream(new FileOutputStream(new File(dstDir, "ParsingTables.bin")));
-		tables.writeTo(out);
-		out.close();
+		DataOutputStream out = new DataOutputStream(new FileOutputStream(new File(dstDir, "SpecParser.tables")));
+		try
+		{
+			tables.writeTo(out);
+		}
+		finally
+		{
+			out.close();
+		}
     }
+	
+	void generateParserSource(Grammar grammar, Map semanticValueTypes, Map ctermNames, File dstDir) throws IOException
+	{
+		ParserWriter sourceWriter = new ParserWriter("SpecParser", grammar, "Term", semanticValueTypes);
+		sourceWriter.setParserPackageName("beaver.comp.spec");
+		sourceWriter.setSemanticTypesPackageName("beaver.comp.spec");
+		sourceWriter.setFileComment("/**\n * Beaver: compiler front-end construction toolkit\n * Copyright (c) 2007 Alexander Demenchuk <alder@softanvil.com>\n * All rights reserved.\n *\n * See the file \"LICENSE\" for the terms and conditions for copying,\n * distribution and modification of Beaver.\n */");
+		sourceWriter.setConstTermNames(ctermNames);
+		sourceWriter.writeParserSource(dstDir);
+		sourceWriter.writeSemanticTypes(dstDir);
+	}
 }

@@ -1,6 +1,6 @@
 /***
- * Beaver: compiler builder framework for Java                       
- * Copyright (c) 2003-2006 Alexander Demenchuk <alder@softanvil.com>  
+ * Beaver: compiler front-end construction toolkit                       
+ * Copyright (c) 2003-2007 Alexander Demenchuk <alder@softanvil.com>  
  * All rights reserved.                       
  *                          
  * See the file "LICENSE" for the terms and conditions for copying,    
@@ -11,9 +11,9 @@ package beaver.comp;
 import java.util.HashSet;
 import java.util.Set;
 
+import beaver.comp.spec.ParserSpec;
 import beaver.comp.spec.Rule;
 import beaver.comp.spec.RuleList;
-import beaver.comp.spec.Spec;
 import beaver.comp.spec.TreeWalker;
 
 /**
@@ -31,9 +31,9 @@ public class NonTerminalCollector extends TreeWalker
 		this.log = log;
 	}
 	
-	public void visit(Spec node)
+	public void visit(ParserSpec node)
     {
-		rules = node.rules;
+		rules = node.ruleList;
 	    super.visit(node);
     }
 

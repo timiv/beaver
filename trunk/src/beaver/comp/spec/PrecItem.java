@@ -10,14 +10,8 @@ package beaver.comp.spec;
 
 /**
  * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
- * @author Alexander Demenchuk
  */
-public abstract class Item extends beaver.util.Node
+public abstract class PrecItem extends beaver.util.Node
 {
 	public abstract void accept(NodeVisitor visitor);
-	
-	public boolean equals(Item i)
-	{
-		return false;
-	}
 }

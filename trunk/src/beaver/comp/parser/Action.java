@@ -1,6 +1,6 @@
 /***
- * Beaver: compiler builder framework for Java                       
- * Copyright (c) 2003-2006 Alexander Demenchuk <alder@softanvil.com>  
+ * Beaver: compiler front-end construction toolkit                       
+ * Copyright (c) 2003-2007 Alexander Demenchuk <alder@softanvil.com>  
  * All rights reserved.                       
  *                          
  * See the file "LICENSE" for the terms and conditions for copying,    
@@ -11,6 +11,7 @@ package beaver.comp.parser;
 
 import java.util.Arrays;
 
+import beaver.comp.Log;
 import beaver.util.BitSet;
 import beaver.util.IList;
 
@@ -103,8 +104,14 @@ public abstract class Action extends IList.Element
 	
 	public static class ConflictResolver
 	{
+		Log log;
 		int srCount;
 		int rrCount;
+		
+		public ConflictResolver(Log log)
+		{
+			this.log = log;
+		}
 		
 		public boolean resolveConflicts(State firstState)
 		{
@@ -140,7 +147,7 @@ public abstract class Action extends IList.Element
 								break;
 							}
 							srCount++;
-							System.err.println("SR conflict");
+							log.error("shift-reduce conflict: shift " + shift.lookahead.getRepresentation() + " or reduce " + reduce.prod);
 						}
 					}
 				}
@@ -164,7 +171,7 @@ public abstract class Action extends IList.Element
 							break;
 						}
 						rrCount++;
-						System.err.println("RR conflict");
+ 						log.error("reduce-reduce conflict: on " + reduce1.lookahead.getRepresentation()  + " reduce " + reduce1.prod + " or reduce " + reduce2.prod);
 					}
 				}
 			}

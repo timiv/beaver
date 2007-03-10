@@ -1,23 +1,32 @@
-/***
- * Beaver: compiler builder framework for Java                       
- * Copyright (c) 2003-2006 Alexander Demenchuk <alder@softanvil.com>  
- * All rights reserved.                       
- *                          
- * See the file "LICENSE" for the terms and conditions for copying,    
- * distribution and modification of Beaver.                            
+/**
+ * Beaver: compiler front-end construction toolkit
+ * Copyright (c) 2007 Alexander Demenchuk <alder@softanvil.com>
+ * All rights reserved.
+ *
+ * See the file "LICENSE" for the terms and conditions for copying,
+ * distribution and modification of Beaver.
  */
 package beaver.comp.spec;
 
 /**
- * @author Alexander Demenchuk
- *
+ * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
  */
-public abstract class NodeVisitor
+public interface NodeVisitor
 {
-	public abstract void visit(Spec node);
-	public abstract void visit(Rule node);
-	public abstract void visit(Alt  node);
-	public abstract void visit(ItemInline node);
-	public abstract void visit(ItemString node);
-	public abstract void visit(ItemSymbol node);
+	void visit(Alt            node);
+	void visit(AltList        node);
+	void visit(ItemInline     node);
+	void visit(ItemList       node);
+	void visit(ItemStatic     node);
+	void visit(ItemSymbol     node);
+	void visit(ParserSpec     node);
+	void visit(PrecItemList   node);
+	void visit(PrecItemStatic node);
+	void visit(PrecItemSymbol node);
+	void visit(Precedence     node);
+	void visit(PrecedenceList node);
+	void visit(Rule           node);
+	void visit(RuleList       node);
+	void visit(Spec           node);
+	void visit(Term           node);
 }

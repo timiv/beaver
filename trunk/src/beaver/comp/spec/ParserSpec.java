@@ -10,14 +10,20 @@ package beaver.comp.spec;
 
 /**
  * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
- * @author Alexander Demenchuk
  */
-public abstract class Item extends beaver.util.Node
+public class ParserSpec extends beaver.util.Node
 {
-	public abstract void accept(NodeVisitor visitor);
-	
-	public boolean equals(Item i)
+	public RuleList       ruleList;
+	public PrecedenceList precedenceDecl;
+
+	public ParserSpec(RuleList ruleList, PrecedenceList precedenceDecl)
 	{
-		return false;
+		this.ruleList       = ruleList;
+		this.precedenceDecl = precedenceDecl;
+	}
+
+	public void accept(NodeVisitor visitor)
+	{
+		visitor.visit(this);
 	}
 }

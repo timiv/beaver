@@ -1,10 +1,10 @@
 /***
- * Beaver: compiler builder framework for Java                       
- * Copyright (c) 2003-2006 Alexander Demenchuk <alder@softanvil.com>  
- * All rights reserved.                       
- *                          
- * See the file "LICENSE" for the terms and conditions for copying,    
- * distribution and modification of Beaver.                            
+ * Beaver: compiler front-end construction toolkit
+ * Copyright (c) 2003-2007 Alexander Demenchuk <alder@softanvil.com>
+ * All rights reserved.
+ *
+ * See the file "LICENSE" for the terms and conditions for copying,
+ * distribution and modification of Beaver.
  */
 package beaver.comp.spec;
 
@@ -15,78 +15,73 @@ package beaver.comp.spec;
  */
 public class AstBuilder extends SpecParser
 {
-	protected Spec onSpec(RuleList rules)
+	protected Spec onSpec(ParserSpec optParserSpec)
 	{
-		return new Spec(rules);
+		return new Spec(optParserSpec);
 	}
-	
+
+	protected ParserSpec onParserSpec(RuleList ruleList, PrecedenceList optPrecedenceDecl)
+	{
+		return new ParserSpec(ruleList, optPrecedenceDecl);
+	}
+
 	protected Rule onRule(Term name, AltList alts)
 	{
 		return new Rule(name, alts);
 	}
-	
+
 	protected Alt  onAlt(ItemList rhs)
 	{
 		return new Alt(rhs);
 	}
-	
+
 	protected Alt  onAlt(Term name, ItemList rhs)
 	{
 		return new Alt(name, rhs);
 	}
-	
-	protected Item onItemString(Term text)
+
+	protected Item onItemStatic(Term text)
 	{
-		return new ItemString(text);
+		return new ItemStatic(text);
 	}
-	
+
 	protected Item onItemSymbol(Term name, Term operator)
 	{
 		return new ItemSymbol(name, operator);
 	}
-	
+
 	protected Item onItemSymbol(Term ref, Term name, Term operator)
 	{
 		return new ItemSymbol(ref, name, operator);
 	}
-	
+
 	protected Item onItemInline(Term ref, ItemList def, Term operator)
 	{
 		return new ItemInline(ref, def, operator);
 	}
-	
-	protected RuleList onRuleList(Rule item)
+
+	protected PrecedenceList onPrecedenceDecl(PrecedenceList precedenceList)
 	{
-		return new RuleList(item);
-	}
-	
-	protected RuleList onRuleList(RuleList list, Rule item)
-	{
-		return list.add(item);
+		return precedenceList;
 	}
 
-	protected AltList onAltList(Alt item)
+	protected Precedence onPrecedence(PrecItemList precItemList, Term assoc)
 	{
-		return new AltList(item);
-	}
-	
-	protected AltList onAltList(AltList list, Alt item)
-	{
-		return list.add(item);
+		return new Precedence(precItemList, assoc);
 	}
 
-	protected ItemList onItemList(Item item)
+	protected PrecItem onPrecItemSymbol(Term name)
 	{
-		return new ItemList(item);
-	}
-	
-	protected ItemList onItemList(ItemList list, Item item)
-	{
-		return list.add(item);
+		return new PrecItemSymbol(name);
 	}
 
-	protected Object makeTerm(Object value)
+	protected PrecItem onPrecItemStatic(Term text)
 	{
-		return new Term((String) value);
-	}	
+		return new PrecItemStatic(text);
+	}
+
+	protected Object makeTerm(char id, String value)
+	{
+		return new Term(value);
+	}
 }

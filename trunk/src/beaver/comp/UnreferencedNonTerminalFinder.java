@@ -1,6 +1,6 @@
 /***
- * Beaver: compiler builder framework for Java                       
- * Copyright (c) 2003-2006 Alexander Demenchuk <alder@softanvil.com>  
+ * Beaver: compiler front-end construction toolkit                       
+ * Copyright (c) 2003-2007 Alexander Demenchuk <alder@softanvil.com>  
  * All rights reserved.                       
  *                          
  * See the file "LICENSE" for the terms and conditions for copying,    
@@ -41,10 +41,10 @@ public class UnreferencedNonTerminalFinder extends TreeWalker
 
 	public void visit(ItemSymbol item)
     {
-		String symbolName = item.symName.text;
+		String symbolName = item.name.text;
 		if ( !symbolName.equals(currentRuleName) )
 		{
-			nonterminals.remove(item.symName.text);
+			nonterminals.remove(item.name.text);
 		}
     }
 	

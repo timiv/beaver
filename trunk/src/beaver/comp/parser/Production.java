@@ -1,6 +1,6 @@
 /***
- * Beaver: compiler builder framework for Java                       
- * Copyright (c) 2003-2006 Alexander Demenchuk <alder@softanvil.com>  
+ * Beaver: compiler front-end construction toolkit                       
+ * Copyright (c) 2003-2007 Alexander Demenchuk <alder@softanvil.com>  
  * All rights reserved.                       
  *                          
  * See the file "LICENSE" for the terms and conditions for copying,    
@@ -36,16 +36,26 @@ public class Production
 	NonTerminal lhs;
 	
 	/**
-	 * First element in the list of elements that define a LHS non-terminal. 
+	 * Sequence of symbols that defines lhs non-terminal. 
 	 */
-	RHSElement[] rhs;
+	RHSItem[] rhs;
 	
-	public Production(char id, String name, NonTerminal lhs, RHSElement[] rhs)
+	public Production(char id, String name, NonTerminal lhs, RHSItem[] rhs)
 	{
 		this.id   = id;
 		this.lhs  = lhs;
 		this.name = name;
 		this.rhs  = rhs;
+	}
+	
+	public String getName()
+	{
+		return name;
+	}
+	
+	public void setPrecedence(char prec)
+	{
+		precedence = prec;
 	}
 	
 	/**
@@ -63,7 +73,7 @@ public class Production
         }
 		return true;
 	}
-	
+
 	public String toString()
 	{
 		StringBuffer text = new StringBuffer();
@@ -76,29 +86,20 @@ public class Production
 		return text.toString();
 	}
 	
-	/**
-	 * Represents an element on the RHS of a production.
-	 * 
-	 * @author Alexander Demenchuk
-	 */
-	public static class RHSElement
+	public static class RHSItem
 	{
-		/**
-		 * RHS element name. This creates a reference in a semantic action callback.
-		 */
 		String name;
-		
-		/**
-		 * Symbol
-		 */
 		Symbol symbol;
 		
-		public RHSElement(String name, Symbol sym)
+		public RHSItem(String name, Symbol symbol)
 		{
 			this.name = name;
-			this.symbol = sym;
+			this.symbol = symbol;
 		}
 		
+		public RHSItem(Symbol symbol)
+		{
+			this.symbol = symbol;
+		}
 	}
-	
 }
