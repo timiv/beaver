@@ -21,8 +21,8 @@ public interface NodeVisitor
 	void visit(ItemSymbol     node);
 	void visit(ParserSpec     node);
 	void visit(PrecItemList   node);
-	void visit(PrecItemStatic node);
-	void visit(PrecItemSymbol node);
+	void visit(PrecItemRule   node);
+	void visit(PrecItemTerm   node);
 	void visit(Precedence     node);
 	void visit(PrecedenceList node);
 	void visit(Rule           node);

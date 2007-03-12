@@ -70,14 +70,14 @@ public class AstBuilder extends SpecParser
 		return new Precedence(precItemList, assoc);
 	}
 
-	protected PrecItem onPrecItemSymbol(Term name)
+	protected PrecItem onPrecItemRule(Term name)
 	{
-		return new PrecItemSymbol(name);
+		return new PrecItemRule(name);
 	}
 
-	protected PrecItem onPrecItemStatic(Term text)
+	protected PrecItem onPrecItemTerm(Term text)
 	{
-		return new PrecItemStatic(text);
+		return new PrecItemTerm(text);
 	}
 
 	protected Object makeTerm(char id, String value)

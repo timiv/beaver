@@ -23,8 +23,8 @@ import beaver.comp.parser.Symbol;
 import beaver.comp.parser.Terminal;
 import beaver.comp.spec.Alt;
 import beaver.comp.spec.ItemSymbol;
-import beaver.comp.spec.PrecItemStatic;
-import beaver.comp.spec.PrecItemSymbol;
+import beaver.comp.spec.PrecItemRule;
+import beaver.comp.spec.PrecItemTerm;
 import beaver.comp.spec.Precedence;
 import beaver.comp.spec.Rule;
 import beaver.comp.spec.TreeWalker;
@@ -177,7 +177,7 @@ public class GrammarBuilder extends TreeWalker
 		super.visit(prec);
 	}
 	
-	public void visit(PrecItemSymbol item)
+	public void visit(PrecItemRule item)
 	{
 		String name = item.name.text;
 
@@ -207,7 +207,7 @@ public class GrammarBuilder extends TreeWalker
 		}
 	}
 
-	public void visit(PrecItemStatic item)
+	public void visit(PrecItemTerm item)
 	{
 		String repr = item.text.text;
 		String name = (String) constTerms.get(repr);

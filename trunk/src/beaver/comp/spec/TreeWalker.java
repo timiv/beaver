@@ -38,11 +38,6 @@ public class TreeWalker implements NodeVisitor
 		if ( node.itemList != null ) node.itemList .accept(this);
 	}
 
-	public void visit(PrecItemSymbol node)
-	{
-		if ( node.name != null ) node.name .accept(this);
-	}
-
 	public void visit(Precedence node)
 	{
 		if ( node.assoc        != null ) node.assoc        .accept(this);
@@ -54,7 +49,7 @@ public class TreeWalker implements NodeVisitor
 		if ( node.parserSpec != null ) node.parserSpec .accept(this);
 	}
 
-	public void visit(PrecItemStatic node)
+	public void visit(PrecItemTerm node)
 	{
 		if ( node.text != null ) node.text .accept(this);
 	}
@@ -70,6 +65,11 @@ public class TreeWalker implements NodeVisitor
 		if ( node.oper     != null ) node.oper     .accept(this);
 		if ( node.itemList != null ) node.itemList .accept(this);
 		if ( node.name     != null ) node.name     .accept(this);
+	}
+
+	public void visit(PrecItemRule node)
+	{
+		if ( node.name != null ) node.name .accept(this);
 	}
 
 	public void visit(RuleList list)

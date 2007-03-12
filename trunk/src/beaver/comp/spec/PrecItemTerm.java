@@ -11,11 +11,11 @@ package beaver.comp.spec;
 /**
  * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
  */
-public class PrecItemStatic extends PrecItem
+public class PrecItemTerm extends PrecItem
 {
 	public Term text;
 
-	public PrecItemStatic(Term text)
+	public PrecItemTerm(Term text)
 	{
 		this.text = text;
 	}

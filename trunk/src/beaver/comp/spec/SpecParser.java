@@ -36,18 +36,18 @@ public abstract class SpecParser extends beaver.Parser
 	public static final char OPER           = '\016';
 	public static final char TEXT           = '\017';
 
-	protected abstract Spec        onSpec           (ParserSpec parserSpec);
-	protected abstract ParserSpec  onParserSpec     (RuleList ruleList, PrecedenceList precedenceDecl);
-	protected abstract Rule        onRule           (Term name, AltList altList);
-	protected abstract Alt         onAlt            (ItemList itemList);
-	protected abstract Alt         onAlt            (Term name, ItemList itemList);
-	protected abstract Item        onItemStatic     (Term text);
-	protected abstract Item        onItemSymbol     (Term name, Term oper);
-	protected abstract Item        onItemSymbol     (Term ref, Term name, Term oper);
-	protected abstract Item        onItemInline     (Term name, ItemList itemList, Term oper);
-	protected abstract Precedence  onPrecedence     (PrecItemList precItemList, Term assoc);
-	protected abstract PrecItem    onPrecItemSymbol (Term name);
-	protected abstract PrecItem    onPrecItemStatic (Term text);
+	protected abstract Spec        onSpec         (ParserSpec parserSpec);
+	protected abstract ParserSpec  onParserSpec   (RuleList ruleList, PrecedenceList precedenceDecl);
+	protected abstract Rule        onRule         (Term name, AltList altList);
+	protected abstract Alt         onAlt          (ItemList itemList);
+	protected abstract Alt         onAlt          (Term name, ItemList itemList);
+	protected abstract Item        onItemStatic   (Term text);
+	protected abstract Item        onItemSymbol   (Term name, Term oper);
+	protected abstract Item        onItemSymbol   (Term ref, Term name, Term oper);
+	protected abstract Item        onItemInline   (Term name, ItemList itemList, Term oper);
+	protected abstract Precedence  onPrecedence   (PrecItemList precItemList, Term assoc);
+	protected abstract PrecItem    onPrecItemTerm (Term text);
+	protected abstract PrecItem    onPrecItemRule (Term name);
 
 	protected AltList  onAltList (Alt alt)
 	{
@@ -202,17 +202,17 @@ public abstract class SpecParser extends beaver.Parser
 
 				return symbol ( onPrecItemList(precItemList, precItem) );
 			}
-			case 15: // PrecItem = NAME
-			{
-				Term name = (Term) symbols[at - 0].getValue();
-
-				return symbol ( onPrecItemSymbol(name) );
-			}
-			case 16: // PrecItem = TEXT
+			case 15: // PrecItem = TEXT
 			{
 				Term text = (Term) symbols[at - 0].getValue();
 
-				return symbol ( onPrecItemStatic(text) );
+				return symbol ( onPrecItemTerm(text) );
+			}
+			case 16: // PrecItem = NAME
+			{
+				Term name = (Term) symbols[at - 0].getValue();
+
+				return symbol ( onPrecItemRule(name) );
 			}
 			case 17: // OptParserSpec =
 			{
