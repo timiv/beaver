@@ -53,7 +53,7 @@ public class InlineRulesExtractor extends TreeWalker
 			Term name = new Term(nt);
 			node.itemList.copyLocation(ntDef);
 			
-			rules.add(rule = new Rule(name, new AltList(ntDef)));
+			rules.add(rule = new Rule(name, new AltList().add(ntDef)));
 			node.copyLocation(rule);
 		}
 		else

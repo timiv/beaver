@@ -34,7 +34,9 @@ public class ParserWriter
 	String     sourceFileComment;
 	String     parserPackageName;
 	String     parserName;
-	String     semanticTypesPackageName;
+	
+	boolean	   generateListBuilders;
+	boolean    generateNodeBuilders;
 
 	Grammar    grammar;
 	Map        constTermNames;
@@ -62,11 +64,6 @@ public class ParserWriter
 		parserPackageName = name;
 	}
 
-	public void setSemanticTypesPackageName(String name)
-	{
-		semanticTypesPackageName = name;
-	}
-
 	public void setFileComment(String text)
 	{
 		sourceFileComment = text;
@@ -76,6 +73,16 @@ public class ParserWriter
 	{
 		beaverVersion = text;
 	}
+
+	public void setGenerateListBuilders(boolean opt)
+    {
+    	this.generateListBuilders = opt;
+    }
+
+	public void setGenerateNodeBuilders(boolean opt)
+    {
+    	this.generateNodeBuilders = opt;
+    }
 
 	public void writeParserSource(File dir) throws IOException
 	{
@@ -200,43 +207,64 @@ public class ParserWriter
 
 	private void writeCallbacks(PrintWriter out)
 	{
-		//
-		// Find max width of callback return type and name for formatting
-		//
-		int tw = 0, nw = 0;
-		for ( int i = 0; i < callbacks.length; i++ )
+		if ( !generateNodeBuilders || !generateListBuilders ) // then we need prototypes
 		{
-			if ( !callbacks[i].isSpecial() )
-			{
-				tw = Math.max(tw, callbacks[i].returnType.length());
-				nw = Math.max(nw, callbacks[i].name.length());
-			}
+    		//
+    		// Find max width of callback return type and name for formatting
+    		//
+    		int tw = 0, nw = 0;
+    		for ( int i = 0; i < callbacks.length; i++ )
+    		{
+    			Callback cb = callbacks[i]; 
+    			if ( cb.isNodeMaker() && !generateListBuilders || cb.isListMaker() && !generateListBuilders )
+    			{
+    				tw = Math.max(tw, cb.returnType.length());
+    				nw = Math.max(nw, cb.name.length());
+    			}
+    		}
+    		//
+    		// Write prototypes
+    		//
+    		for ( int i = 0; i < callbacks.length; i++ )
+    		{
+    			Callback cb = callbacks[i]; 
+    			if ( cb.isNodeMaker() && !generateListBuilders || cb.isListMaker() && !generateListBuilders )
+    			{
+    				writePrototype(cb, out, tw, nw);
+    			}
+    		}
 		}
-		//
-		// Write prototypes
-		//
-		for ( int i = 0; i < callbacks.length; i++ )
+		
+		if ( generateNodeBuilders )
 		{
-			if ( !callbacks[i].isSpecial() )
-			{
-				writePrototype(callbacks[i], out, tw, nw);
-			}
+    		for ( int i = 0; i < callbacks.length; i++ )
+    		{
+    			if ( callbacks[i].isNodeMaker() )
+    			{
+    				out.println();
+    				writeNodeBuilder(callbacks[i], out);
+    			}
+    		}
 		}
-		//
-		// Write List builders
-		//
-		for ( int i = 0; i < callbacks.length; i++ )
+		
+		if ( generateListBuilders )
 		{
-			if ( callbacks[i].isListStarter() )
-			{
-				out.println();
-				writeListStarter(callbacks[i], out);
-			}
-			else if ( callbacks[i].isListBuilder() )
-			{
-				out.println();
-				writeListBuilder(callbacks[i], out);
-			}
+    		//
+    		// Write List builders
+    		//
+    		for ( int i = 0; i < callbacks.length; i++ )
+    		{
+    			if ( callbacks[i].isListStarter() )
+    			{
+    				out.println();
+    				writeListStarter(callbacks[i], out);
+    			}
+    			else if ( callbacks[i].isListBuilder() )
+    			{
+    				out.println();
+    				writeListBuilder(callbacks[i], out);
+    			}
+    		}
 		}
 	}
 
@@ -273,8 +301,13 @@ public class ParserWriter
 		}
 		else if ( cb.isCopying() )
 		{
-			out.print("\t\t\t\treturn copy( symbols[at - ");
-			out.print(cb.getFirstItemIndex());
+			out.print("\t\t\t\treturn copy( symbols[at");
+			int i = cb.getFirstItemIndex();
+			if ( i > 0 )
+			{
+				out.print(" - ");
+				out.print(i);
+			}
 			out.println("] );");
 		}
 		else
@@ -299,8 +332,12 @@ public class ParserWriter
 				write(arg.name, out, nw);
 				out.print(" = (");
 				write(arg.type, out, tw);
-				out.print(") symbols[at - ");
-				out.print(i);
+				out.print(") symbols[at");
+				if ( i > 0 )
+				{
+					out.print(" - ");
+					out.print(i);
+				}
 				out.println("].getValue();");
 			}
 			out.println();
@@ -855,7 +892,7 @@ public class ParserWriter
 
 		out.print("\t\treturn new ");
 		out.print(cb.returnType);
-		out.print("(");
+		out.print("().add(");
 		out.print(cb.args[cb.getFirstItemIndex()].name);
 		out.println(");");
 
@@ -876,14 +913,36 @@ public class ParserWriter
 
 		out.println("\t}");
 	}
+	
+	private static void writeNodeBuilder(Callback cb, PrintWriter out)
+	{
+		writeDecl(cb, out);
+		out.println("\t{");
+		out.print("\t\treturn new ");
+		out.print(cb.name);
+		out.print("(");
+		int i = cb.getFirstItemIndex();
+		if ( i >= 0 )
+		{
+			out.print(cb.args[i].name);
+
+			while ( (i = cb.getNextItemIndex(i)) > 0 )
+			{
+				out.print(", ");
+				out.print(cb.args[i].name);
+			}
+		}
+		out.println(");");
+		out.println("\t}");
+	}
 
 	private static void writeDecl(Callback cb, PrintWriter out)
 	{
 		out.print("\tprotected ");
 		out.print(cb.returnType);
-		out.print("  on");
+		out.print(" on");
 		out.print(cb.name);
-		out.print(" (");
+		out.print("(");
 		writeArgs(cb, out);
 		out.println(")");
 	}
@@ -1157,6 +1216,16 @@ public class ParserWriter
 		boolean isSpecial()
 		{
 			return argc == 0 || marker != 0;
+		}
+		
+		boolean isNodeMaker()
+		{
+			return argc > 0 && marker == 0;
+		}
+		
+		boolean isListMaker()
+		{
+			return marker == LIST_START || marker == LIST_BUILD; 
 		}
 
 		int getNextItemIndex(int i)

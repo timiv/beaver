@@ -17,11 +17,6 @@ public class PrecedenceList extends beaver.util.NodeList
 	{
 	}
 
-	public PrecedenceList(Precedence item)
-	{
-		super(item);
-	}
-
 	public PrecedenceList add(Precedence item)
 	{
 		return (PrecedenceList) super.add(item);

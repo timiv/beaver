@@ -17,11 +17,6 @@ public class PrecItemList extends beaver.util.NodeList
 	{
 	}
 
-	public PrecItemList(PrecItem item)
-	{
-		super(item);
-	}
-
 	public PrecItemList add(PrecItem item)
 	{
 		return (PrecItemList) super.add(item);

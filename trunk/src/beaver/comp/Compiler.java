@@ -102,7 +102,6 @@ public class Compiler
 		parserSpec.accept(grammarBuilder);
 		return grammarBuilder.getGrammar();
     }
-    
 
 	State compileAutomaton(Grammar grammar) throws CompilationException
     {
@@ -140,9 +139,10 @@ public class Compiler
 	{
 		ParserWriter sourceWriter = new ParserWriter("SpecParser", grammar, "Term", semanticValueTypes);
 		sourceWriter.setParserPackageName("beaver.comp.spec");
-		sourceWriter.setSemanticTypesPackageName("beaver.comp.spec");
 		sourceWriter.setFileComment("/**\n * Beaver: compiler front-end construction toolkit\n * Copyright (c) 2007 Alexander Demenchuk <alder@softanvil.com>\n * All rights reserved.\n *\n * See the file \"LICENSE\" for the terms and conditions for copying,\n * distribution and modification of Beaver.\n */");
 		sourceWriter.setConstTermNames(ctermNames);
+		sourceWriter.setGenerateListBuilders(true);
+		sourceWriter.setGenerateNodeBuilders(true);
 		sourceWriter.writeParserSource(dstDir);
 		sourceWriter.writeSemanticTypes(dstDir);
 	}

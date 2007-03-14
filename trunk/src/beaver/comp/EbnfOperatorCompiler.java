@@ -79,13 +79,13 @@ public class EbnfOperatorCompiler extends TreeWalker
 			rules.add(
 				new Rule(
 					new Term(optSymName),
-					new AltList(
+					new AltList().add(
 						new Alt(
 							null // i.e. empty
 						)
 					).add(
 						new Alt(
-							new ItemList(
+							new ItemList().add(
 								new ItemSymbol(new Term("item"), new Term(symName), null)
 							)
 						)
@@ -111,15 +111,15 @@ public class EbnfOperatorCompiler extends TreeWalker
 			rules.add(
 				new Rule(
 					new Term(lstSymName),
-					new AltList(
+					new AltList().add(
 						new Alt(
-							new ItemList(
+							new ItemList().add(
 								new ItemSymbol(new Term("item"), new Term(symName), null)
 							)
 						)
 					).add(
 						new Alt(
-							new ItemList(
+							new ItemList().add(
 								new ItemSymbol(new Term("list"), new Term(lstSymName), null)
 							).add(
 								new ItemSymbol(new Term("item"), new Term(symName), null)

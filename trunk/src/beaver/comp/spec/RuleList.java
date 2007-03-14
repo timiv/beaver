@@ -18,11 +18,6 @@ public class RuleList extends beaver.util.NodeList
 	{
 	}
 
-	public RuleList(Rule item)
-	{
-		super(item);
-	}
-
 	public RuleList add(Rule item)
 	{
 		return (RuleList) super.add(item);

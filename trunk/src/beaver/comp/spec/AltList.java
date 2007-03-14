@@ -17,11 +17,6 @@ public class AltList extends beaver.util.NodeList
 	{
 	}
 
-	public AltList(Alt item)
-	{
-		super(item);
-	}
-
 	public AltList add(Alt item)
 	{
 		return (AltList) super.add(item);

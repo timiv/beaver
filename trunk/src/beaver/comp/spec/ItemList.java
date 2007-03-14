@@ -17,11 +17,6 @@ public class ItemList extends beaver.util.NodeList
 	{
 	}
 
-	public ItemList(Item item)
-	{
-		super(item);
-	}
-
 	public ItemList add(Item item)
 	{
 		return (ItemList) super.add(item);

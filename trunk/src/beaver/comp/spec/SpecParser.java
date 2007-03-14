@@ -51,7 +51,7 @@ public abstract class SpecParser extends beaver.Parser
 
 	protected AltList  onAltList (Alt alt)
 	{
-		return new AltList(alt);
+		return new AltList().add(alt);
 	}
 
 	protected AltList  onAltList (AltList altList, Alt alt)
@@ -61,7 +61,7 @@ public abstract class SpecParser extends beaver.Parser
 
 	protected PrecItemList  onPrecItemList (PrecItem precItem)
 	{
-		return new PrecItemList(precItem);
+		return new PrecItemList().add(precItem);
 	}
 
 	protected PrecItemList  onPrecItemList (PrecItemList precItemList, PrecItem precItem)
@@ -71,7 +71,7 @@ public abstract class SpecParser extends beaver.Parser
 
 	protected RuleList  onRuleList (Rule item)
 	{
-		return new RuleList(item);
+		return new RuleList().add(item);
 	}
 
 	protected RuleList  onRuleList (RuleList list, Rule item)
@@ -81,7 +81,7 @@ public abstract class SpecParser extends beaver.Parser
 
 	protected ItemList  onItemList (Item item)
 	{
-		return new ItemList(item);
+		return new ItemList().add(item);
 	}
 
 	protected ItemList  onItemList (ItemList list, Item item)
@@ -91,7 +91,7 @@ public abstract class SpecParser extends beaver.Parser
 
 	protected PrecedenceList  onPrecedenceList (Precedence item)
 	{
-		return new PrecedenceList(item);
+		return new PrecedenceList().add(item);
 	}
 
 	protected PrecedenceList  onPrecedenceList (PrecedenceList list, Precedence item)
