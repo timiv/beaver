@@ -25,11 +25,6 @@ public class NodeList extends Node implements IList
 		elements = new DList();
 	}
 	
-	protected NodeList(Node node)
-	{
-		elements = new DList(node);
-	}
-	
 	public NodeList add(Node node)
 	{
 		elements.add(node);

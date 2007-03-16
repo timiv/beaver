@@ -24,14 +24,6 @@ public class DList implements IList
 		root.next = root.prev = root;
 	}
 	
-	public DList(IList.Element elem)
-	{
-		root = new Root();
-		root.next = root.prev = elem;
-		elem.next = elem.prev = root;
-		length = 1;
-	}
-	
 	public int length()
 	{
 		return length;
@@ -52,7 +44,7 @@ public class DList implements IList
 	
 	public IList.Element first()
 	{
-		return root.next; 
+		return length > 0 ? root.next : null; 
 	}
 	
 	private static class Root extends IList.Element
