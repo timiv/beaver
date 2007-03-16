@@ -11,15 +11,27 @@ package beaver.comp.spec;
 /**
  * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
  */
-public class Spec extends beaver.util.Node
+public class RegExpItem extends beaver.util.Node
 {
-	public ScannerSpec scannerSpec;
-	public ParserSpec  parserSpec;
+	public Quantifier quantifier;
+	public Term       oper;
+	public CharExpr   charExpr;
 
-	public Spec(ParserSpec parserSpec, ScannerSpec scannerSpec)
+	public RegExpItem(CharExpr charExpr)
 	{
-		this.parserSpec  = parserSpec;
-		this.scannerSpec = scannerSpec;
+		this.charExpr = charExpr;
+	}
+
+	public RegExpItem(CharExpr charExpr, Term oper)
+	{
+		this.charExpr = charExpr;
+		this.oper     = oper;
+	}
+
+	public RegExpItem(CharExpr charExpr, Quantifier quantifier)
+	{
+		this.charExpr   = charExpr;
+		this.quantifier = quantifier;
 	}
 
 	public void accept(NodeVisitor visitor)

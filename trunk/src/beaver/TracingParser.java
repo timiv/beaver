@@ -180,11 +180,11 @@ public abstract class TracingParser
 	{
 		for (int i = symbols.length - 1; i >= top; i-- )
 		{
-			System.out.print(tables.getSymbolRepresentation(symbols[i].id));
-			System.out.print(' ');
+			System.err.print(tables.getSymbolRepresentation(symbols[i].id));
+			System.err.print(' ');
 		}
-		System.out.print('#');
-		System.out.println(marker);
+		System.err.print('#');
+		System.err.println(marker);
 	}
 
 	/**
@@ -382,7 +382,7 @@ public abstract class TracingParser
 	 */
 	protected void onSyntaxError(Symbol sym)
 	{
-		System.err.println("Unexpected " + tables.getSymbolRepresentation(sym.id) + " @ " + sym.startLine + "," + sym.startColumn);
+		System.err.println("Syntax Error: Unexpected " + tables.getSymbolRepresentation(sym.id) + (sym.id < tables.firstTerminalWithValueId ? "" : "(" + sym.getValue() + ")" ) + " @ " + sym.startLine + "," + sym.startColumn);
 	}
 
 	/**

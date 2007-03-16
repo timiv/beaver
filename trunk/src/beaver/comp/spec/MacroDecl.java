@@ -11,15 +11,15 @@ package beaver.comp.spec;
 /**
  * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
  */
-public class Spec extends beaver.util.Node
+public class MacroDecl extends beaver.util.Node
 {
-	public ScannerSpec scannerSpec;
-	public ParserSpec  parserSpec;
+	public RegExp regExp;
+	public Term   name;
 
-	public Spec(ParserSpec parserSpec, ScannerSpec scannerSpec)
+	public MacroDecl(Term name, RegExp regExp)
 	{
-		this.parserSpec  = parserSpec;
-		this.scannerSpec = scannerSpec;
+		this.name   = name;
+		this.regExp = regExp;
 	}
 
 	public void accept(NodeVisitor visitor)

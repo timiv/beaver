@@ -11,15 +11,15 @@ package beaver.comp.spec;
 /**
  * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
  */
-public class Spec extends beaver.util.Node
+public class RangeExprMinus extends RangeExpr
 {
-	public ScannerSpec scannerSpec;
-	public ParserSpec  parserSpec;
+	public RangeExpr range;
+	public RangeExpr diff;
 
-	public Spec(ParserSpec parserSpec, ScannerSpec scannerSpec)
+	public RangeExprMinus(RangeExpr diff, RangeExpr range)
 	{
-		this.parserSpec  = parserSpec;
-		this.scannerSpec = scannerSpec;
+		this.diff  = diff;
+		this.range = range;
 	}
 
 	public void accept(NodeVisitor visitor)

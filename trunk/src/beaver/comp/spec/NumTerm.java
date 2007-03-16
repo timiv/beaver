@@ -10,16 +10,15 @@ package beaver.comp.spec;
 
 /**
  * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
+ * @author Alexander Demenchuk
  */
-public class Spec extends beaver.util.Node
+public class NumTerm extends beaver.util.Node
 {
-	public ScannerSpec scannerSpec;
-	public ParserSpec  parserSpec;
+	public int value;
 
-	public Spec(ParserSpec parserSpec, ScannerSpec scannerSpec)
+	public NumTerm(String text)
 	{
-		this.parserSpec  = parserSpec;
-		this.scannerSpec = scannerSpec;
+		this.value = Integer.parseInt(text);
 	}
 
 	public void accept(NodeVisitor visitor)

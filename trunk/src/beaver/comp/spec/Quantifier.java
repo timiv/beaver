@@ -11,15 +11,20 @@ package beaver.comp.spec;
 /**
  * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
  */
-public class Spec extends beaver.util.Node
+public class Quantifier extends beaver.util.Node
 {
-	public ScannerSpec scannerSpec;
-	public ParserSpec  parserSpec;
+	public NumTerm min;
+	public NumTerm max;
 
-	public Spec(ParserSpec parserSpec, ScannerSpec scannerSpec)
+	public Quantifier(NumTerm min)
 	{
-		this.parserSpec  = parserSpec;
-		this.scannerSpec = scannerSpec;
+		this.min = min;
+	}
+
+	public Quantifier(NumTerm min, NumTerm max)
+	{
+		this.min = min;
+		this.max = max;
 	}
 
 	public void accept(NodeVisitor visitor)

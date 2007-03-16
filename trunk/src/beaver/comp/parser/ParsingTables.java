@@ -246,14 +246,14 @@ public class ParsingTables
             {
             	if ( s.shiftActions != null )
             	{
-            		for ( Action act = (Action) s.shiftActions.first(); act != null; act= (Action) act.next() )
+            		for ( Action act = (Action) s.shiftActions.first(); act != null; act = (Action) act.next() )
             		{
             			actions.add(new ActionEntry(act.lookahead.id, act.getCode()));
             		}
             	}
             	if ( s.reduceActions != null )
             	{
-            		for ( Action act = (Action) s.reduceActions.first(); act != null; act= (Action) act.next() )
+            		for ( Action act = (Action) s.reduceActions.first(); act != null; act = (Action) act.next() )
             		{
             			actions.add(new ActionEntry(act.lookahead.id, act.getCode()));
             		}

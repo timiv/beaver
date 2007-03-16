@@ -15,73 +15,15 @@ package beaver.comp.spec;
  */
 public class AstBuilder extends SpecParser
 {
-	protected Spec onSpec(ParserSpec optParserSpec)
-	{
-		return new Spec(optParserSpec);
-	}
-
-	protected ParserSpec onParserSpec(RuleList ruleList, PrecedenceList optPrecedenceDecl)
-	{
-		return new ParserSpec(ruleList, optPrecedenceDecl);
-	}
-
-	protected Rule onRule(Term name, AltList alts)
-	{
-		return new Rule(name, alts);
-	}
-
-	protected Alt  onAlt(ItemList rhs)
-	{
-		return new Alt(rhs);
-	}
-
-	protected Alt  onAlt(Term name, ItemList rhs)
-	{
-		return new Alt(name, rhs);
-	}
-
-	protected Item onItemStatic(Term text)
-	{
-		return new ItemStatic(text);
-	}
-
-	protected Item onItemSymbol(Term name, Term operator)
-	{
-		return new ItemSymbol(name, operator);
-	}
-
-	protected Item onItemSymbol(Term ref, Term name, Term operator)
-	{
-		return new ItemSymbol(ref, name, operator);
-	}
-
-	protected Item onItemInline(Term ref, ItemList def, Term operator)
-	{
-		return new ItemInline(ref, def, operator);
-	}
-
-	protected PrecedenceList onPrecedenceDecl(PrecedenceList precedenceList)
-	{
-		return precedenceList;
-	}
-
-	protected Precedence onPrecedence(PrecItemList precItemList, Term assoc)
-	{
-		return new Precedence(precItemList, assoc);
-	}
-
-	protected PrecItem onPrecItemRule(Term name)
-	{
-		return new PrecItemRule(name);
-	}
-
-	protected PrecItem onPrecItemTerm(Term text)
-	{
-		return new PrecItemTerm(text);
-	}
-
 	protected Object makeTerm(char id, String value)
 	{
-		return new Term(value);
+		if ( id == SpecParser.NUM )
+		{
+			return new NumTerm(value);
+		}
+		else
+		{
+			return new Term(value);
+		}
 	}
 }

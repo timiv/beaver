@@ -548,15 +548,6 @@ public class ParserWriter
 		out.println();
 		out.print("\tpublic ");
 		out.print(type.listType);
-		out.print("(");
-		out.print(type.itemType);
-		out.println(" item)");
-		out.println("\t{");
-		out.println("\t\tsuper(item);");
-		out.println("\t}");
-		out.println();
-		out.print("\tpublic ");
-		out.print(type.listType);
 		out.print(" add(");
 		out.print(type.itemType);
 		out.println(" item)");

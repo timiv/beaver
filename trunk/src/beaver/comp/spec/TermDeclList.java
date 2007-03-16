@@ -11,15 +11,15 @@ package beaver.comp.spec;
 /**
  * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
  */
-public class Spec extends beaver.util.Node
+public class TermDeclList extends beaver.util.NodeList
 {
-	public ScannerSpec scannerSpec;
-	public ParserSpec  parserSpec;
-
-	public Spec(ParserSpec parserSpec, ScannerSpec scannerSpec)
+	public TermDeclList()
 	{
-		this.parserSpec  = parserSpec;
-		this.scannerSpec = scannerSpec;
+	}
+
+	public TermDeclList add(TermDecl item)
+	{
+		return (TermDeclList) super.add(item);
 	}
 
 	public void accept(NodeVisitor visitor)

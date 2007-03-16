@@ -11,19 +11,7 @@ package beaver.comp.spec;
 /**
  * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
  */
-public class Spec extends beaver.util.Node
+public abstract class CharExpr extends beaver.util.Node
 {
-	public ScannerSpec scannerSpec;
-	public ParserSpec  parserSpec;
-
-	public Spec(ParserSpec parserSpec, ScannerSpec scannerSpec)
-	{
-		this.parserSpec  = parserSpec;
-		this.scannerSpec = scannerSpec;
-	}
-
-	public void accept(NodeVisitor visitor)
-	{
-		visitor.visit(this);
-	}
+	public abstract void accept(NodeVisitor visitor);
 }
