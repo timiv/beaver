@@ -120,19 +120,25 @@ class CharClass
 		
 		static void merge(Span s)
 		{
-			for (; s != null; s = s.next)
+			while ( s != null )
 			{
+				boolean merged = false;
 				for (Span n = s.next, p = s; n != null; n = n.next)
 				{
 					if (s.intersects(n) || s.joins(n))
 					{
 						s.union(n);
 						p.next = n.next;
+						merged = true;
 					}
 					else
 					{
 						p = n;
 					}
+				}
+				if ( !merged )
+				{
+					s = s.next;
 				}
 			}
 		}

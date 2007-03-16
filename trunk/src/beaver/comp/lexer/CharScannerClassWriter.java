@@ -321,8 +321,7 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 		return cw.toByteArray();
 	}
 
-	private static void compile(MethodVisitor mv, String className, ArrayList events, DFA dfa, Label startScan,
-	    Label unexpectedChar)
+	private static void compile(MethodVisitor mv, String className, ArrayList events, DFA dfa, Label startScan, Label unexpectedChar)
 	{
 		Label[] dfaStateLabels = makeLabels(dfa.nStates);
 

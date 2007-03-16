@@ -172,21 +172,28 @@ class DFA
 				t.dest = sets[t.dest.sid];
 			}
 		}
-
-		// remove "extra" states
-		for (State s = start; s != null; s = s.next)
-		{
-			while (s.next != null && s.next.link != null)
-			{
-				s.next = s.next.next;
-				nStates--;
-			}
-		}
-
-		// forget removed states
+		
+		// mark "extra" states
 		for (int i = 0; i <= lastSet; i++)
 		{
-			sets[i].link = null;
+			for ( State st = sets[i].link; st != null; st = st.link )
+			{
+				st.sid = -1;
+			}
+		}
+		
+		// remove "extra" states
+		for (State ps = start, st = ps.next; st != null; st = st.next)
+		{
+			if ( st.sid < 0 )
+			{
+				ps.next = st.next;
+				nStates--;
+			}
+			else
+			{
+				ps = st;
+			}
 		}
 	}
 
@@ -243,7 +250,8 @@ class DFA
 		{
 			if (this.nTransitions != st.nTransitions)
 				return true;
-			compareGoTos: for (Transition t = move; t != null; t = t.next)
+		compareGoTos: 
+			for (Transition t = move; t != null; t = t.next)
 			{
 				for (Transition x = st.move; x != null; x = x.next)
 				{
