@@ -73,9 +73,9 @@
 		;
 
 	RegExpItem
-		= CharExpr
-		| CharExpr OPER
-		| CharExpr Quantifier
+		=           CharExpr
+		| { Close } CharExpr OPER
+		| { Quant } CharExpr Quantifier
 		;
 
 	Quantifier
@@ -103,13 +103,13 @@
 
 	any     = [^]
 			;
-	dot		= any \ EOL
+	dot		= any \ $
 			;
 	esc		= dot \ [\\]
 			;
 	digit	= [0-9]
 			;
-	letter	= [a-zA-Z]
+	letter	= [a-zA-Z_]
 			;
 
 %tokens
@@ -120,9 +120,9 @@
 			;
 	ASSOC	= "left" | "right" | "none"
 			;
-	NAME	= letter ( letter | digit )*
+	NAME	= letter ( letter | digit )* | "$"
 			;
 	TEXT	= "\"" ( esc \ ["] | "\\" dot )* "\""
 			;
-	RANGE	= "[" ( esc \ [\]] | "\\" dot )* "]"
+	RANGE	= "[" "^"? ( esc \ [\]] | "\\" dot )* "]"
     ;

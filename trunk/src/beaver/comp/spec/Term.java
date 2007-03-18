@@ -21,6 +21,11 @@ public class Term extends beaver.util.Node
 		this.text = text;
 	}
 
+	public String toString()
+	{
+		return text;
+	}
+
 	public void accept(NodeVisitor visitor)
 	{
 		visitor.visit(this);

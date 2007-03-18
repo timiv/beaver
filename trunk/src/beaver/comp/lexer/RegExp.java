@@ -8,11 +8,11 @@
  */
 package beaver.comp.lexer;
 
-abstract class RegExp
+public abstract class RegExp
 {
 	abstract void accept(OpVisitor v);
 	
-	static class NullOp extends RegExp
+	public static class NullOp extends RegExp
 	{
 		void accept(OpVisitor v)
 		{
@@ -20,11 +20,11 @@ abstract class RegExp
 		}
 	}
 	
-	static class MatchCharOp extends RegExp
+	public static class MatchCharOp extends RegExp
 	{
 		char c;
 		
-		MatchCharOp(char c)
+		public MatchCharOp(char c)
 		{
 			this.c = c;
 		}
@@ -35,13 +35,18 @@ abstract class RegExp
 		}
 	}
 
-	static class MatchRangeOp extends RegExp
+	public static class MatchRangeOp extends RegExp
 	{
 		Range match;
 
-		MatchRangeOp(Range match)
+		public MatchRangeOp(Range match)
 		{
 			this.match = match;
+		}
+		
+		public RegExp minus(MatchRangeOp op)
+		{
+			return new MatchRangeOp(Range.minus(match, op.match));
 		}
 		
 		void accept(OpVisitor v)
@@ -50,11 +55,11 @@ abstract class RegExp
 		}
 	}
 	
-	static class AltOp extends RegExp
+	public static class AltOp extends RegExp
 	{
 		RegExp exp1, exp2;
 		
-		AltOp(RegExp exp1, RegExp exp2)
+		public AltOp(RegExp exp1, RegExp exp2)
 		{
 			this.exp1 = exp1;
 			this.exp2 = exp2;
@@ -66,11 +71,11 @@ abstract class RegExp
 		}
 	}
 
-	static class CatOp extends RegExp
+	public static class CatOp extends RegExp
 	{
 		RegExp exp1, exp2;
 		
-		CatOp(RegExp exp1, RegExp exp2)
+		public CatOp(RegExp exp1, RegExp exp2)
 		{
 			this.exp1 = exp1;
 			this.exp2 = exp2;
@@ -82,11 +87,11 @@ abstract class RegExp
 		}
 	}
 
-	static class CloseOp extends RegExp
+	public static class CloseOp extends RegExp
 	{
 		RegExp exp;
 		
-		CloseOp(RegExp exp)
+		public CloseOp(RegExp exp)
 		{
 			this.exp = exp;
 		}
@@ -97,13 +102,13 @@ abstract class RegExp
 		}
 	}
 
-	static class CloseVOp extends RegExp
+	public static class CloseVOp extends RegExp
 	{
 		RegExp exp;
 		int    min;
 		int    max;
 		
-		CloseVOp(RegExp exp, int min, int max)
+		public CloseVOp(RegExp exp, int min, int max)
 		{
 			this.exp = exp;
 			this.min = min;
@@ -116,25 +121,43 @@ abstract class RegExp
 		}
 	}
 
-	static class RuleOp extends RegExp
+	public static class RuleOp extends RegExp
 	{
 		RegExp   exp;
 		RegExp   ctx;
 		NFA.Node node;
 		int      accept;
 		String   eventName;
+
+		public RuleOp(RegExp exp, RegExp ctx)
+		{
+			this.exp = exp;
+			this.ctx = ctx;
+		}
 		
-		RuleOp(RegExp exp, RegExp ctx, int accept)
+		public RuleOp(RegExp exp, RegExp ctx, int accept)
 		{
 			this.exp = exp;
 			this.ctx = ctx;
 			this.accept = accept;
 		}
 
-		RuleOp(RegExp exp, RegExp ctx, int accept, String eventName)
+		public RuleOp(RegExp exp, RegExp ctx, int accept, String eventName)
 		{
 			this(exp, ctx, accept);
 			this.eventName = eventName;
+		}
+		
+		public void setId(int id)
+		{
+			if ( accept != 0 )
+				throw new IllegalStateException("already set");
+			accept = id;
+		}
+		
+		public int getId()
+		{
+			return accept;
 		}
 		
 		void accept(OpVisitor v)

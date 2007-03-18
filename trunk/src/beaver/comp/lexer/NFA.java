@@ -350,14 +350,7 @@ class NFA
 
 			Fork fork = new Fork();
 			this.add(fork);
-			fork.alt = lastNode != null ? lastNode.next : first; // i.e. the
-                                                                    // first
-                                                                    // node of
-                                                                    // the
-                                                                    // expression
-                                                                    // it just
-                                                                    // has
-                                                                    // compiled
+			fork.alt = lastNode != null ? lastNode.next : first; // i.e. the first node of the expression it just has compiled
 		}
 
 		public void visit(RegExp.CloseVOp op)

@@ -26,4 +26,9 @@ public class RegExp extends beaver.util.NodeList
 	{
 		visitor.visit(this);
 	}
+	
+	public beaver.comp.lexer.RegExp accept(RegExpCompiler compiler)
+	{
+		return compiler.compile(this);
+	}
 }

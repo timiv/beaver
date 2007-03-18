@@ -21,6 +21,11 @@ public class NumTerm extends beaver.util.Node
 		this.value = Integer.parseInt(text);
 	}
 
+	public String toString()
+	{
+		return String.valueOf(value);
+	}
+
 	public void accept(NodeVisitor visitor)
 	{
 		visitor.visit(this);

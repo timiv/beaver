@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 import beaver.util.CharMap;
 
-class DFA
+public class DFA
 {
 	State start;
 	int   nStates;

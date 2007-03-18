@@ -14,4 +14,5 @@ package beaver.comp.spec;
 public abstract class CharExpr extends beaver.util.Node
 {
 	public abstract void accept(NodeVisitor visitor);
+	public abstract beaver.comp.lexer.RegExp accept(RegExpCompiler compiler);
 }

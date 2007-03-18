@@ -24,4 +24,9 @@ public class CharExprText extends CharExpr
 	{
 		visitor.visit(this);
 	}
+
+	public beaver.comp.lexer.RegExp accept(RegExpCompiler compiler)
+	{
+		return compiler.compile(this);
+	}
 }

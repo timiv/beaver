@@ -13,29 +13,20 @@ package beaver.comp.spec;
  */
 public class RegExpItem extends beaver.util.Node
 {
-	public Quantifier quantifier;
-	public Term       oper;
-	public CharExpr   charExpr;
+	public CharExpr charExpr;
 
 	public RegExpItem(CharExpr charExpr)
 	{
 		this.charExpr = charExpr;
 	}
 
-	public RegExpItem(CharExpr charExpr, Term oper)
-	{
-		this.charExpr = charExpr;
-		this.oper     = oper;
-	}
-
-	public RegExpItem(CharExpr charExpr, Quantifier quantifier)
-	{
-		this.charExpr   = charExpr;
-		this.quantifier = quantifier;
-	}
-
 	public void accept(NodeVisitor visitor)
 	{
 		visitor.visit(this);
+	}
+
+	public beaver.comp.lexer.RegExp accept(RegExpCompiler compiler)
+	{
+		return compiler.compile(this);
 	}
 }

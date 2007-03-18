@@ -23,8 +23,7 @@ class Range
 	
 	Range(char lb, char ub, Range next)
 	{
-		this.lb = lb;
-		this.ub = ub;
+		this(lb, ub);
 		this.next = next;
 	}
 	
@@ -67,6 +66,53 @@ class Range
 		}
 	}
 	
+	void add(Range r)
+	{
+		Range n = this;
+		while ( n.next != null )
+		{
+			n = n.next;
+		}
+		n.next = r;
+	}
+	
+	void compact()
+	{
+		Range r = this;
+		while ( r != null )
+		{
+			boolean merged = false;
+			for ( Range n = r.next, p = r; n != null; n = n.next )
+			{
+				if ( r.intersects(n) || r.isContinuation(n) )
+				{
+					r.union(n);
+					merged = true;
+					p.next = n.next;
+				}
+				else
+				{
+					p = n;
+				}
+			}
+			if ( !merged )
+			{
+				r = r.next;
+			}
+		}
+	}
+	
+	static Range copy(Range r)
+	{
+		Range c = new Range(r.lb, r.ub);
+		Range n = c;
+		while ( (r = r.next) != null )
+		{
+			n = n.next = new Range(r.lb, r.ub);
+		}
+		return c;
+	}
+	
 	static Range make(char first, char last)
 	{
 		return new Range(first, (char) (last + 1));
@@ -89,106 +135,74 @@ class Range
 	
 	static Range compile(SubStr str)
 	{
-		if (str.isEmpty())
+		if ( str.isEmpty() )
 			return null;
-		
+
 		Range r = null;
-		while (!str.isEmpty())
+	read:
+		while ( !str.isEmpty() )
 		{
 			char lb = str.readNextChar();
-			if (str.isEmpty())
+			if ( str.isEmpty() )
 			{
-				return union(r, Range.make(lb));
+				r = Range.make(lb, r);
+				break read;
 			}
-			char nc = str.readNextChar();		
-			while (nc != '-')
+			char nc = str.readNextChar();
+			while ( nc != '-' )
 			{
-				r = union(r, Range.make(lb));
-				if (str.isEmpty())
+				r = Range.make(lb, r);
+				if ( str.isEmpty() )
 				{
-					return union(r, Range.make(nc));
+					r = Range.make(nc, r);
+					break read;
 				}
 				lb = nc;
 				nc = str.readNextChar();
 			}
-			if (str.isEmpty())
+			if ( str.isEmpty() )
 			{
-				return union(r, Range.make(lb, Range.make(nc)));
+				r = Range.make(lb, r);
+				r = Range.make(nc, r);
+				break read;
 			}
 			char ub = str.readNextChar();
-			if (ub > lb)
-				r = union(r, Range.make(lb, ub));
+			if ( ub > lb )
+				r = Range.make(lb, ub, r);
 			else
-				r = union(r, Range.make(ub, lb));
+				r = Range.make(ub, lb, r);
 		}
+		r.compact();
 		return r;
 	}
 	
-	static Range union(Range a, Range b)
+	static Range union(Range r1, Range r2)
 	{
-		if (a == null)
-			return b;
-		
-		Range r = a;
-		while (r.next != null)
-		{
-			r = r.next;
-		}
-		r.next = b;
-		
-		boolean mutating = true;
-		while (mutating)
-		{
-			mutating = false;
-			
-			for (r = a; r != null; r = r.next)
-			{
-				for (Range p = r, n = r.next; n != null; n = n.next)
-				{
-					if (n.intersects(r) || n.isContinuation(r))
-					{
-						p.next = n.next;
-						r.union(n);
-						mutating = true;
-					}
-					else
-					{
-						p = n;
-					}
-				}
-			}
-		}		
-		return a;
+		if ( r1 == null )
+			return r2;
+		if ( r2 == null )
+			return r1;
+
+		Range r = copy(r1);
+		r.add(copy(r2));
+		r.compact();
+		return r;
 	}
 	
-	static Range minus(Range a, Range b)
+	static Range minus(Range r1, Range r2)
 	{
-		for (Range x = b; x != null; x = x.next)
+		Range r = copy(r1);
+		
+		for (Range a = r; a != null; a = a.next)
 		{
-			for (Range r = a, p = null; r != null; r = r.next)
+			for (Range b = r2; b != null; b = b.next)
 			{
-				if (r.isSubrangeOf(x))
+				if ( a.intersects(b) )
 				{
-					if (r == a)
-					{
-						a = r.next;
-					}
-					else
-					{
-						p.next = r.next;
-					}
-				}
-				else if (r.intersects(x))
-				{
-					r.minus(x);
-					p = r;
-				}
-				else
-				{
-					p = r;
+					a.minus(b);
 				}
 			}
 		}
-		return a;
+		return r;
 	}
 }

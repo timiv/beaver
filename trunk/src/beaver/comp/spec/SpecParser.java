@@ -35,12 +35,12 @@ public abstract class SpecParser extends beaver.Parser
 	public static final char LCURL          = '\015'; // "{"
 	public static final char BAR            = '\016'; // "|"
 	public static final char RCURL          = '\017'; // "}"
-	public static final char ASSOC          = '\020';
+	public static final char OPER           = '\020';
 	public static final char NUM            = '\021';
-	public static final char RANGE          = '\022';
+	public static final char ASSOC          = '\022';
 	public static final char NAME           = '\023';
-	public static final char OPER           = '\024';
-	public static final char TEXT           = '\025';
+	public static final char TEXT           = '\024';
+	public static final char RANGE          = '\025';
 
 
 	protected Spec onSpec(ParserSpec parserSpec, ScannerSpec scannerSpec)
@@ -128,14 +128,14 @@ public abstract class SpecParser extends beaver.Parser
 		return new RegExpItem(charExpr);
 	}
 
-	protected RegExpItem onRegExpItem(CharExpr charExpr, Term oper)
+	protected RegExpItem onRegExpItemClose(CharExpr charExpr, Term oper)
 	{
-		return new RegExpItem(charExpr, oper);
+		return new RegExpItemClose(charExpr, oper);
 	}
 
-	protected RegExpItem onRegExpItem(CharExpr charExpr, Quantifier quantifier)
+	protected RegExpItem onRegExpItemQuant(CharExpr charExpr, Quantifier quantifier)
 	{
-		return new RegExpItem(charExpr, quantifier);
+		return new RegExpItemQuant(charExpr, quantifier);
 	}
 
 	protected Quantifier onQuantifier(NumTerm min)
@@ -440,14 +440,14 @@ public abstract class SpecParser extends beaver.Parser
 				CharExpr charExpr = (CharExpr) symbols[at].getValue();
 				Term     oper     = (Term    ) symbols[at - 1].getValue();
 
-				return symbol ( onRegExpItem(charExpr, oper) );
+				return symbol ( onRegExpItemClose(charExpr, oper) );
 			}
 			case 26: // RegExpItem = CharExpr Quantifier
 			{
 				CharExpr   charExpr   = (CharExpr  ) symbols[at].getValue();
 				Quantifier quantifier = (Quantifier) symbols[at - 1].getValue();
 
-				return symbol ( onRegExpItem(charExpr, quantifier) );
+				return symbol ( onRegExpItemQuant(charExpr, quantifier) );
 			}
 			case 27: // Quantifier = "{" NUM "}"
 			{

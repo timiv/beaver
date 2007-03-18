@@ -10,6 +10,8 @@ package beaver.comp.lexer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
 
 import beaver.CharScanner;
 import beaver.util.SubStr;
@@ -34,6 +36,11 @@ public class ScannerBuilder
 	public static RegExp makeMatchStringRule(int n, String str)
 	{
 		return new RegExp.RuleOp(strToRegExp(new SubStr(str)), new RegExp.NullOp(), n);
+	}
+	
+	public static RegExp makeMatchEOLChar()
+	{
+		return rangeToRegExp("[\\n\\r]");
 	}
 	
 //	public static RegExp makeEOL()
@@ -61,7 +68,7 @@ public class ScannerBuilder
 	{
 		return makeRule(-2, new RegExp.MatchCharOp(CharScanner.EOF_SENTINEL));
 	}
-
+	
 	public static RegExp rangeToRegExp(SubStr str)
 	{
 		if (str.isEmpty())
@@ -78,6 +85,12 @@ public class ScannerBuilder
 	{
 		SubStr txt = new SubStr(str);
 		txt.trim1();
+		int marker = txt.getMark();
+		if ( txt.readChar() == '^' )
+		{
+			return invRangeToRegExp(txt);
+		}
+		txt.reset(marker);	
 		return rangeToRegExp(txt);
 	}
 	
@@ -96,15 +109,6 @@ public class ScannerBuilder
 		return new RegExp.MatchRangeOp(r);
 	}
 	
-	public static RegExp invRangeToRegExp(String str)
-	{
-		SubStr txt = new SubStr(str);
-		txt.trim1();
-		if (txt.readChar() != '^') 
-			throw new IllegalArgumentException();
-		return invRangeToRegExp(txt);
-	}
-
 	public static RegExp strToRegExp(SubStr str)
 	{
 		if ( str.isEmpty() )
@@ -165,6 +169,23 @@ public class ScannerBuilder
 			return new RegExp.AltOp(new RegExp.MatchCharOp(u), new RegExp.MatchCharOp(l));
 		else
 			return new RegExp.AltOp(new RegExp.MatchCharOp(u), new RegExp.AltOp(new RegExp.MatchCharOp(l), new RegExp.MatchCharOp(t)));
+	}
+	
+	public static DFA compile(Collection rules)
+	{
+		Iterator i  = rules.iterator();
+		if ( i.hasNext() )
+		{
+			RegExp re = (RegExp) i.next();
+			while ( i.hasNext() )
+			{
+				re = new RegExp.AltOp( re, (RegExp) i.next() );
+			}
+			CharSet cs = new CharSet(re);
+			NFA nfa = new NFA(re, cs);
+			return new DFA(nfa, cs);
+		}
+		throw new IllegalArgumentException("no rules");
 	}
 	
 	public static void saveClass(File dir, String name, byte[] bc) throws IOException

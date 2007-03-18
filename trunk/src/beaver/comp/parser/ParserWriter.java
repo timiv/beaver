@@ -484,6 +484,8 @@ public class ParserWriter
 
 	private void initSemanticTypes(Collection abstractTypes, Map listTypes, Map nodeTypes)
 	{
+		Collection concreteTypes = new ArrayList();
+		
 		for ( int i = 0; i < callbacks.length; i++ )
 		{
 			Callback cb = callbacks[i];
@@ -506,7 +508,12 @@ public class ParserWriter
 				if ( type == null )
 				{
 					nodeTypes.put(cb.name, type = new NodeType(cb.name));
-					if ( !cb.name.equals(cb.returnType) )
+					
+					if ( cb.name.equals(cb.returnType) )
+					{
+						concreteTypes.add(cb.name);
+					}
+					else
 					{
 						abstractTypes.add(type.superName = cb.returnType);
 					}
@@ -514,6 +521,16 @@ public class ParserWriter
 				type.add(cb);
 			}
 		}
+		abstractTypes.removeAll(concreteTypes);
+		
+		for ( Iterator i = nodeTypes.values().iterator(); i.hasNext(); )
+        {
+	        NodeType type = (NodeType) i.next();
+	        if ( type.superName != null && !abstractTypes.contains(type.superName) )
+	        {
+	        	type.superType = (NodeType) nodeTypes.get(type.superName);
+	        }
+        }
 	}
 
 	private void writeAbstractType(String typeName, PrintWriter out)
@@ -601,6 +618,11 @@ public class ParserWriter
 		out.println("(String text)");
 		out.println("\t{");
 		out.println("\t\tthis.text = text;");
+		out.println("\t}");
+		out.println();
+		out.println("\tpublic String toString()");
+		out.println("\t{");
+		out.println("\t\treturn text;");
 		out.println("\t}");
 		out.println();
 		out.println("\tpublic void accept(NodeVisitor visitor)");
@@ -792,35 +814,50 @@ public class ParserWriter
 			out.print("\tpublic ");
 			out.print(type.typeName);
 			out.print('(');
-
-			int nw = 0;
-			if ( cb.argc > 0 )
-			{
-				String sep = "";
-
-				for ( int x = 0; x < cb.args.length; x++ )
-				{
-					if ( cb.args[x] != null )
-					{
-						out.print(sep);
-						write(cb.args[x], out);
-						nw = Math.max(nw, cb.args[x].name.length());
-						sep = ", ";
-					}
-				}
-			}
-			out.println(')');
-			out.println("\t{");
+			String sep = "";
 			for ( int x = 0; x < cb.args.length; x++ )
 			{
 				if ( cb.args[x] != null )
 				{
-					out.print("\t\tthis.");
-					write(cb.args[x].name, out, nw);
-					out.print(" = ");
-					out.print(cb.args[x].name);
-					out.println(';');
+					out.print(sep);
+					write(cb.args[x], out);
+					sep = ", ";
 				}
+			}
+			out.println(')');
+			out.println("\t{");
+			int x = cb.getFirstItemIndex();
+			if ( type.superType != null )
+			{
+				Callback ctr = type.superType.findSuperConstructor(cb);
+				if ( ctr == null )
+					throw new IllegalStateException("cannot find super-constructor");
+				
+				out.print("\t\tsuper(");
+				out.print(cb.args[x].name);
+				x = cb.getNextItemIndex(x);
+				for ( int n = 1; n < ctr.argc; n++ )
+				{
+					out.print(", ");
+					out.print(cb.args[x].name);
+					x = cb.getNextItemIndex(x);
+				}
+				out.println(");");
+			}
+			
+			int nw = 0;
+			for ( int y = x; y >= 0; y = cb.getNextItemIndex(y) )
+			{
+				nw = Math.max(nw, cb.args[y].name.length());
+			}
+			while ( x >= 0 )
+			{
+				out.print("\t\tthis.");
+				write(cb.args[x].name, out, nw);
+				out.print(" = ");
+				out.print(cb.args[x].name);
+				out.println(';');
+				x = cb.getNextItemIndex(x);
 			}
 			out.println("\t}");
 			out.println();
@@ -831,6 +868,11 @@ public class ParserWriter
 	{
 		int tw = 0;
 		Collection fields = getFields(type.constructors);
+		if ( type.superType != null )
+		{
+			Collection superFields = getFields(type.superType.constructors);
+			fields.removeAll(superFields);
+		}
 		for ( Iterator i = fields.iterator(); i.hasNext(); )
 		{
 			Item field = (Item) i.next();
@@ -1127,12 +1169,24 @@ public class ParserWriter
 			this.name = name;
 			this.isOptional = isOpt;
 		}
+		
+		public boolean equals(Object o)
+		{
+			if ( o instanceof Item )
+			{
+				Item i = (Item) o;
+				
+				return type.equals(i.type) && name.equals(i.name) && isOptional == i.isOptional;
+			}
+			return false;
+		}
 	}
 
 	static class NodeType
 	{
 		String     typeName;
 		String     superName;
+		NodeType   superType;
 		Collection constructors;
 
 		NodeType(String name)
@@ -1144,6 +1198,29 @@ public class ParserWriter
 		void add(Callback cb)
 		{
 			constructors.add(cb);
+		}
+		
+		Callback findSuperConstructor(Callback cb)
+		{
+			Callback ctr = null;
+			for ( Iterator i = constructors.iterator(); i.hasNext(); )
+            {
+	            Callback c = (Callback) i.next();
+	            if ( c.argc <= cb.argc )
+	            {
+	            	int j = c.getFirstItemIndex(), k = cb.getFirstItemIndex();
+	            	while ( j >= 0 && k >= 0 && c.args[j].equals(cb.args[k]) )
+	            	{
+	            		j = c.getNextItemIndex(j);
+	            		k = cb.getNextItemIndex(k);
+	            	}
+	            	if ( j < 0 )
+	            	{
+	            		ctr = c;
+	            	}
+	            }
+            }
+			return ctr;
 		}
 	}
 

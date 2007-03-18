@@ -216,4 +216,9 @@ public class Grammar
 		}
 		return set;
 	}
+	
+	public Terminal[] getTerminals()
+	{
+		return terminals;
+	}
 }

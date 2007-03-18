@@ -10,15 +10,17 @@ package beaver.comp.spec;
 
 /**
  * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
+ * @author Alexander Demenchuk
  */
 public class Quantifier extends beaver.util.Node
 {
 	public NumTerm min;
 	public NumTerm max;
 
-	public Quantifier(NumTerm min)
+	public Quantifier(NumTerm num)
 	{
-		this.min = min;
+		this.min = num;
+		this.max = num;
 	}
 
 	public Quantifier(NumTerm min, NumTerm max)

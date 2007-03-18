@@ -13,15 +13,22 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
 import beaver.SyntaxErrorException;
+import beaver.comp.lexer.CharScannerClassWriter;
+import beaver.comp.lexer.DFA;
+import beaver.comp.lexer.RegExp;
+import beaver.comp.lexer.ScannerBuilder;
 import beaver.comp.parser.Action;
 import beaver.comp.parser.Grammar;
 import beaver.comp.parser.ParserWriter;
 import beaver.comp.parser.ParsingTables;
 import beaver.comp.parser.State;
+import beaver.comp.parser.Terminal;
 import beaver.comp.spec.AstBuilder;
 import beaver.comp.spec.ParserSpec;
 import beaver.comp.spec.Spec;
@@ -35,40 +42,67 @@ import beaver.util.BitSet;
 public class Compiler
 {
 	private Log log;
-	private String[] termOrder;
+	private String[] priorityTerminals;
 	
 	public Compiler(Log log)
 	{
 		this.log = log;
 	}
 	
-	public void setTerminalsOrder(String[] terms)
+	public void setTerminalsPrecedence(String[] terms)
 	{
-		termOrder = terms;
+		priorityTerminals = terms;
 	}
 	
 	public void compile(File src, File dstDir) throws IOException, SyntaxErrorException, CompilationException
 	{
-		Grammar  grammar = compileGrammar(src);
-		if ( grammar != null )
-		{
-    		State firstState = compileAutomaton(grammar);
+	    Spec spec = (Spec) new AstBuilder().parse(new SpecScanner(new FileReader(src)));
+	    
+	    String[] termNames = null;
+	    Map tokens = null;
+	    
+	    if ( spec.scannerSpec != null )
+	    {
+	    	Map macros = new MacroCompiler().compile(spec.scannerSpec);
+	    	TokenCompiler tc = new TokenCompiler(macros); 
+	    	tokens = tc.compile(spec.scannerSpec);
+	    	priorityTerminals = termNames = tc.getTerminalNames();
+	    }
+	    
+	    Terminal[] terminals = null;
+	    
+	    if ( spec.parserSpec != null )
+	    {
+			Grammar  grammar = compileGrammar(spec.parserSpec);
+	    	terminals = grammar.getTerminals();
+	    	State firstState = compileAutomaton(grammar);
     		
     		generateParsingTables(grammar, firstState, dstDir);
     		generateParserSource(grammar, null, null, dstDir);
-		}
-	}
-
-    Grammar compileGrammar(File src) throws IOException, SyntaxErrorException
-    {
-	    Spec spec = (Spec) new AstBuilder().parse(new SpecScanner(new FileReader(src)));
-	    
-	    ParserSpec parserSpec;
-	    if ( (parserSpec = spec.parserSpec) == null )
-	    {
-	    	return null;
 	    }
 	    
+	    if ( spec.scannerSpec != null )
+	    {
+	    	compileScanner(terminals, tokens, dstDir);
+	    	if ( !tokens.isEmpty() )
+	    	{
+	    		String unusedTokens = "";
+    			String sep = "";
+    			for ( int i = 0; i < termNames.length; i++ )
+                {
+                    if ( tokens.containsKey(termNames[i]) )
+                    {
+    	                unusedTokens = unusedTokens + sep + termNames[i];
+    	                sep = ", ";
+                    }
+                }
+	    		log.warning("The following terminals are not required for the parser: " + unusedTokens + ". They are ignored.");
+	    	}
+	    }
+	}
+
+    Grammar compileGrammar(ParserSpec parserSpec) throws IOException, SyntaxErrorException
+    {
 		parserSpec.accept(new InlineRulesExtractor());
 		parserSpec.accept(new EbnfOperatorCompiler());
 		parserSpec.accept(new InlineStringExractor());
@@ -98,7 +132,7 @@ public class Compiler
 		
 		parserSpec.accept(new InlineTokenReplacer(constTokens));
 		
-		GrammarBuilder grammarBuilder = new GrammarBuilder(constTokens, termCollector.getNamedTokens(), termOrder, nonterminals, log);
+		GrammarBuilder grammarBuilder = new GrammarBuilder(constTokens, termCollector.getNamedTokens(), priorityTerminals, nonterminals, log);
 		parserSpec.accept(grammarBuilder);
 		return grammarBuilder.getGrammar();
     }
@@ -145,5 +179,39 @@ public class Compiler
 		sourceWriter.setGenerateNodeBuilders(true);
 		sourceWriter.writeParserSource(dstDir);
 		sourceWriter.writeSemanticTypes(dstDir);
+	}
+	
+	void compileScanner(Terminal[] terminals, Map tokens, File dstDir) throws IOException
+	{
+		Collection rules = new ArrayList(terminals.length + 3);
+		Terminal t;
+		int i = 0;
+		while ( ++i < terminals.length && (t = terminals[i]) instanceof Terminal.Const )
+        {
+			rules.add( ScannerBuilder.makeMatchStringRule(t.getId(), t.toString()) ); 
+        }
+		while ( i < terminals.length )
+		{
+			t = terminals[i++];
+			
+			RegExp.RuleOp rule = (RegExp.RuleOp) tokens.remove(t.toString());
+			if ( rule == null )
+			{
+				log.error("Terminal " + t + " is undefined.");
+			}
+			else
+			{
+				rule.setId(t.getId());
+				rules.add( rule );
+			}
+		}
+		rules.add( ScannerBuilder.makeEndOfLineRule() );
+		rules.add( ScannerBuilder.makeEndOfFileRule() );
+		rules.add( ScannerBuilder.makeRule(-3, new RegExp.CloseOp(ScannerBuilder.rangeToRegExp("[ \t]"))) );
+		
+		DFA dfa = ScannerBuilder.compile(rules);
+		
+		byte[] bc = CharScannerClassWriter.compile(new DFA[] { dfa }, "beaver/comp/spec/SpecScanner");
+		ScannerBuilder.saveClass(dstDir, "beaver/comp/spec/SpecScanner", bc);
 	}
 }

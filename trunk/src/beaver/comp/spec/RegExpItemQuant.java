@@ -11,13 +11,14 @@ package beaver.comp.spec;
 /**
  * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
  */
-public class RangeExprMacro extends RangeExpr
+public class RegExpItemQuant extends RegExpItem
 {
-	public Term macro;
+	public Quantifier quantifier;
 
-	public RangeExprMacro(Term macro)
+	public RegExpItemQuant(CharExpr charExpr, Quantifier quantifier)
 	{
-		this.macro = macro;
+		super(charExpr);
+		this.quantifier = quantifier;
 	}
 
 	public void accept(NodeVisitor visitor)

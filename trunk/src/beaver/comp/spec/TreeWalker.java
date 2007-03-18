@@ -32,9 +32,7 @@ public class TreeWalker implements NodeVisitor
 
 	public void visit(RegExpItem node)
 	{
-		if ( node.quantifier != null ) node.quantifier .accept(this);
-		if ( node.oper       != null ) node.oper       .accept(this);
-		if ( node.charExpr   != null ) node.charExpr   .accept(this);
+		if ( node.charExpr != null ) node.charExpr .accept(this);
 	}
 
 	public void visit(Alt node)
@@ -66,6 +64,12 @@ public class TreeWalker implements NodeVisitor
 	{
 		if ( node.name    != null ) node.name    .accept(this);
 		if ( node.altList != null ) node.altList .accept(this);
+	}
+
+	public void visit(RegExpItemQuant node)
+	{
+		if ( node.quantifier != null ) node.quantifier .accept(this);
+		if ( node.charExpr   != null ) node.charExpr   .accept(this);
 	}
 
 	public void visit(PrecItemRule node)
@@ -139,6 +143,12 @@ public class TreeWalker implements NodeVisitor
 	{
 		if ( node.min != null ) node.min .accept(this);
 		if ( node.max != null ) node.max .accept(this);
+	}
+
+	public void visit(RegExpItemClose node)
+	{
+		if ( node.oper     != null ) node.oper     .accept(this);
+		if ( node.charExpr != null ) node.charExpr .accept(this);
 	}
 
 	public void visit(RuleList list)

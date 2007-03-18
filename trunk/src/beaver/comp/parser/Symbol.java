@@ -40,6 +40,11 @@ public abstract class Symbol
 	{
 		return name;
 	}
+	
+	public String toString()
+	{
+		return name;
+	}
 
 	/**
 	 * Text representing this symbol in some output.

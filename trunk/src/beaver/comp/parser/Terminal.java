@@ -62,5 +62,10 @@ public class Terminal extends Symbol
 		{
 			return '"' + text + '"';
 		}
+		
+		public String toString()
+		{
+			return text;
+		}
 	}
 }
