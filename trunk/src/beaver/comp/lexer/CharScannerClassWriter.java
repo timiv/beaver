@@ -86,7 +86,7 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 		}
 		boolean lexerHasStates = allDFA.length > 1;
 
-		ClassWriter cw = new ClassWriter(false);
+		ClassWriter cw = new ClassWriter(0);
 		cw.visit(V1_1, ACC_PUBLIC + ACC_SUPER + (events.isEmpty() ? 0 : ACC_ABSTRACT), className, null, SUPER, null);
 
 		if (lexerHasStates)
