@@ -35,7 +35,7 @@ public class ParserWriter
 	String     parserPackageName;
 	String     astPackageName;
 	String     parserName;
-	
+
 	boolean	   generateListBuilders;
 	boolean    generateNodeBuilders;
 
@@ -106,6 +106,12 @@ public class ParserWriter
 		{
 			of = new File(dir, parserName + ".java");
 		}
+		
+		if ( of.exists() )
+		{
+			of = new File(of.getPath() + ".new");
+		}
+		
 		PrintWriter out = new PrintWriter(new FileWriter(of));
 		try
 		{
@@ -448,17 +454,18 @@ public class ParserWriter
 		{
 			String typeName = (String) i.next();
 			File srcFile = new File(dir, typeName + ".java");
-			if ( !srcFile.exists() )
+			if ( srcFile.exists() )
 			{
-				PrintWriter out = new PrintWriter(new FileWriter(srcFile));
-				try
-				{
-					writeAbstractType(typeName, out);
-				}
-				finally
-				{
-					out.close();
-				}
+				srcFile = new File(srcFile.getPath() + ".new");
+			}
+			PrintWriter out = new PrintWriter(new FileWriter(srcFile));
+			try
+			{
+				writeAbstractType(typeName, out);
+			}
+			finally
+			{
+				out.close();
 			}
 		}
 
@@ -466,17 +473,18 @@ public class ParserWriter
 		{
 			ListType type = (ListType) i.next();
 			File srcFile = new File(dir, type.listType + ".java");
-			if ( !srcFile.exists() )
+			if ( srcFile.exists() )
 			{
-				PrintWriter out = new PrintWriter(new FileWriter(srcFile));
-				try
-				{
-					write(type, out);
-				}
-				finally
-				{
-					out.close();
-				}
+				srcFile = new File(srcFile.getPath() + ".new");
+			}
+			PrintWriter out = new PrintWriter(new FileWriter(srcFile));
+			try
+			{
+				write(type, out);
+			}
+			finally
+			{
+				out.close();
 			}
 		}
 
@@ -484,17 +492,18 @@ public class ParserWriter
 		{
 			NodeType type = (NodeType) i.next();
 			File srcFile = new File(dir, type.typeName + ".java");
-			if ( !srcFile.exists() )
+			if ( srcFile.exists() )
 			{
-				PrintWriter out = new PrintWriter(new FileWriter(srcFile));
-				try
-				{
-					write(type, out);
-				}
-				finally
-				{
-					out.close();
-				}
+				srcFile = new File(srcFile.getPath() + ".new");
+			}
+			PrintWriter out = new PrintWriter(new FileWriter(srcFile));
+			try
+			{
+				write(type, out);
+			}
+			finally
+			{
+				out.close();
 			}
 		}
 
@@ -503,17 +512,18 @@ public class ParserWriter
 			String typeName = (String) i.next();
 
 			File srcFile = new File(dir, typeName + ".java");
-			if ( !srcFile.exists() )
+			if ( srcFile.exists() )
 			{
-				PrintWriter out = new PrintWriter(new FileWriter(srcFile));
-				try
-				{
-					writeTermType(typeName, out);
-				}
-				finally
-				{
-					out.close();
-				}
+				srcFile = new File(srcFile.getPath() + ".new");
+			}
+			PrintWriter out = new PrintWriter(new FileWriter(srcFile));
+			try
+			{
+				writeTermType(typeName, out);
+			}
+			finally
+			{
+				out.close();
 			}
 		}
 
@@ -686,17 +696,18 @@ public class ParserWriter
 	private void writeNodeVisitor(Collection nodeTypes, Collection listTypes, File dir) throws IOException
 	{
 		File srcFile = new File(dir, "NodeVisitor" + ".java");
-		if ( !srcFile.exists() )
+		if ( srcFile.exists() )
 		{
-			PrintWriter out = new PrintWriter(new FileWriter(srcFile));
-			try
-			{
-				writeNodeVisitor(nodeTypes, listTypes, out);
-			}
-			finally
-			{
-				out.close();
-			}
+			srcFile = new File(srcFile.getPath() + ".new");
+		}
+		PrintWriter out = new PrintWriter(new FileWriter(srcFile));
+		try
+		{
+			writeNodeVisitor(nodeTypes, listTypes, out);
+		}
+		finally
+		{
+			out.close();
 		}
 	}
 
@@ -732,17 +743,18 @@ public class ParserWriter
 	private void writeTreeWalker(Collection nodeTypes, Collection listTypes, File dir) throws IOException
 	{
 		File srcFile = new File(dir, "TreeWalker" + ".java");
-		if ( !srcFile.exists() )
+		if ( srcFile.exists() )
 		{
-			PrintWriter out = new PrintWriter(new FileWriter(srcFile));
-			try
-			{
-				writeTreeWalker(nodeTypes, listTypes, out);
-			}
-			finally
-			{
-				out.close();
-			}
+			srcFile = new File(srcFile.getPath() + ".new");
+		}
+		PrintWriter out = new PrintWriter(new FileWriter(srcFile));
+		try
+		{
+			writeTreeWalker(nodeTypes, listTypes, out);
+		}
+		finally
+		{
+			out.close();
 		}
 	}
 
