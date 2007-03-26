@@ -24,6 +24,8 @@ import java.util.Set;
 
 import beaver.Location;
 import beaver.SyntaxErrorException;
+import beaver.comp.ast.ParserSpec;
+import beaver.comp.ast.Spec;
 import beaver.comp.lexer.CharScannerClassWriter;
 import beaver.comp.lexer.DFA;
 import beaver.comp.lexer.RegExp;
@@ -34,10 +36,7 @@ import beaver.comp.parser.ParserWriter;
 import beaver.comp.parser.ParsingTables;
 import beaver.comp.parser.State;
 import beaver.comp.parser.Terminal;
-import beaver.comp.spec.AstBuilder;
-import beaver.comp.spec.ParserSpec;
-import beaver.comp.spec.Spec;
-import beaver.comp.spec.SpecScanner;
+import beaver.comp.SpecScanner;
 import beaver.util.BitSet;
 
 /**

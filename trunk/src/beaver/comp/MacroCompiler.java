@@ -12,9 +12,9 @@ package beaver.comp;
 import java.util.HashMap;
 import java.util.Map;
 
-import beaver.comp.spec.MacroDecl;
-import beaver.comp.spec.RegExpCompiler;
-import beaver.comp.spec.ScannerSpec;
+import beaver.comp.ast.MacroDecl;
+import beaver.comp.ast.RegExpCompiler;
+import beaver.comp.ast.ScannerSpec;
 
 
 /**

@@ -8,16 +8,16 @@
  */
 package beaver.comp;
 
-import beaver.comp.spec.Alt;
-import beaver.comp.spec.AltList;
-import beaver.comp.spec.Item;
-import beaver.comp.spec.ItemInline;
-import beaver.comp.spec.ItemSymbol;
-import beaver.comp.spec.ParserSpec;
-import beaver.comp.spec.Rule;
-import beaver.comp.spec.RuleList;
-import beaver.comp.spec.Term;
-import beaver.comp.spec.TreeWalker;
+import beaver.comp.ast.Alt;
+import beaver.comp.ast.AltList;
+import beaver.comp.ast.Item;
+import beaver.comp.ast.ItemInline;
+import beaver.comp.ast.ItemSymbol;
+import beaver.comp.ast.ParserSpec;
+import beaver.comp.ast.Rule;
+import beaver.comp.ast.RuleList;
+import beaver.comp.ast.Term;
+import beaver.comp.ast.TreeWalker;
 
 
 /**

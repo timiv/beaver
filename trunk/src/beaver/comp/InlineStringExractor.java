@@ -8,8 +8,8 @@
  */
 package beaver.comp;
 
-import beaver.comp.spec.ItemStatic;
-import beaver.comp.spec.TreeWalker;
+import beaver.comp.ast.ItemStatic;
+import beaver.comp.ast.TreeWalker;
 
 /**
  * @author Alexander Demenchuk

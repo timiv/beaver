@@ -16,18 +16,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import beaver.comp.ast.Alt;
+import beaver.comp.ast.ItemSymbol;
+import beaver.comp.ast.PrecItemRule;
+import beaver.comp.ast.PrecItemTerm;
+import beaver.comp.ast.Precedence;
+import beaver.comp.ast.Rule;
+import beaver.comp.ast.TreeWalker;
 import beaver.comp.parser.Grammar;
 import beaver.comp.parser.NonTerminal;
 import beaver.comp.parser.Production;
 import beaver.comp.parser.Symbol;
 import beaver.comp.parser.Terminal;
-import beaver.comp.spec.Alt;
-import beaver.comp.spec.ItemSymbol;
-import beaver.comp.spec.PrecItemRule;
-import beaver.comp.spec.PrecItemTerm;
-import beaver.comp.spec.Precedence;
-import beaver.comp.spec.Rule;
-import beaver.comp.spec.TreeWalker;
 
 /**
  * @author Alexander Demenchuk

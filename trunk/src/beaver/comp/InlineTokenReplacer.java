@@ -11,10 +11,10 @@ package beaver.comp;
 
 import java.util.Map;
 
-import beaver.comp.spec.ItemStatic;
-import beaver.comp.spec.ItemSymbol;
-import beaver.comp.spec.Term;
-import beaver.comp.spec.TreeWalker;
+import beaver.comp.ast.ItemStatic;
+import beaver.comp.ast.ItemSymbol;
+import beaver.comp.ast.Term;
+import beaver.comp.ast.TreeWalker;
 
 /**
  * @author Alexander Demenchuk

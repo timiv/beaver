@@ -14,9 +14,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import beaver.comp.spec.RegExpCompiler;
-import beaver.comp.spec.ScannerSpec;
-import beaver.comp.spec.TermDecl;
+import beaver.comp.ast.RegExpCompiler;
+import beaver.comp.ast.ScannerSpec;
+import beaver.comp.ast.TermDecl;
 
 /**
  * @author Alexander Demenchuk
