@@ -31,8 +31,9 @@ import java.util.Map;
 public class ParserWriter
 {
 	String     beaverVersion;
-	String     sourceFileComment;
+	String[]   sourceFileComment;
 	String     parserPackageName;
+	String     astPackageName;
 	String     parserName;
 	
 	boolean	   generateListBuilders;
@@ -63,8 +64,13 @@ public class ParserWriter
 	{
 		parserPackageName = name;
 	}
+	
+	public void setAstPackageName(String name)
+	{
+		astPackageName = name;
+	}
 
-	public void setFileComment(String text)
+	public void setFileComment(String[] text)
 	{
 		sourceFileComment = text;
 	}
@@ -86,7 +92,21 @@ public class ParserWriter
 
 	public void writeParserSource(File dir) throws IOException
 	{
-		PrintWriter out = new PrintWriter(new FileWriter(new File(dir, parserName + ".java")));
+		File of;
+		if ( parserPackageName != null )
+		{
+			File od = new File(dir, parserPackageName.replace('.', '/'));
+			if ( !od.exists() )
+			{
+				od.mkdirs();
+			}
+			of = new File(od, parserName + ".java");
+		}
+		else
+		{
+			of = new File(dir, parserName + ".java");
+		}
+		PrintWriter out = new PrintWriter(new FileWriter(of));
 		try
 		{
 			writeParserSource(out);
@@ -100,13 +120,20 @@ public class ParserWriter
 	private void writeParserSource(PrintWriter out)
 	{
 		writeFileComment(out);
-		writePackage(out);
+		writeParserPackage(out);
 		out.println("import java.io.DataInputStream;");
 		out.println("import java.io.IOException;");
 		out.println();
 		out.println("import beaver.ParsingTables;");
 		out.println("import beaver.Symbol;");
 		out.println();
+		if ( astPackageName != null && !astPackageName.equals(parserPackageName) )
+		{
+			out.print("import ");
+			out.print(astPackageName);
+			out.println(".*;");
+			out.println();
+		}
 		writeClassComment(out);
 		out.print("public abstract class ");
 		out.print(parserName);
@@ -128,11 +155,14 @@ public class ParserWriter
 	{
 		if ( sourceFileComment != null )
 		{
-			out.println(sourceFileComment);
+			for ( int i = 0; i < sourceFileComment.length; i++ )
+            {
+				out.println(sourceFileComment[i]);
+            }
 		}
 	}
 
-	private void writePackage(PrintWriter out)
+	private void writeParserPackage(PrintWriter out)
 	{
 		if ( parserPackageName != null )
 		{
@@ -400,6 +430,15 @@ public class ParserWriter
 
 	public void writeSemanticTypes(File dir) throws IOException
 	{
+		if ( astPackageName != null )
+		{
+			dir = new File(dir, astPackageName.replace('.', '/'));
+			if ( !dir.exists() )
+			{
+				dir.mkdirs();
+			}
+		}
+		
 		Collection abstractTypes = new HashSet();
 		Map listTypes = new HashMap();
 		Map nodeTypes = new HashMap();
@@ -532,11 +571,23 @@ public class ParserWriter
 	        }
         }
 	}
+	
+	private void writeAstPackage(PrintWriter out)
+	{
+		if ( astPackageName != null )
+		{
+			out.print("package ");
+			out.print(astPackageName);
+			out.println(";");
+			out.println();
+		}
+	}
+	
 
 	private void writeAbstractType(String typeName, PrintWriter out)
 	{
 		writeFileComment(out);
-		writePackage(out);
+		writeAstPackage(out);
 		writeClassComment(out);
 		out.print("public abstract class ");
 		out.print(typeName);
@@ -550,7 +601,7 @@ public class ParserWriter
 	private void write(ListType type, PrintWriter out)
 	{
 		writeFileComment(out);
-		writePackage(out);
+		writeAstPackage(out);
 		writeClassComment(out);
 		out.print("public class ");
 		out.print(type.listType);
@@ -584,7 +635,7 @@ public class ParserWriter
 	private void write(NodeType type, PrintWriter out)
 	{
 		writeFileComment(out);
-		writePackage(out);
+		writeAstPackage(out);
 		writeClassComment(out);
 		out.print("public class ");
 		out.print(type.typeName);
@@ -604,7 +655,7 @@ public class ParserWriter
 	private void writeTermType(String typeName, PrintWriter out)
 	{
 		writeFileComment(out);
-		writePackage(out);
+		writeAstPackage(out);
 		writeClassComment(out);
 		out.print("public class ");
 		out.print(typeName);
@@ -652,7 +703,7 @@ public class ParserWriter
 	private void writeNodeVisitor(Collection nodeTypes, Collection listTypes, PrintWriter out)
 	{
 		writeFileComment(out);
-		writePackage(out);
+		writeAstPackage(out);
 		writeClassComment(out);
 		out.print("public interface ");
 		out.println("NodeVisitor");
@@ -698,7 +749,7 @@ public class ParserWriter
 	private void writeTreeWalker(Collection nodeTypes, Collection listTypes, PrintWriter out)
 	{
 		writeFileComment(out);
-		writePackage(out);
+		writeAstPackage(out);
 		writeClassComment(out);
 		out.print("public class ");
 		out.print("TreeWalker");
