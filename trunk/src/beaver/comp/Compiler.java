@@ -289,7 +289,6 @@ public class Compiler
 
     		int lastDot = parserClassName.lastIndexOf('.');
     		String className = lastDot < 0 ? parserClassName : parserClassName.substring(lastDot + 1); 
-
     		
     		ParserWriter sourceWriter = new ParserWriter(className, grammar, astTermType, astTypes);
     		if ( lastDot > 0 )
@@ -301,11 +300,8 @@ public class Compiler
     		sourceWriter.setConstTermNames(constTermNames);
     		sourceWriter.setGenerateListBuilders(makeCallbacks);
     		sourceWriter.setGenerateNodeBuilders(makeCallbacks);
-    		sourceWriter.writeParserSource(srcDir);
-    		if ( makeTypes )
-    		{
-    			sourceWriter.writeSemanticTypes(srcDir);
-    		}
+    		sourceWriter.setGenerateAst(makeTypes);
+    		sourceWriter.writeParserSources(srcDir);
 	    }
 	    if ( tokenRules != null )
 	    {

@@ -38,7 +38,8 @@ public class ParserWriter
 
 	boolean	   generateListBuilders;
 	boolean    generateNodeBuilders;
-
+	boolean	   generateAst;
+	
 	Grammar    grammar;
 	Map        constTermNames;
 	Map        symbolTypes;
@@ -89,8 +90,13 @@ public class ParserWriter
     {
     	this.generateNodeBuilders = opt;
     }
+	
+	public void setGenerateAst(boolean opt)
+	{
+		this.generateAst = opt;
+	}
 
-	public void writeParserSource(File dir) throws IOException
+	public void writeParserSources(File dir) throws IOException
 	{
 		File of;
 		if ( parserPackageName != null )
@@ -107,9 +113,11 @@ public class ParserWriter
 			of = new File(dir, parserName + ".java");
 		}
 		
-		if ( of.exists() )
+		long lastModified = of.lastModified();
+		
+		if ( generateAst )
 		{
-			of = new File(of.getPath() + ".new");
+			writeSemanticTypes(dir, lastModified);
 		}
 		
 		PrintWriter out = new PrintWriter(new FileWriter(of));
@@ -434,7 +442,7 @@ public class ParserWriter
 		out.println("\t}");
 	}
 
-	public void writeSemanticTypes(File dir) throws IOException
+	private void writeSemanticTypes(File dir, long timeLine) throws IOException
 	{
 		if ( astPackageName != null )
 		{
@@ -450,11 +458,14 @@ public class ParserWriter
 		Map nodeTypes = new HashMap();
 		initSemanticTypes(abstractTypes, listTypes, nodeTypes);
 
+		long after = timeLine - 4000, before = timeLine;
+		
 		for ( Iterator i = abstractTypes.iterator(); i.hasNext(); )
 		{
 			String typeName = (String) i.next();
 			File srcFile = new File(dir, typeName + ".java");
-			if ( srcFile.exists() )
+			long lastMod = srcFile.lastModified();
+			if ( timeLine != 0 && after <= lastMod && lastMod <= before )
 			{
 				srcFile = new File(srcFile.getPath() + ".new");
 			}
@@ -473,7 +484,8 @@ public class ParserWriter
 		{
 			ListType type = (ListType) i.next();
 			File srcFile = new File(dir, type.listType + ".java");
-			if ( srcFile.exists() )
+			long lastMod = srcFile.lastModified();
+			if ( timeLine != 0 && after <= lastMod && lastMod <= before )
 			{
 				srcFile = new File(srcFile.getPath() + ".new");
 			}
@@ -492,7 +504,8 @@ public class ParserWriter
 		{
 			NodeType type = (NodeType) i.next();
 			File srcFile = new File(dir, type.typeName + ".java");
-			if ( srcFile.exists() )
+			long lastMod = srcFile.lastModified();
+			if ( timeLine != 0 && after <= lastMod && lastMod <= before )
 			{
 				srcFile = new File(srcFile.getPath() + ".new");
 			}
@@ -512,7 +525,8 @@ public class ParserWriter
 			String typeName = (String) i.next();
 
 			File srcFile = new File(dir, typeName + ".java");
-			if ( srcFile.exists() )
+			long lastMod = srcFile.lastModified();
+			if ( timeLine != 0 && after <= lastMod && lastMod <= before )
 			{
 				srcFile = new File(srcFile.getPath() + ".new");
 			}
@@ -527,8 +541,8 @@ public class ParserWriter
 			}
 		}
 
-		writeNodeVisitor(nodeTypes.values(), listTypes.values(), dir);
-		writeTreeWalker(nodeTypes.values(), listTypes.values(), dir);
+		writeNodeVisitor(nodeTypes.values(), listTypes.values(), dir, timeLine);
+		writeTreeWalker(nodeTypes.values(), listTypes.values(), dir, timeLine);
 	}
 
 	private void initSemanticTypes(Collection abstractTypes, Map listTypes, Map nodeTypes)
@@ -693,10 +707,11 @@ public class ParserWriter
 		out.println("}");
 	}
 
-	private void writeNodeVisitor(Collection nodeTypes, Collection listTypes, File dir) throws IOException
+	private void writeNodeVisitor(Collection nodeTypes, Collection listTypes, File dir, long timeLine) throws IOException
 	{
 		File srcFile = new File(dir, "NodeVisitor" + ".java");
-		if ( srcFile.exists() )
+		long lastMod = srcFile.lastModified();
+		if ( timeLine != 0 && timeLine - 4000 <= lastMod && lastMod <= timeLine )
 		{
 			srcFile = new File(srcFile.getPath() + ".new");
 		}
@@ -740,10 +755,11 @@ public class ParserWriter
 		out.println("}");
 	}
 
-	private void writeTreeWalker(Collection nodeTypes, Collection listTypes, File dir) throws IOException
+	private void writeTreeWalker(Collection nodeTypes, Collection listTypes, File dir, long timeLine) throws IOException
 	{
 		File srcFile = new File(dir, "TreeWalker" + ".java");
-		if ( srcFile.exists() )
+		long lastMod = srcFile.lastModified();
+		if ( timeLine != 0 && timeLine - 4000 <= lastMod && lastMod <= timeLine )
 		{
 			srcFile = new File(srcFile.getPath() + ".new");
 		}
