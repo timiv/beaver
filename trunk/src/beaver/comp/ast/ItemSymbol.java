@@ -1,11 +1,11 @@
 /**
- * Beaver: compiler front-end construction toolkit
- * Copyright (c) 2007 Alexander Demenchuk <alder@softanvil.com>
- * All rights reserved.
- *
- * See the file "LICENSE" for the terms and conditions for copying,
- * distribution and modification of Beaver.
- */
+* Beaver: compiler front-end construction toolkit
+* Copyright (c) 2007 Alexander Demenchuk <alder@softanvil.com>
+* All rights reserved.
+*
+* See the file "LICENSE" for the terms and conditions for copying,
+* distribution and modification of Beaver.
+*/
 package beaver.comp.ast;
 
 /**
@@ -30,17 +30,17 @@ public class ItemSymbol extends Item
 		this.name = name;
 		this.oper = oper;
 	}
-	
-	public ItemSymbol(Term symName)
-	{
-		this.name = symName;
-	}
 
 	public void accept(NodeVisitor visitor)
 	{
 		visitor.visit(this);
 	}
 	
+	public ItemSymbol(Term symName)
+	{
+		this.name = symName;
+	}
+
 	public boolean equals(Item i)
 	{
 		if ( i instanceof ItemSymbol )
@@ -54,5 +54,10 @@ public class ItemSymbol extends Item
 			       );
 		}
 		return false;
+	}
+	
+	public Item makeClone()
+	{
+		return new ItemSymbol(ref, name, oper);
 	}
 }

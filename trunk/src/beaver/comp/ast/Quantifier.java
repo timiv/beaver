@@ -1,11 +1,11 @@
 /**
- * Beaver: compiler front-end construction toolkit
- * Copyright (c) 2007 Alexander Demenchuk <alder@softanvil.com>
- * All rights reserved.
- *
- * See the file "LICENSE" for the terms and conditions for copying,
- * distribution and modification of Beaver.
- */
+* Beaver: compiler front-end construction toolkit
+* Copyright (c) 2007 Alexander Demenchuk <alder@softanvil.com>
+* All rights reserved.
+*
+* See the file "LICENSE" for the terms and conditions for copying,
+* distribution and modification of Beaver.
+*/
 package beaver.comp.ast;
 
 /**
@@ -17,10 +17,10 @@ public class Quantifier extends beaver.util.Node
 	public NumTerm min;
 	public NumTerm max;
 
-	public Quantifier(NumTerm num)
+	public Quantifier(NumTerm min)
 	{
-		this.min = num;
-		this.max = num;
+		this.min = min;
+		this.max = min;
 	}
 
 	public Quantifier(NumTerm min, NumTerm max)

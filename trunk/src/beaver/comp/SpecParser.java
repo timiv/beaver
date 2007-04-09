@@ -1,11 +1,11 @@
 /**
- * Beaver: compiler front-end construction toolkit
- * Copyright (c) 2007 Alexander Demenchuk <alder@softanvil.com>
- * All rights reserved.
- *
- * See the file "LICENSE" for the terms and conditions for copying,
- * distribution and modification of Beaver.
- */
+* Beaver: compiler front-end construction toolkit
+* Copyright (c) 2007 Alexander Demenchuk <alder@softanvil.com>
+* All rights reserved.
+*
+* See the file "LICENSE" for the terms and conditions for copying,
+* distribution and modification of Beaver.
+*/
 package beaver.comp;
 
 import java.io.DataInputStream;
@@ -33,16 +33,18 @@ public abstract class SpecParser extends beaver.Parser
 	public static final char COLON          = '\011'; // ":"
 	public static final char SEMI           = '\012'; // ";"
 	public static final char EQ             = '\013'; // "="
-	public static final char BSLASH         = '\014'; // "\\"
-	public static final char LCURL          = '\015'; // "{"
-	public static final char BAR            = '\016'; // "|"
-	public static final char RCURL          = '\017'; // "}"
-	public static final char OPER           = '\020';
-	public static final char NUM            = '\021';
-	public static final char ASSOC          = '\022';
-	public static final char NAME           = '\023';
-	public static final char TEXT           = '\024';
-	public static final char RANGE          = '\025';
+	public static final char LSQBRACKET     = '\014'; // "["
+	public static final char BSLASH         = '\015'; // "\\"
+	public static final char RSQBRACKET     = '\016'; // "]"
+	public static final char LCURL          = '\017'; // "{"
+	public static final char BAR            = '\020'; // "|"
+	public static final char RCURL          = '\021'; // "}"
+	public static final char OPER           = '\022';
+	public static final char NUM            = '\023';
+	public static final char ASSOC          = '\024';
+	public static final char NAME           = '\025';
+	public static final char TEXT           = '\026';
+	public static final char RANGE          = '\027';
 
 
 	protected Spec onSpec(ParserSpec parserSpec, ScannerSpec scannerSpec)
@@ -85,9 +87,9 @@ public abstract class SpecParser extends beaver.Parser
 		return new ItemSymbol(ref, name, oper);
 	}
 
-	protected Item onItemInline(Term name, ItemList itemList, Term oper)
+	protected Item onItemInline(ItemList itemList)
 	{
-		return new ItemInline(name, itemList, oper);
+		return new ItemInline(itemList);
 	}
 
 	protected Precedence onPrecedence(PrecItemList precItemList, Term assoc)
@@ -342,13 +344,11 @@ public abstract class SpecParser extends beaver.Parser
 
 				return symbol ( onItemSymbol(ref, name, oper) );
 			}
-			case 10: // Item = NAME ":" "(" ItemList ")" OPER
+			case 10: // Item = "[" ItemList "]"
 			{
-				Term     name     = (Term    ) symbols[at].getValue();
-				ItemList itemList = (ItemList) symbols[at - 3].getValue();
-				Term     oper     = (Term    ) symbols[at - 5].getValue();
+				ItemList itemList = (ItemList) symbols[at - 1].getValue();
 
-				return symbol ( onItemInline(name, itemList, oper) );
+				return symbol ( onItemInline(itemList) );
 			}
 			case 11: // PrecedenceDecl = "%precedence" PrecedenceList
 			{
