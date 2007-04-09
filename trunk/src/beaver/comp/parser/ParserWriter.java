@@ -458,14 +458,14 @@ public class ParserWriter
 		Map nodeTypes = new HashMap();
 		initSemanticTypes(abstractTypes, listTypes, nodeTypes);
 
-		long after = timeLine - 4000, before = timeLine;
+		long before = timeLine - 4000, after = timeLine;
 		
 		for ( Iterator i = abstractTypes.iterator(); i.hasNext(); )
 		{
 			String typeName = (String) i.next();
 			File srcFile = new File(dir, typeName + ".java");
 			long lastMod = srcFile.lastModified();
-			if ( timeLine != 0 && after <= lastMod && lastMod <= before )
+			if ( timeLine != 0 && (lastMod < before || after < lastMod) )
 			{
 				srcFile = new File(srcFile.getPath() + ".new");
 			}
@@ -485,7 +485,7 @@ public class ParserWriter
 			ListType type = (ListType) i.next();
 			File srcFile = new File(dir, type.listType + ".java");
 			long lastMod = srcFile.lastModified();
-			if ( timeLine != 0 && after <= lastMod && lastMod <= before )
+			if ( timeLine != 0 && (lastMod < before || after < lastMod) )
 			{
 				srcFile = new File(srcFile.getPath() + ".new");
 			}
@@ -505,7 +505,7 @@ public class ParserWriter
 			NodeType type = (NodeType) i.next();
 			File srcFile = new File(dir, type.typeName + ".java");
 			long lastMod = srcFile.lastModified();
-			if ( timeLine != 0 && after <= lastMod && lastMod <= before )
+			if ( timeLine != 0 && (lastMod < before || after < lastMod) )
 			{
 				srcFile = new File(srcFile.getPath() + ".new");
 			}
@@ -526,7 +526,7 @@ public class ParserWriter
 
 			File srcFile = new File(dir, typeName + ".java");
 			long lastMod = srcFile.lastModified();
-			if ( timeLine != 0 && after <= lastMod && lastMod <= before )
+			if ( timeLine != 0 && (lastMod < before || after < lastMod) )
 			{
 				srcFile = new File(srcFile.getPath() + ".new");
 			}
@@ -711,7 +711,7 @@ public class ParserWriter
 	{
 		File srcFile = new File(dir, "NodeVisitor" + ".java");
 		long lastMod = srcFile.lastModified();
-		if ( timeLine != 0 && timeLine - 4000 <= lastMod && lastMod <= timeLine )
+		if ( timeLine != 0 && (lastMod < timeLine - 4000 || timeLine < lastMod) )
 		{
 			srcFile = new File(srcFile.getPath() + ".new");
 		}
@@ -759,7 +759,7 @@ public class ParserWriter
 	{
 		File srcFile = new File(dir, "TreeWalker" + ".java");
 		long lastMod = srcFile.lastModified();
-		if ( timeLine != 0 && timeLine - 4000 <= lastMod && lastMod <= timeLine )
+		if ( timeLine != 0 && (lastMod < timeLine - 4000 || timeLine < lastMod) )
 		{
 			srcFile = new File(srcFile.getPath() + ".new");
 		}
