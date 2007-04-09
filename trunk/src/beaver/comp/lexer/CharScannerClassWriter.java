@@ -439,8 +439,10 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 						compileCharTransitionBranch(mv, dfaStateLabels, ct);
 					}
 				}
-				compileRangeTransitions(mv, dfaStateLabels, unexpectedChar, st);
-				mv.visitJumpInsn(GOTO, unexpectedChar);
+				if ( compileRangeTransitions(mv, dfaStateLabels, unexpectedChar, st) != unexpectedChar)
+				{
+					mv.visitJumpInsn(GOTO, unexpectedChar);
+				}
 			}
 		}
 	}
@@ -563,17 +565,16 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 		mv.visitJumpInsn(IF_ICMPEQ, stateLabels[ct[0].to]);
 	}
 
-	private static void compileRangeTransitions(MethodVisitor mv, Label[] stateLabels, Label end, DFA.State st)
+	private static Label compileRangeTransitions(MethodVisitor mv, Label[] stateLabels, Label end, DFA.State st)
 	{
 		SpanTransition j = getSpanTransitionsTree(st);
-		if (j != null)
-		{
-			int depth = 0;
-			compile(mv, stateLabels, end, j, depth);
-		}
+		if (j == null)
+			return null;
+		
+		return compile(mv, stateLabels, end, j, 0);
 	}
 
-	private static void compile(MethodVisitor mv, Label[] stateLabels, Label end, SpanTransition s, int depth)
+	private static Label compile(MethodVisitor mv, Label[] stateLabels, Label end, SpanTransition s, int depth)
 	{
 		Label left = s.left != null ? new Label() : null;
 
@@ -584,18 +585,21 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 		mv.visitVarInsn(ILOAD, CHR);
 		compileLoadConst(mv, s.ub);
 		mv.visitJumpInsn(IF_ICMPLT, stateLabels[s.to]);
+		
+		Label lastGoto = null;
 		if (s.right != null)
 		{
-			compile(mv, stateLabels, end, s.right, depth + 1);
+			lastGoto = compile(mv, stateLabels, end, s.right, depth + 1);
 		}
 		else if (depth > 0 || s.left != null)
 		{
-			mv.visitJumpInsn(GOTO, end);
+			mv.visitJumpInsn(GOTO, lastGoto = end);
 		}
 		if (s.left != null)
 		{
 			mv.visitLabel(left);
-			compile(mv, stateLabels, end, s.left, depth + 1);
+			lastGoto = compile(mv, stateLabels, end, s.left, depth + 1);
 		}
+		return lastGoto;
 	}
 }
