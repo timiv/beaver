@@ -10,6 +10,7 @@ package beaver.comp.ast;
 
 /**
  * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
+ * @author Alexander Demenchuk
  */
 public class ItemInline extends Item
 {

@@ -21,30 +21,13 @@ import beaver.comp.ast.*;
  */
 public abstract class SpecParser extends beaver.Parser
 {
-	public static final char EOF            = '\000';
-	public static final char MACROS_KWD     = '\001'; // "%macros"
-	public static final char PRECEDENCE_KWD = '\002'; // "%precedence"
-	public static final char RULES_KWD      = '\003'; // "%rules"
-	public static final char TOKENS_KWD     = '\004'; // "%tokens"
-	public static final char LPAREN         = '\005'; // "("
-	public static final char RPAREN         = '\006'; // ")"
-	public static final char COMMA          = '\007'; // ","
-	public static final char FSLASH         = '\010'; // "/"
-	public static final char COLON          = '\011'; // ":"
-	public static final char SEMI           = '\012'; // ";"
-	public static final char EQ             = '\013'; // "="
-	public static final char LSQBRACKET     = '\014'; // "["
-	public static final char BSLASH         = '\015'; // "\\"
-	public static final char RSQBRACKET     = '\016'; // "]"
-	public static final char LCURL          = '\017'; // "{"
-	public static final char BAR            = '\020'; // "|"
-	public static final char RCURL          = '\021'; // "}"
-	public static final char OPER           = '\022';
-	public static final char NUM            = '\023';
-	public static final char ASSOC          = '\024';
-	public static final char NAME           = '\025';
-	public static final char TEXT           = '\026';
-	public static final char RANGE          = '\027';
+	public static final char EOF   = '\000';
+	public static final char OPER  = '\020';
+	public static final char NUM   = '\021';
+	public static final char ASSOC = '\022';
+	public static final char NAME  = '\023';
+	public static final char TEXT  = '\024';
+	public static final char RANGE = '\025';
 
 
 	protected Spec onSpec(ParserSpec parserSpec, ScannerSpec scannerSpec)
@@ -344,7 +327,7 @@ public abstract class SpecParser extends beaver.Parser
 
 				return symbol ( onItemSymbol(ref, name, oper) );
 			}
-			case 10: // Item = "[" ItemList "]"
+			case 10: // Item = "(" ItemList ")"
 			{
 				ItemList itemList = (ItemList) symbols[at - 1].getValue();
 

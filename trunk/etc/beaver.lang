@@ -26,7 +26,7 @@
 		= { Static } TEXT
 		| { Symbol } NAME OPER?
 		| { Symbol } ref:NAME ":" NAME OPER?
-		| { Inline } "[" Item+ "]"
+		| { Inline } "(" Item+ ")"
 		;
 
 	PrecedenceDecl

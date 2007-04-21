@@ -231,21 +231,24 @@ public class ParserWriter
 				{
 					name = tn;
 				}
-			}
-			out.print("\tpublic static final char ");
-			write(name, out, w);
-			out.print(" = ");
-			writeId(grammar.terminals[i].id, out);
-			out.print(';');
-
-			if ( text != null )
+			}				
+			if ( name.charAt(0) != '#' )
 			{
-				out.print(" // ");
-				out.print('"');
-				out.print(text);
-				out.print('"');
+    			out.print("\tpublic static final char ");
+    			write(name, out, w);
+    			out.print(" = ");
+    			writeId(grammar.terminals[i].id, out);
+    			out.print(';');
+    			
+    			if ( text != null )
+    			{
+    				out.print(" // ");
+    				out.print('"');
+    				out.print(text);
+    				out.print('"');
+    			}
+    			out.println();
 			}
-			out.println();
 		}
 	}
 
