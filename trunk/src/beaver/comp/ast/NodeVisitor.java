@@ -18,7 +18,6 @@ public interface NodeVisitor
 	void visit(CharExprNested  node);
 	void visit(CharExprRange   node);
 	void visit(CharExprText    node);
-	void visit(Context         node);
 	void visit(ItemInline      node);
 	void visit(ItemList        node);
 	void visit(ItemStatic      node);

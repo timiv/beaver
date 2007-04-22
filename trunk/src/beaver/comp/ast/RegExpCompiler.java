@@ -18,7 +18,6 @@ public interface RegExpCompiler
 	beaver.comp.lexer.RegExp compile(CharExprNested  expr);
 	beaver.comp.lexer.RegExp compile(CharExprRange   expr);
 	beaver.comp.lexer.RegExp compile(CharExprText    expr);
-	beaver.comp.lexer.RegExp compile(Context         expr);
 	beaver.comp.lexer.RegExp compile(RangeExprMinus  expr);
 	beaver.comp.lexer.RegExp compile(RangeExprMacro  expr);
 	beaver.comp.lexer.RegExp compile(RangeExprRange  expr);

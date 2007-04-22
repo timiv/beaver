@@ -16,6 +16,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -974,19 +975,27 @@ public class ParserWriter
 
 	private static Collection getFields(Collection constructors)
 	{
-		Map fields = new HashMap();
-		for ( Iterator i = constructors.iterator(); i.hasNext(); )
+		List orderedConstructors = new ArrayList(constructors);
+		Collections.sort(orderedConstructors, new Comparator()
 		{
-			Callback cb = (Callback) i.next();
+            public int compare(Object o1, Object o2)
+            {
+	            return ((Callback) o2).argc - ((Callback) o1).argc;
+            }
+		});
+		Collection fields = new ArrayList();
+		for ( Iterator i = orderedConstructors.iterator(); i.hasNext(); )
+        {
+	        Callback cb = (Callback) i.next();
 			for ( int x = 0; x < cb.args.length; x++ )
 			{
-				if ( cb.args[x] != null )
+				if ( cb.args[x] != null && !fields.contains(cb.args[x]))
 				{
-					fields.put(cb.args[x].name, cb.args[x]);
+					fields.add(cb.args[x]);
 				}
 			}
-		}
-		return fields.values();
+        }
+		return fields;
 	}
 
 	private static void writePrototype(Callback cb, PrintWriter out, int tw, int nw)

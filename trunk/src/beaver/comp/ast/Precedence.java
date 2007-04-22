@@ -13,8 +13,8 @@ package beaver.comp.ast;
  */
 public class Precedence extends beaver.util.Node
 {
-	public Term         assoc;
 	public PrecItemList precItemList;
+	public Term         assoc;
 
 	public Precedence(PrecItemList precItemList, Term assoc)
 	{

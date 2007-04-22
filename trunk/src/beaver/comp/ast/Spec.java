@@ -13,8 +13,8 @@ package beaver.comp.ast;
  */
 public class Spec extends beaver.util.Node
 {
-	public ScannerSpec scannerSpec;
 	public ParserSpec  parserSpec;
+	public ScannerSpec scannerSpec;
 
 	public Spec(ParserSpec parserSpec, ScannerSpec scannerSpec)
 	{

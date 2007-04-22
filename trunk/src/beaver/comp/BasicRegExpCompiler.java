@@ -14,7 +14,6 @@ import java.util.Map;
 import beaver.comp.ast.CharExprNested;
 import beaver.comp.ast.CharExprRange;
 import beaver.comp.ast.CharExprText;
-import beaver.comp.ast.Context;
 import beaver.comp.ast.RangeExprMacro;
 import beaver.comp.ast.RangeExprMinus;
 import beaver.comp.ast.RangeExprRange;
@@ -55,11 +54,6 @@ public class BasicRegExpCompiler implements RegExpCompiler
 		SubStr text = new SubStr(expr.text.toString());
 		text.trim1(); // remove "
 	    return ScannerBuilder.strToRegExp(text);
-    }
-
-	public beaver.comp.lexer.RegExp compile(Context expr)
-    {
-	    return expr.regExp.accept(this);
     }
 
 	public beaver.comp.lexer.RegExp compile(RangeExprMacro expr)

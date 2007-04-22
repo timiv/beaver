@@ -3,9 +3,9 @@
 	Spec
 		= ParserSpec? ScannerSpec?
 		;
-
+		
 	ParserSpec
-		= "%rules" Rule+ PrecedenceDecl?
+		= "%rules" Rule+ ("%precedence" Precedence+)?
 		;
 
 	Rule
@@ -18,19 +18,13 @@
 		;
 
 	Alt
-		= Item*
-		| "{" NAME "}" Item*
+		= ("{" NAME "}")? Item*
 		;
 
 	Item
 		= { Static } TEXT
-		| { Symbol } NAME OPER?
-		| { Symbol } ref:NAME ":" NAME OPER?
+		| { Symbol } (ref:NAME ":")? NAME OPER?
 		| { Inline } "(" Item+ ")?"
-		;
-
-	PrecedenceDecl
-		= "%precedence" Precedence+
 		;
 
 	Precedence
@@ -46,13 +40,9 @@
 		= { Term } TEXT
 		| { Rule } NAME
 		;
-
+		
 	ScannerSpec
-		= Macros? "%tokens" terminals:TermDecl+
-		;
-
-	Macros
-		= "%macros" MacroDecl+
+		= ("%macros" MacroDecl+)? "%tokens" terminals:TermDecl+
 		;
 
 	MacroDecl
@@ -60,11 +50,7 @@
 		;
 
 	TermDecl
-		= NAME "=" RegExp Context? ";"
-		;
-
-	Context
-		= "/" RegExp
+		= NAME "=" RegExp ("/" ctx:RegExp)? ";"
 		;
 
 	RegExp

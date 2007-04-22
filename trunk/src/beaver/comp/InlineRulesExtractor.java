@@ -54,7 +54,7 @@ public class InlineRulesExtractor extends TreeWalker
 			newList.add(i);
 		}
 
-		for ( item = (Item) item.next() ; item != opt; item = (Item) item.next() )
+		for ( item = (Item) item.next() ; item != null; item = (Item) item.next() )
 		{
 			newList.add(item.makeClone());
 		}

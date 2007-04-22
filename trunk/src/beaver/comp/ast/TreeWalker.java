@@ -17,7 +17,7 @@ public class TreeWalker implements NodeVisitor
 	public void visit(ParserSpec node)
 	{
 		if ( node.ruleList       != null ) node.ruleList       .accept(this);
-		if ( node.precedenceDecl != null ) node.precedenceDecl .accept(this);
+		if ( node.precedenceList != null ) node.precedenceList .accept(this);
 	}
 
 	public void visit(RangeExprRange node)
@@ -43,15 +43,15 @@ public class TreeWalker implements NodeVisitor
 
 	public void visit(TermDecl node)
 	{
-		if ( node.regExp  != null ) node.regExp  .accept(this);
-		if ( node.name    != null ) node.name    .accept(this);
-		if ( node.context != null ) node.context .accept(this);
+		if ( node.name   != null ) node.name   .accept(this);
+		if ( node.regExp != null ) node.regExp .accept(this);
+		if ( node.ctx    != null ) node.ctx    .accept(this);
 	}
 
 	public void visit(Spec node)
 	{
-		if ( node.scannerSpec != null ) node.scannerSpec .accept(this);
 		if ( node.parserSpec  != null ) node.parserSpec  .accept(this);
+		if ( node.scannerSpec != null ) node.scannerSpec .accept(this);
 	}
 
 	public void visit(ScannerSpec node)
@@ -68,8 +68,8 @@ public class TreeWalker implements NodeVisitor
 
 	public void visit(RegExpItemQuant node)
 	{
-		if ( node.quantifier != null ) node.quantifier .accept(this);
 		if ( node.charExpr   != null ) node.charExpr   .accept(this);
+		if ( node.quantifier != null ) node.quantifier .accept(this);
 	}
 
 	public void visit(PrecItemRule node)
@@ -85,8 +85,8 @@ public class TreeWalker implements NodeVisitor
 	public void visit(ItemSymbol node)
 	{
 		if ( node.ref  != null ) node.ref  .accept(this);
-		if ( node.oper != null ) node.oper .accept(this);
 		if ( node.name != null ) node.name .accept(this);
+		if ( node.oper != null ) node.oper .accept(this);
 	}
 
 	public void visit(CharExprNested node)
@@ -94,21 +94,16 @@ public class TreeWalker implements NodeVisitor
 		if ( node.regExp != null ) node.regExp .accept(this);
 	}
 
-	public void visit(Context node)
-	{
-		if ( node.regExp != null ) node.regExp .accept(this);
-	}
-
 	public void visit(Precedence node)
 	{
-		if ( node.assoc        != null ) node.assoc        .accept(this);
 		if ( node.precItemList != null ) node.precItemList .accept(this);
+		if ( node.assoc        != null ) node.assoc        .accept(this);
 	}
 
 	public void visit(MacroDecl node)
 	{
-		if ( node.regExp != null ) node.regExp .accept(this);
 		if ( node.name   != null ) node.name   .accept(this);
+		if ( node.regExp != null ) node.regExp .accept(this);
 	}
 
 	public void visit(PrecItemTerm node)
@@ -118,8 +113,8 @@ public class TreeWalker implements NodeVisitor
 
 	public void visit(RangeExprMinus node)
 	{
-		if ( node.range != null ) node.range .accept(this);
 		if ( node.diff  != null ) node.diff  .accept(this);
+		if ( node.range != null ) node.range .accept(this);
 	}
 
 	public void visit(RangeExprMacro node)
@@ -145,8 +140,8 @@ public class TreeWalker implements NodeVisitor
 
 	public void visit(RegExpItemClose node)
 	{
-		if ( node.oper     != null ) node.oper     .accept(this);
 		if ( node.charExpr != null ) node.charExpr .accept(this);
+		if ( node.oper     != null ) node.oper     .accept(this);
 	}
 
 	public void visit(RuleList list)

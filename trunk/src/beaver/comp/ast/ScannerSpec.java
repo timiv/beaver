@@ -16,6 +16,11 @@ public class ScannerSpec extends beaver.util.Node
 	public MacroDeclList macros;
 	public TermDeclList  terminals;
 
+	public ScannerSpec(TermDeclList terminals)
+	{
+		this.terminals = terminals;
+	}
+
 	public ScannerSpec(MacroDeclList macros, TermDeclList terminals)
 	{
 		this.macros    = macros;

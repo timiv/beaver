@@ -15,8 +15,8 @@ package beaver.comp.ast;
 public class ItemSymbol extends Item
 {
 	public Term ref;
-	public Term oper;
 	public Term name;
+	public Term oper;
 
 	public ItemSymbol(Term name, Term oper)
 	{
@@ -58,6 +58,6 @@ public class ItemSymbol extends Item
 	
 	public Item makeClone()
 	{
-		return new ItemSymbol(ref, name, oper);
+		return new ItemSymbol(ref, new Term(name.text), oper);
 	}
 }

@@ -33,6 +33,6 @@ public class ItemStatic extends Item
 	
 	public Item makeClone()
 	{
-		return new ItemStatic(text);
+		return new ItemStatic(new Term(text.text));
 	}
 }

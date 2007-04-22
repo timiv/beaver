@@ -14,8 +14,8 @@ package beaver.comp.ast;
  */
 public class RangeExprMinus extends RangeExpr
 {
-	public RangeExpr range;
 	public RangeExpr diff;
+	public RangeExpr range;
 
 	public RangeExprMinus(RangeExpr diff, RangeExpr range)
 	{

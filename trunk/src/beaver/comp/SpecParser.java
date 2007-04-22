@@ -35,9 +35,14 @@ public abstract class SpecParser extends beaver.Parser
 		return new Spec(parserSpec, scannerSpec);
 	}
 
-	protected ParserSpec onParserSpec(RuleList ruleList, PrecedenceList precedenceDecl)
+	protected ParserSpec onParserSpec(RuleList ruleList)
 	{
-		return new ParserSpec(ruleList, precedenceDecl);
+		return new ParserSpec(ruleList);
+	}
+
+	protected ParserSpec onParserSpec(RuleList ruleList, PrecedenceList precedenceList)
+	{
+		return new ParserSpec(ruleList, precedenceList);
 	}
 
 	protected Rule onRule(Term name, AltList altList)
@@ -65,14 +70,14 @@ public abstract class SpecParser extends beaver.Parser
 		return new ItemSymbol(name, oper);
 	}
 
-	protected Item onItemSymbol(Term ref, Term name, Term oper)
-	{
-		return new ItemSymbol(ref, name, oper);
-	}
-
 	protected Item onItemInline(ItemList itemList)
 	{
 		return new ItemInline(itemList);
+	}
+
+	protected Item onItemSymbol(Term ref, Term name, Term oper)
+	{
+		return new ItemSymbol(ref, name, oper);
 	}
 
 	protected Precedence onPrecedence(PrecItemList precItemList, Term assoc)
@@ -90,9 +95,14 @@ public abstract class SpecParser extends beaver.Parser
 		return new PrecItemRule(name);
 	}
 
-	protected ScannerSpec onScannerSpec(MacroDeclList macros, TermDeclList terminals)
+	protected ScannerSpec onScannerSpec(TermDeclList terminals)
 	{
-		return new ScannerSpec(macros, terminals);
+		return new ScannerSpec(terminals);
+	}
+
+	protected ScannerSpec onScannerSpec(MacroDeclList macroDeclList, TermDeclList terminals)
+	{
+		return new ScannerSpec(macroDeclList, terminals);
 	}
 
 	protected MacroDecl onMacroDecl(Term name, RegExp regExp)
@@ -100,14 +110,14 @@ public abstract class SpecParser extends beaver.Parser
 		return new MacroDecl(name, regExp);
 	}
 
-	protected TermDecl onTermDecl(Term name, RegExp regExp, Context context)
+	protected TermDecl onTermDecl(Term name, RegExp regExp)
 	{
-		return new TermDecl(name, regExp, context);
+		return new TermDecl(name, regExp);
 	}
 
-	protected Context onContext(RegExp regExp)
+	protected TermDecl onTermDecl(Term name, RegExp regExp, RegExp ctx)
 	{
-		return new Context(regExp);
+		return new TermDecl(name, regExp, ctx);
 	}
 
 	protected RegExpItem onRegExpItem(CharExpr charExpr)
@@ -205,22 +215,22 @@ public abstract class SpecParser extends beaver.Parser
 		return list.add(item);
 	}
 
-	protected ItemList onItemList(Item item)
-	{
-		return new ItemList().add(item);
-	}
-
-	protected ItemList onItemList(ItemList list, Item item)
-	{
-		return list.add(item);
-	}
-
 	protected PrecedenceList onPrecedenceList(Precedence item)
 	{
 		return new PrecedenceList().add(item);
 	}
 
 	protected PrecedenceList onPrecedenceList(PrecedenceList list, Precedence item)
+	{
+		return list.add(item);
+	}
+
+	protected ItemList onItemList(Item item)
+	{
+		return new ItemList().add(item);
+	}
+
+	protected ItemList onItemList(ItemList list, Item item)
 	{
 		return list.add(item);
 	}
@@ -266,66 +276,64 @@ public abstract class SpecParser extends beaver.Parser
 
 				return symbol ( onSpec(parserSpec, scannerSpec) );
 			}
-			case  1: // ParserSpec = "%rules" RuleList OptPrecedenceDecl
+			case  1: // ParserSpec = "%rules" RuleList
+			{
+				RuleList ruleList = (RuleList) symbols[at - 1].getValue();
+
+				return symbol ( onParserSpec(ruleList) );
+			}
+			case  2: // ParserSpec = "%rules" RuleList "%precedence" PrecedenceList
 			{
 				RuleList       ruleList       = (RuleList      ) symbols[at - 1].getValue();
-				PrecedenceList precedenceDecl = (PrecedenceList) symbols[at - 2].getValue();
+				PrecedenceList precedenceList = (PrecedenceList) symbols[at - 3].getValue();
 
-				return symbol ( onParserSpec(ruleList, precedenceDecl) );
+				return symbol ( onParserSpec(ruleList, precedenceList) );
 			}
-			case  2: // Rule = NAME "=" AltList ";"
+			case  3: // Rule = NAME "=" AltList ";"
 			{
 				Term    name    = (Term   ) symbols[at].getValue();
 				AltList altList = (AltList) symbols[at - 2].getValue();
 
 				return symbol ( onRule(name, altList) );
 			}
-			case  3: // AltList = Alt
+			case  4: // AltList = Alt
 			{
 				Alt alt = (Alt) symbols[at].getValue();
 
 				return symbol ( onAltList(alt) );
 			}
-			case  4: // AltList = AltList "|" Alt
+			case  5: // AltList = AltList "|" Alt
 			{
 				AltList altList = (AltList) symbols[at].getValue();
 				Alt     alt     = (Alt    ) symbols[at - 2].getValue();
 
 				return symbol ( onAltList(altList, alt) );
 			}
-			case  5: // Alt = OptItemList
+			case  6: // Alt = OptItemList
 			{
 				ItemList itemList = (ItemList) symbols[at].getValue();
 
 				return symbol ( onAlt(itemList) );
 			}
-			case  6: // Alt = "{" NAME "}" OptItemList
+			case  7: // Alt = "{" NAME "}" OptItemList
 			{
 				Term     name     = (Term    ) symbols[at - 1].getValue();
 				ItemList itemList = (ItemList) symbols[at - 3].getValue();
 
 				return symbol ( onAlt(name, itemList) );
 			}
-			case  7: // Item = TEXT
+			case  8: // Item = TEXT
 			{
 				Term text = (Term) symbols[at].getValue();
 
 				return symbol ( onItemStatic(text) );
 			}
-			case  8: // Item = NAME OptOPER
+			case  9: // Item = NAME OptOPER
 			{
 				Term name = (Term) symbols[at].getValue();
 				Term oper = (Term) symbols[at - 1].getValue();
 
 				return symbol ( onItemSymbol(name, oper) );
-			}
-			case  9: // Item = NAME ":" NAME OptOPER
-			{
-				Term ref  = (Term) symbols[at].getValue();
-				Term name = (Term) symbols[at - 2].getValue();
-				Term oper = (Term) symbols[at - 3].getValue();
-
-				return symbol ( onItemSymbol(ref, name, oper) );
 			}
 			case 10: // Item = "(" ItemList ")?"
 			{
@@ -333,9 +341,13 @@ public abstract class SpecParser extends beaver.Parser
 
 				return symbol ( onItemInline(itemList) );
 			}
-			case 11: // PrecedenceDecl = "%precedence" PrecedenceList
+			case 11: // Item = NAME ":" NAME OptOPER
 			{
-				return copy( symbols[at - 1] );
+				Term ref  = (Term) symbols[at].getValue();
+				Term name = (Term) symbols[at - 2].getValue();
+				Term oper = (Term) symbols[at - 3].getValue();
+
+				return symbol ( onItemSymbol(ref, name, oper) );
 			}
 			case 12: // Precedence = PrecItemList ":" ASSOC ";"
 			{
@@ -369,16 +381,18 @@ public abstract class SpecParser extends beaver.Parser
 
 				return symbol ( onPrecItemRule(name) );
 			}
-			case 17: // ScannerSpec = OptMacros "%tokens" TermDeclList
+			case 17: // ScannerSpec = "%tokens" TermDeclList
 			{
-				MacroDeclList macros    = (MacroDeclList) symbols[at].getValue();
-				TermDeclList  terminals = (TermDeclList ) symbols[at - 2].getValue();
+				TermDeclList terminals = (TermDeclList) symbols[at - 1].getValue();
 
-				return symbol ( onScannerSpec(macros, terminals) );
+				return symbol ( onScannerSpec(terminals) );
 			}
-			case 18: // Macros = "%macros" MacroDeclList
+			case 18: // ScannerSpec = "%macros" MacroDeclList "%tokens" TermDeclList
 			{
-				return copy( symbols[at - 1] );
+				MacroDeclList macroDeclList = (MacroDeclList) symbols[at - 1].getValue();
+				TermDeclList  terminals     = (TermDeclList ) symbols[at - 3].getValue();
+
+				return symbol ( onScannerSpec(macroDeclList, terminals) );
 			}
 			case 19: // MacroDecl = NAME "=" RegExp ";"
 			{
@@ -387,19 +401,20 @@ public abstract class SpecParser extends beaver.Parser
 
 				return symbol ( onMacroDecl(name, regExp) );
 			}
-			case 20: // TermDecl = NAME "=" RegExp OptContext ";"
+			case 20: // TermDecl = NAME "=" RegExp ";"
 			{
-				Term    name    = (Term   ) symbols[at].getValue();
-				RegExp  regExp  = (RegExp ) symbols[at - 2].getValue();
-				Context context = (Context) symbols[at - 3].getValue();
+				Term   name   = (Term  ) symbols[at].getValue();
+				RegExp regExp = (RegExp) symbols[at - 2].getValue();
 
-				return symbol ( onTermDecl(name, regExp, context) );
+				return symbol ( onTermDecl(name, regExp) );
 			}
-			case 21: // Context = "/" RegExp
+			case 21: // TermDecl = NAME "=" RegExp "/" RegExp ";"
 			{
-				RegExp regExp = (RegExp) symbols[at - 1].getValue();
+				Term   name   = (Term  ) symbols[at].getValue();
+				RegExp regExp = (RegExp) symbols[at - 2].getValue();
+				RegExp ctx    = (RegExp) symbols[at - 4].getValue();
 
-				return symbol ( onContext(regExp) );
+				return symbol ( onTermDecl(name, regExp, ctx) );
 			}
 			case 22: // RegExp = RegExpItemList
 			{
@@ -513,13 +528,18 @@ public abstract class SpecParser extends beaver.Parser
 
 				return symbol ( onRuleList(list, item) );
 			}
-			case 41: // OptPrecedenceDecl =
+			case 41: // PrecedenceList = Precedence
 			{
-				return symbol( null );
+				Precedence item = (Precedence) symbols[at].getValue();
+
+				return symbol ( onPrecedenceList(item) );
 			}
-			case 42: // OptPrecedenceDecl = PrecedenceDecl
+			case 42: // PrecedenceList = PrecedenceList Precedence
 			{
-				return copy( symbols[at] );
+				PrecedenceList list = (PrecedenceList) symbols[at].getValue();
+				Precedence     item = (Precedence    ) symbols[at - 1].getValue();
+
+				return symbol ( onPrecedenceList(list, item) );
 			}
 			case 43: // ItemList = Item
 			{
@@ -550,79 +570,50 @@ public abstract class SpecParser extends beaver.Parser
 			{
 				return copy( symbols[at] );
 			}
-			case 49: // PrecedenceList = Precedence
-			{
-				Precedence item = (Precedence) symbols[at].getValue();
-
-				return symbol ( onPrecedenceList(item) );
-			}
-			case 50: // PrecedenceList = PrecedenceList Precedence
-			{
-				PrecedenceList list = (PrecedenceList) symbols[at].getValue();
-				Precedence     item = (Precedence    ) symbols[at - 1].getValue();
-
-				return symbol ( onPrecedenceList(list, item) );
-			}
-			case 51: // OptMacros =
-			{
-				return symbol( null );
-			}
-			case 52: // OptMacros = Macros
-			{
-				return copy( symbols[at] );
-			}
-			case 53: // TermDeclList = TermDecl
+			case 49: // TermDeclList = TermDecl
 			{
 				TermDecl item = (TermDecl) symbols[at].getValue();
 
 				return symbol ( onTermDeclList(item) );
 			}
-			case 54: // TermDeclList = TermDeclList TermDecl
+			case 50: // TermDeclList = TermDeclList TermDecl
 			{
 				TermDeclList list = (TermDeclList) symbols[at].getValue();
 				TermDecl     item = (TermDecl    ) symbols[at - 1].getValue();
 
 				return symbol ( onTermDeclList(list, item) );
 			}
-			case 55: // MacroDeclList = MacroDecl
+			case 51: // MacroDeclList = MacroDecl
 			{
 				MacroDecl item = (MacroDecl) symbols[at].getValue();
 
 				return symbol ( onMacroDeclList(item) );
 			}
-			case 56: // MacroDeclList = MacroDeclList MacroDecl
+			case 52: // MacroDeclList = MacroDeclList MacroDecl
 			{
 				MacroDeclList list = (MacroDeclList) symbols[at].getValue();
 				MacroDecl     item = (MacroDecl    ) symbols[at - 1].getValue();
 
 				return symbol ( onMacroDeclList(list, item) );
 			}
-			case 57: // OptContext =
-			{
-				return symbol( null );
-			}
-			case 58: // OptContext = Context
-			{
-				return copy( symbols[at] );
-			}
-			case 59: // RegExpItemList = RegExpItem
+			case 53: // RegExpItemList = RegExpItem
 			{
 				RegExpItem item = (RegExpItem) symbols[at].getValue();
 
 				return symbol ( onRegExpItemList(item) );
 			}
-			case 60: // RegExpItemList = RegExpItemList RegExpItem
+			case 54: // RegExpItemList = RegExpItemList RegExpItem
 			{
 				RegExpItemList list = (RegExpItemList) symbols[at].getValue();
 				RegExpItem     item = (RegExpItem    ) symbols[at - 1].getValue();
 
 				return symbol ( onRegExpItemList(list, item) );
 			}
-			case 61: // OptNUM =
+			case 55: // OptNUM =
 			{
 				return symbol( null );
 			}
-			case 62: // OptNUM = NUM
+			case 56: // OptNUM = NUM
 			{
 				return copy( symbols[at] );
 			}

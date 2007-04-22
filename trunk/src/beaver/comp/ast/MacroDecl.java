@@ -13,8 +13,8 @@ package beaver.comp.ast;
  */
 public class MacroDecl extends beaver.util.Node
 {
-	public RegExp regExp;
 	public Term   name;
+	public RegExp regExp;
 
 	public MacroDecl(Term name, RegExp regExp)
 	{

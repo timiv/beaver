@@ -13,15 +13,21 @@ package beaver.comp.ast;
  */
 public class TermDecl extends beaver.util.Node
 {
-	public RegExp  regExp;
-	public Term    name;
-	public Context context;
+	public Term   name;
+	public RegExp regExp;
+	public RegExp ctx;
 
-	public TermDecl(Term name, RegExp regExp, Context context)
+	public TermDecl(Term name, RegExp regExp)
 	{
-		this.name    = name;
-		this.regExp  = regExp;
-		this.context = context;
+		this.name   = name;
+		this.regExp = regExp;
+	}
+
+	public TermDecl(Term name, RegExp regExp, RegExp ctx)
+	{
+		this.name   = name;
+		this.regExp = regExp;
+		this.ctx    = ctx;
 	}
 
 	public void accept(NodeVisitor visitor)

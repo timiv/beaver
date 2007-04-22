@@ -48,11 +48,8 @@ public class TokenCompiler extends BasicRegExpCompiler implements RegExpCompiler
 			for ( TermDecl item = (TermDecl) spec.terminals.first(); item != null; item = (TermDecl) item.next() )
 			{
 				beaver.comp.lexer.RegExp exp = item.regExp.accept(this);
-				beaver.comp.lexer.RegExp ctx = 
-					item.context != null
-						? item.context.accept(this) 
-						: new beaver.comp.lexer.RegExp.NullOp();
-
+				beaver.comp.lexer.RegExp ctx = item.ctx != null ? item.ctx.accept(this) 
+						                                        : new beaver.comp.lexer.RegExp.NullOp();
 				names.add(item.name.toString());
 				rules.put(item.name.toString(), new beaver.comp.lexer.RegExp.RuleOp(exp, ctx));
 			}

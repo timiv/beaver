@@ -14,12 +14,17 @@ package beaver.comp.ast;
 public class ParserSpec extends beaver.util.Node
 {
 	public RuleList       ruleList;
-	public PrecedenceList precedenceDecl;
+	public PrecedenceList precedenceList;
 
-	public ParserSpec(RuleList ruleList, PrecedenceList precedenceDecl)
+	public ParserSpec(RuleList ruleList)
+	{
+		this.ruleList = ruleList;
+	}
+
+	public ParserSpec(RuleList ruleList, PrecedenceList precedenceList)
 	{
 		this.ruleList       = ruleList;
-		this.precedenceDecl = precedenceDecl;
+		this.precedenceList = precedenceList;
 	}
 
 	public void accept(NodeVisitor visitor)
