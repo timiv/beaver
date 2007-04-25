@@ -36,7 +36,6 @@ import beaver.comp.parser.ParserWriter;
 import beaver.comp.parser.ParsingTables;
 import beaver.comp.parser.State;
 import beaver.comp.parser.Terminal;
-import beaver.comp.SpecScanner;
 import beaver.util.BitSet;
 
 /**
@@ -306,9 +305,8 @@ public class Compiler
 	    if ( tokenRules != null )
 	    {
 	    	String className = scannerClassName.replace('.', '/');
-	    	DFA[] automata = compileScanner(tokenRules);
-			byte[] bc = CharScannerClassWriter.compile(automata, className);
-			ScannerBuilder.saveClass(binDir, className, bc);
+	    	DFA dfa = compileScanner(tokenRules);
+	    	new CharScannerClassWriter().write(className, binDir, dfa, null, null);
 	    	
 	    	if ( !tokenRules.isEmpty() )
 	    	{
@@ -342,7 +340,7 @@ public class Compiler
 		}
     }
 	
-	DFA[] compileScanner(Map tokens) throws IOException
+	DFA compileScanner(Map tokens) throws IOException
 	{
 		Collection rules = new ArrayList(terminals.length + 3);
 		Terminal t;
@@ -370,9 +368,7 @@ public class Compiler
 		rules.add( ScannerBuilder.makeEndOfFileRule() );
 		rules.add( ScannerBuilder.makeRule(-3, new RegExp.CloseOp(ScannerBuilder.rangeToRegExp("[ \t]"))) );
 		
-		DFA dfa = ScannerBuilder.compile(rules);
-		
-		return new DFA[] { dfa };
+		return ScannerBuilder.compile(rules);
 	}
 	
     private Grammar compileGrammar(ParserSpec parserSpec) throws IOException, SyntaxErrorException

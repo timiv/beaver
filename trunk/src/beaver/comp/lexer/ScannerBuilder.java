@@ -197,8 +197,14 @@ public class ScannerBuilder
 			packageDir.mkdirs();
 		}
 		java.io.FileOutputStream out = new java.io.FileOutputStream(classFile);
-		out.write(bc);
-		out.close();
+		try
+		{
+			out.write(bc);
+		}
+		finally
+		{
+			out.close();
+		}
 	}
 
 }

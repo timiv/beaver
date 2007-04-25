@@ -8,13 +8,35 @@
  */
 package beaver.comp.lexer;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
 public abstract class ScannerWriter
 {
-	public abstract void compile(String className, DFA[] dfas) throws IOException;
+	public void write(String className, File binDir, DFA defDFA, DFA[] inclusiveDFAs, DFA[] exclusiveDFAs) throws IOException
+	{
+		File clsFile = new File(binDir, className + ".class");
+		File outDir = clsFile.getParentFile();
+		if (!outDir.exists())
+		{
+			outDir.mkdirs();
+		}
+
+		FileOutputStream out = new FileOutputStream(clsFile);
+		try
+		{
+			out.write(assemble(defDFA, inclusiveDFAs, exclusiveDFAs, className));
+		}
+		finally
+		{
+			out.close();
+		}
+	}
+	
+	protected abstract byte[] assemble(DFA defaultDFA, DFA[] incDFAs, DFA[] excDFAs, String className);
 
 	protected static CharTransition[] getCharTransitions(DFA.State st)
 	{

@@ -8,10 +8,8 @@
  */
 package beaver.comp.lexer;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -21,33 +19,6 @@ import org.objectweb.asm.Opcodes;
 
 public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 {
-	private File dir;
-
-	public CharScannerClassWriter(File destDir)
-	{
-		dir = destDir;
-	}
-
-	public void compile(String className, DFA[] allDFA) throws IOException
-	{
-		File clsFile = new File(dir, className + ".class");
-		File outDir = clsFile.getParentFile();
-		if (!outDir.exists())
-		{
-			outDir.mkdirs();
-		}
-
-		FileOutputStream out = new FileOutputStream(clsFile);
-		try
-		{
-			out.write(compile(allDFA, className));
-		}
-		finally
-		{
-			out.close();
-		}
-	}
-
 	private static final String   SUPER       = "beaver/CharScanner";
 	private static final String[] NEXT_THROWS = { "beaver/UnexpectedCharacterException", "java/io/IOException" };
 
@@ -61,20 +32,43 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 	private static final int      TEXT        = 4;
 	private static final int      EVENT       = 5;
 
-	public static byte[] compile(DFA[] allDFA, String className)
+	protected byte[] assemble(DFA defaultDFA, DFA[] incDFAs, DFA[] excDFAs, String className)
 	{
-		ArrayList events = new ArrayList();
-		int maxFill = 0;
-		for (int i = 0; i < allDFA.length; i++)
+		DFA[] dfas = new DFA[1 + (incDFAs != null ? incDFAs.length : 0) + (excDFAs != null ? excDFAs.length : 0)];
+		
+		int lastIncDFAId = 0;	
+		int lastDFAId = 0;
+		dfas[lastDFAId] = defaultDFA;
+		if ( incDFAs != null )
 		{
-			DFA dfa = allDFA[i];
+			for ( int i = 0; i < incDFAs.length; i++ )
+            {
+				dfas[++lastDFAId] = incDFAs[i];
+            }
+			lastIncDFAId = lastDFAId;
+		}
+		if ( excDFAs != null )
+		{
+			for ( int i = 0; i < excDFAs.length; i++ )
+            {
+				dfas[++lastDFAId] = excDFAs[i];
+            }
+		}
+		
+		List events = new ArrayList();
+		int maxFill = 0;
+		for (int i = 0; i < dfas.length; i++)
+		{
+			DFA dfa = dfas[i];
 
 			if (dfa.maxFill >= Byte.MAX_VALUE)
 				throw new IllegalArgumentException("DFA's 'max fill' value is unacceptably large");
+			
 			if (maxFill < dfa.maxFill)
 			{
 				maxFill = dfa.maxFill;
 			}
+			
 			for (DFA.State st = dfa.start; st != null; st = st.next)
 			{
 				if (st.eventName != null)
@@ -84,7 +78,7 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 				}
 			}
 		}
-		boolean lexerHasStates = allDFA.length > 1;
+		boolean lexerHasStates = dfas.length > 1;
 
 		ClassWriter cw = new ClassWriter(0);
 		cw.visit(V1_1, ACC_PUBLIC + ACC_SUPER + (events.isEmpty() ? 0 : ACC_ABSTRACT), className, null, SUPER, null);
@@ -145,7 +139,12 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 		// public int next() throws UnexpectedCharacterException, IOException
 		{
 			MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "next", "()I", null, NEXT_THROWS);
-			Label startScan = new Label(), unexpectedChar = new Label(), throwUnexpectedCharException = new Label(), throwIllegalStateException = new Label();
+			Label startScan = new Label()
+		        , tryDefaultDFA = new Label()
+			    , returnAccepted = new Label()
+			    , unexpectedChar = new Label()
+			    , throwUnexpectedCharException = new Label()
+			    , throwIllegalStateException = new Label();
 
 			// int cursor = super.cursor;
 			mv.visitVarInsn(ALOAD, THIS);
@@ -175,31 +174,46 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 
 			if (lexerHasStates)
 			{
-				Label[] recognizerStateLabels = makeLabels(allDFA.length);
-				int[] recognizerStateIds = new int[allDFA.length];
-				for (int i = 0; i < allDFA.length; i++)
-				{
-					recognizerStateIds[i] = i;
-				}
+				Label[] dfaLabels = makeLabels(dfas.length);
 				mv.visitVarInsn(ALOAD, THIS);
 				mv.visitFieldInsn(GETFIELD, className, "state", "I");
-				mv.visitTableSwitchInsn(0, allDFA.length - 1, throwIllegalStateException, recognizerStateLabels);
-				for (int i = 0; i < allDFA.length; i++)
+				mv.visitTableSwitchInsn(0, lastDFAId, throwIllegalStateException, dfaLabels);
+				
+				mv.visitLabel(tryDefaultDFA);
+				// if (accept != 0)
+				mv.visitVarInsn(ILOAD, ACCEPT);
+				mv.visitJumpInsn(IFNE, returnAccepted);
+
+				int id = 0; // default DFA
 				{
-					mv.visitLabel(recognizerStateLabels[i]);
-					compile(mv, className, events, allDFA[i], startScan, unexpectedChar);
+    				mv.visitLabel(dfaLabels[id]); 
+    				compile(mv, className, events, dfas[id], startScan, unexpectedChar);
+    				id++;
+				}				
+				while ( id <= lastIncDFAId )
+				{
+					mv.visitLabel(dfaLabels[id]); 
+					compile(mv, className, events, dfas[id], startScan, tryDefaultDFA);
+					id++;
+				}
+				while ( id <= lastDFAId )
+				{
+					mv.visitLabel(dfaLabels[id]); 
+					compile(mv, className, events, dfas[id], startScan, unexpectedChar);
+					id++;
 				}
 			}
 			else
 			{
-				compile(mv, className, events, allDFA[0], startScan, unexpectedChar);
+				compile(mv, className, events, defaultDFA, startScan, unexpectedChar);
 			}
-
+			
 			mv.visitLabel(unexpectedChar);
 			// if (accept == 0)
 			mv.visitVarInsn(ILOAD, ACCEPT);
 			mv.visitJumpInsn(IFEQ, throwUnexpectedCharException);
 			// else
+			mv.visitLabel(returnAccepted);
 			// super.cursor = cursor = super.marker;
 			mv.visitVarInsn(ALOAD, THIS);
 			mv.visitInsn(DUP);
@@ -321,7 +335,7 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 		return cw.toByteArray();
 	}
 
-	private static void compile(MethodVisitor mv, String className, ArrayList events, DFA dfa, Label startScan, Label unexpectedChar)
+	private static void compile(MethodVisitor mv, String className, List events, DFA dfa, Label startScan, Label unexpectedChar)
 	{
 		Label[] dfaStateLabels = makeLabels(dfa.nStates);
 
