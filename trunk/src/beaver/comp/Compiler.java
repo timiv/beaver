@@ -209,59 +209,47 @@ public class Compiler
 		
 		if ( scannerClassName == null )
 		{
-			String pv = p.getProperty("terminal.expr");
+			String pv = p.getProperty("terminal.precedence");
 			if ( pv != null )
 			{
 				terminalsPrecedence = split(pv, ',');
 			}
 		}
-		String pv = p.getProperty("terminal.const");
-		if ( pv != null )
+		for ( Iterator i = p.keySet().iterator(); i.hasNext(); )
+        {
+	        String property = (String) i.next();
+	        if ( property.startsWith("terminal.const.") )
+	        {
+	        	String name = property.substring(15);
+	        	String text = p.getProperty(property).trim();
+	        	
+                constTermNames.put(text, name);
+                terms.add(new Terminal.Const((char) terms.size(), name, text));
+	        }
+	        else if ( property.startsWith("ast.type.") )
+	        {
+	        	String name = property.substring(9);
+	        	String text = p.getProperty(property).trim();
+	        	
+	        	if ( astTypes == null )
+	        		astTypes = new HashMap();
+                astTypes.put(name, text);
+	        }
+        }
+		if ( terminalsPrecedence != null )
 		{
-			String[] cterms = split(pv, ',');
-			constTermNames = new HashMap();
-			for ( int i = 0; i < cterms.length; i++ )
+			for ( int i = 0; i < terminalsPrecedence.length; i++ )
             {
-				String name = cterms[i];
-				pv = p.getProperty("terminal.const." + name);
-				if ( pv != null )
-				{
-					String text = pv.trim();
-	                constTermNames.put(text, name);
-	                terms.add(new Terminal.Const((char) terms.size(), name, text));
-				}
+                terms.add(new Terminal((char) terms.size(), terminalsPrecedence[i]));
             }
-			if ( terminalsPrecedence != null )
-			{
-    			for ( int i = 0; i < terminalsPrecedence.length; i++ )
-                {
-                    terms.add(new Terminal((char) terms.size(), terminalsPrecedence[i]));
-                }
-			}
 		}
 		terminals = (Terminal[]) terms.toArray(new Terminal[terms.size()]);
 		
-		pv = p.getProperty("srcFileComment");
+		String pv = p.getProperty("srcFileComment");
 		if ( pv != null )
 		{
 			srcFileCommentLines = split(pv, '$');
-		}
-		
-		pv = p.getProperty("ast.types");
-		if ( pv != null )
-		{
-			String[] astTypeNames = split(pv, ',');
-			astTypes = new HashMap();
-			for ( int i = 0; i < astTypeNames.length; i++ )
-            {
-				String name = astTypeNames[i];
-				pv = p.getProperty("ast.types." + name);
-				if ( pv != null )
-				{
-	                astTypes.put(name, pv.trim());
-				}
-            }
-		}
+		}	
 		astTermType = p.getProperty("ast.term.type");
 		astPackageName = p.getProperty("ast.package");
 	}
