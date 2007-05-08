@@ -92,7 +92,7 @@ public class ParserWriter
     	this.generateNodeBuilders = opt;
     }
 	
-	public void setGenerateAst(boolean opt)
+	public void setGenerateCST(boolean opt)
 	{
 		this.generateAst = opt;
 	}

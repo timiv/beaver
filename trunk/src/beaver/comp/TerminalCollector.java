@@ -13,9 +13,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import beaver.comp.ast.ItemStatic;
-import beaver.comp.ast.ItemSymbol;
-import beaver.comp.ast.TreeWalker;
+import beaver.comp.cst.ItemStatic;
+import beaver.comp.cst.ItemSymbol;
+import beaver.comp.cst.TreeWalker;
 
 /**
  * @author Alexander Demenchuk

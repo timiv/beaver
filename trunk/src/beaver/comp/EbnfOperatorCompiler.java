@@ -11,15 +11,15 @@ package beaver.comp;
 import java.util.HashSet;
 import java.util.Set;
 
-import beaver.comp.ast.Alt;
-import beaver.comp.ast.AltList;
-import beaver.comp.ast.ItemList;
-import beaver.comp.ast.ItemSymbol;
-import beaver.comp.ast.ParserSpec;
-import beaver.comp.ast.Rule;
-import beaver.comp.ast.RuleList;
-import beaver.comp.ast.Term;
-import beaver.comp.ast.TreeWalker;
+import beaver.comp.cst.Alt;
+import beaver.comp.cst.AltList;
+import beaver.comp.cst.ItemList;
+import beaver.comp.cst.ItemSymbol;
+import beaver.comp.cst.ParserSpec;
+import beaver.comp.cst.Rule;
+import beaver.comp.cst.RuleList;
+import beaver.comp.cst.Term;
+import beaver.comp.cst.TreeWalker;
 
 
 /**

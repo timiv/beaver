@@ -24,8 +24,8 @@ import java.util.Set;
 
 import beaver.Location;
 import beaver.SyntaxErrorException;
-import beaver.comp.ast.ParserSpec;
-import beaver.comp.ast.Spec;
+import beaver.comp.cst.ParserSpec;
+import beaver.comp.cst.Spec;
 import beaver.comp.lexer.CharScannerClassWriter;
 import beaver.comp.lexer.DFA;
 import beaver.comp.lexer.RegExp;
@@ -58,9 +58,9 @@ public class Compiler
 	private String[]   terminalsPrecedence;
 	private Map        constTermNames;
 	private Terminal[] terminals;
-	private Map        astTypes;
-	private String     astTermType;
-	private String     astPackageName;
+	private Map        cstTypes;
+	private String     cstTermType;
+	private String     cstPackageName;
 	
 	public Compiler(Log log)
 	{
@@ -226,14 +226,14 @@ public class Compiler
                 constTermNames.put(text, name);
                 terms.add(new Terminal.Const((char) terms.size(), name, text));
 	        }
-	        else if ( property.startsWith("ast.type.") )
+	        else if ( property.startsWith("cst.type.") )
 	        {
 	        	String name = property.substring(9);
 	        	String text = p.getProperty(property).trim();
 	        	
-	        	if ( astTypes == null )
-	        		astTypes = new HashMap();
-                astTypes.put(name, text);
+	        	if ( cstTypes == null )
+	        		cstTypes = new HashMap();
+                cstTypes.put(name, text);
 	        }
         }
 		if ( terminalsPrecedence != null )
@@ -250,13 +250,13 @@ public class Compiler
 		{
 			srcFileCommentLines = split(pv, '$');
 		}	
-		astTermType = p.getProperty("ast.term.type");
-		astPackageName = p.getProperty("ast.package");
+		cstTermType = p.getProperty("cst.term.type");
+		cstPackageName = p.getProperty("cst.package");
 	}
 	
 	public void compile(File specFile) throws IOException, SyntaxErrorException, CompilationException
 	{
-	    Spec spec = (Spec) new AstBuilder().parse(new SpecScanner(new FileReader(specFile)));
+	    Spec spec = (Spec) new CSTBuilder().parse(new SpecScanner(new FileReader(specFile)));
 
 	    Map tokenRules = null;
 	    if ( spec.scannerSpec != null )
@@ -277,17 +277,17 @@ public class Compiler
     		int lastDot = parserClassName.lastIndexOf('.');
     		String className = lastDot < 0 ? parserClassName : parserClassName.substring(lastDot + 1); 
     		
-    		ParserWriter sourceWriter = new ParserWriter(className, grammar, astTermType, astTypes);
+    		ParserWriter sourceWriter = new ParserWriter(className, grammar, cstTermType, cstTypes);
     		if ( lastDot > 0 )
     		{    		
     			sourceWriter.setParserPackageName(parserClassName.substring(0, lastDot));
     		}
-			sourceWriter.setAstPackageName(astPackageName);
+			sourceWriter.setAstPackageName(cstPackageName);
     		sourceWriter.setFileComment(srcFileCommentLines);
     		sourceWriter.setConstTermNames(constTermNames);
     		sourceWriter.setGenerateListBuilders(makeCallbacks);
     		sourceWriter.setGenerateNodeBuilders(makeCallbacks);
-    		sourceWriter.setGenerateAst(makeTypes);
+    		sourceWriter.setGenerateCST(makeTypes);
     		sourceWriter.writeParserSources(srcDir);
 	    }
 	    if ( tokenRules != null )
@@ -433,7 +433,7 @@ public class Compiler
 		System.err.println("\t-ds dir  destination directory for generated source file");
 		System.err.println("\t-db dir  destination directory for binary/class files");  
 		System.err.println("\t-t       generate implementations of semantic types");
-		System.err.println("\t-m       generate implementations of AST building methods");
+		System.err.println("\t-m       generate implementations of CST building methods");
 		System.err.println("\t-p file  code generation properties");
 	}
 	

@@ -8,12 +8,12 @@
  */
 package beaver.comp;
 
-import beaver.comp.ast.Alt;
-import beaver.comp.ast.AltList;
-import beaver.comp.ast.Item;
-import beaver.comp.ast.ItemInline;
-import beaver.comp.ast.ItemList;
-import beaver.comp.ast.TreeWalker;
+import beaver.comp.cst.Alt;
+import beaver.comp.cst.AltList;
+import beaver.comp.cst.Item;
+import beaver.comp.cst.ItemInline;
+import beaver.comp.cst.ItemList;
+import beaver.comp.cst.TreeWalker;
 
 
 /**

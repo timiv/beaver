@@ -10,10 +10,10 @@ package beaver.comp;
 
 import java.util.Set;
 
-import beaver.comp.ast.ParserSpec;
-import beaver.comp.ast.Rule;
-import beaver.comp.ast.RuleList;
-import beaver.comp.ast.TreeWalker;
+import beaver.comp.cst.ParserSpec;
+import beaver.comp.cst.Rule;
+import beaver.comp.cst.RuleList;
+import beaver.comp.cst.TreeWalker;
 
 /**
  * @author Alexander Demenchuk

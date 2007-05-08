@@ -11,18 +11,18 @@ package beaver.comp;
 
 import java.util.Map;
 
-import beaver.comp.ast.CharExprNested;
-import beaver.comp.ast.CharExprRange;
-import beaver.comp.ast.CharExprText;
-import beaver.comp.ast.RangeExprMacro;
-import beaver.comp.ast.RangeExprMinus;
-import beaver.comp.ast.RangeExprRange;
-import beaver.comp.ast.RegExp;
-import beaver.comp.ast.RegExpCompiler;
-import beaver.comp.ast.RegExpItem;
-import beaver.comp.ast.RegExpItemClose;
-import beaver.comp.ast.RegExpItemList;
-import beaver.comp.ast.RegExpItemQuant;
+import beaver.comp.cst.CharExprNested;
+import beaver.comp.cst.CharExprRange;
+import beaver.comp.cst.CharExprText;
+import beaver.comp.cst.RangeExprMacro;
+import beaver.comp.cst.RangeExprMinus;
+import beaver.comp.cst.RangeExprRange;
+import beaver.comp.cst.RegExp;
+import beaver.comp.cst.RegExpCompiler;
+import beaver.comp.cst.RegExpItem;
+import beaver.comp.cst.RegExpItemClose;
+import beaver.comp.cst.RegExpItemList;
+import beaver.comp.cst.RegExpItemQuant;
 import beaver.comp.lexer.ScannerBuilder;
 import beaver.util.SubStr;
 

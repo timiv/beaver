@@ -14,7 +14,7 @@ import java.io.IOException;
 import beaver.ParsingTables;
 import beaver.Symbol;
 
-import beaver.comp.ast.*;
+import beaver.comp.cst.*;
 
 /**
  * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
