@@ -345,7 +345,7 @@ public abstract class Parser
 	protected void recoverFromError(Symbol sym, Scanner input) throws SyntaxErrorException, IOException
 	{
 		reuse(sym);
-		throw new SyntaxErrorException();
+		throw new SyntaxErrorException(sym.getRepresentation() + " is unexpected @ " + sym.getLocation());
 	}
 
 	/**

@@ -113,6 +113,14 @@ public final class Symbol implements Location
 	}
 	
 	/**
+	 * @return representation of this symbol location as SL,SC..EL,EC
+	 */
+	public String getLocation()
+	{
+		return startLine + "," + startColumn + ".." + endLine + "," + endColumn;
+	}
+	
+	/**
 	 * @return symbol's payload
 	 */
 	public Object getValue()

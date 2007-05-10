@@ -42,7 +42,7 @@
 		;
 		
 	ScannerSpec
-		= ("%macros" MacroDecl+)? "%tokens" terminals:TermDecl+
+		= ("%macros" macros:MacroDecl+)? "%tokens" terminals:TermDecl+
 		;
 
 	MacroDecl
