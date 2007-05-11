@@ -135,6 +135,12 @@ public abstract class RegExp
 			this.ctx = ctx;
 		}
 		
+		public RuleOp(RegExp exp, RegExp ctx, String eventName)
+		{
+			this(exp, ctx);
+			this.eventName = eventName;
+		}
+		
 		public RuleOp(RegExp exp, RegExp ctx, int accept)
 		{
 			this.exp = exp;

@@ -46,6 +46,7 @@ public class TreeWalker implements NodeVisitor
 		if ( node.name   != null ) node.name   .accept(this);
 		if ( node.regExp != null ) node.regExp .accept(this);
 		if ( node.ctx    != null ) node.ctx    .accept(this);
+		if ( node.event  != null ) node.event  .accept(this);
 	}
 
 	public void visit(Spec node)
@@ -58,6 +59,7 @@ public class TreeWalker implements NodeVisitor
 	{
 		if ( node.macros    != null ) node.macros    .accept(this);
 		if ( node.terminals != null ) node.terminals .accept(this);
+		if ( node.states    != null ) node.states    .accept(this);
 	}
 
 	public void visit(Rule node)
@@ -75,6 +77,13 @@ public class TreeWalker implements NodeVisitor
 	public void visit(PrecItemRule node)
 	{
 		if ( node.name != null ) node.name .accept(this);
+	}
+
+	public void visit(ScannerState node)
+	{
+		if ( node.selector  != null ) node.selector  .accept(this);
+		if ( node.name      != null ) node.name      .accept(this);
+		if ( node.terminals != null ) node.terminals .accept(this);
 	}
 
 	public void visit(CharExprRange node)
@@ -187,6 +196,14 @@ public class TreeWalker implements NodeVisitor
 	public void visit(RegExp list)
 	{
 		for ( RegExpItemList item = (RegExpItemList) list.first(); item != null; item = (RegExpItemList) item.next() )
+		{
+			item.accept(this);
+		}
+	}
+
+	public void visit(ScannerStateList list)
+	{
+		for ( ScannerState item = (ScannerState) list.first(); item != null; item = (ScannerState) item.next() )
 		{
 			item.accept(this);
 		}

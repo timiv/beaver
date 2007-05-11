@@ -11,23 +11,15 @@ package beaver.comp.cst;
 /**
  * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
  */
-public class ScannerSpec extends beaver.util.Node
+public class ScannerStateList extends beaver.util.NodeList
 {
-	public MacroDeclList    macros;
-	public TermDeclList     terminals;
-	public ScannerStateList states;
-
-	public ScannerSpec(TermDeclList terminals, ScannerStateList states)
+	public ScannerStateList()
 	{
-		this.terminals = terminals;
-		this.states    = states;
 	}
 
-	public ScannerSpec(MacroDeclList macros, TermDeclList terminals, ScannerStateList states)
+	public ScannerStateList add(ScannerState item)
 	{
-		this.macros    = macros;
-		this.terminals = terminals;
-		this.states    = states;
+		return (ScannerStateList) super.add(item);
 	}
 
 	public void accept(NodeVisitor visitor)

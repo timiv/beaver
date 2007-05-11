@@ -16,6 +16,7 @@ public class TermDecl extends beaver.util.Node
 	public Term   name;
 	public RegExp regExp;
 	public RegExp ctx;
+	public Term   event;
 
 	public TermDecl(Term name, RegExp regExp)
 	{
@@ -28,6 +29,21 @@ public class TermDecl extends beaver.util.Node
 		this.name   = name;
 		this.regExp = regExp;
 		this.ctx    = ctx;
+	}
+
+	public TermDecl(Term name, RegExp regExp, Term event)
+	{
+		this.name   = name;
+		this.regExp = regExp;
+		this.event  = event;
+	}
+
+	public TermDecl(Term name, RegExp regExp, RegExp ctx, Term event)
+	{
+		this.name   = name;
+		this.regExp = regExp;
+		this.ctx    = ctx;
+		this.event  = event;
 	}
 
 	public void accept(NodeVisitor visitor)

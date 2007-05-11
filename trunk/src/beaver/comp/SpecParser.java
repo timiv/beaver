@@ -22,12 +22,13 @@ import beaver.comp.cst.*;
 public abstract class SpecParser extends beaver.Parser
 {
 	public static final char EOF   = '\000';
-	public static final char OPER  = '\021';
-	public static final char NUM   = '\022';
-	public static final char ASSOC = '\023';
-	public static final char NAME  = '\024';
-	public static final char TEXT  = '\025';
-	public static final char RANGE = '\026';
+	public static final char STSEL = '\022';
+	public static final char OPER  = '\023';
+	public static final char NUM   = '\024';
+	public static final char ASSOC = '\025';
+	public static final char NAME  = '\026';
+	public static final char TEXT  = '\027';
+	public static final char RANGE = '\030';
 
 
 	protected Spec onSpec(ParserSpec parserSpec, ScannerSpec scannerSpec)
@@ -95,14 +96,14 @@ public abstract class SpecParser extends beaver.Parser
 		return new PrecItemRule(name);
 	}
 
-	protected ScannerSpec onScannerSpec(TermDeclList terminals)
+	protected ScannerSpec onScannerSpec(TermDeclList terminals, ScannerStateList states)
 	{
-		return new ScannerSpec(terminals);
+		return new ScannerSpec(terminals, states);
 	}
 
-	protected ScannerSpec onScannerSpec(MacroDeclList macroDeclList, TermDeclList terminals)
+	protected ScannerSpec onScannerSpec(MacroDeclList macros, TermDeclList terminals, ScannerStateList states)
 	{
-		return new ScannerSpec(macroDeclList, terminals);
+		return new ScannerSpec(macros, terminals, states);
 	}
 
 	protected MacroDecl onMacroDecl(Term name, RegExp regExp)
@@ -118,6 +119,21 @@ public abstract class SpecParser extends beaver.Parser
 	protected TermDecl onTermDecl(Term name, RegExp regExp, RegExp ctx)
 	{
 		return new TermDecl(name, regExp, ctx);
+	}
+
+	protected TermDecl onTermDecl(Term name, RegExp regExp, Term event)
+	{
+		return new TermDecl(name, regExp, event);
+	}
+
+	protected TermDecl onTermDecl(Term name, RegExp regExp, RegExp ctx, Term event)
+	{
+		return new TermDecl(name, regExp, ctx, event);
+	}
+
+	protected ScannerState onScannerState(Term selector, Term name, TermDeclList terminals)
+	{
+		return new ScannerState(selector, name, terminals);
 	}
 
 	protected RegExpItem onRegExpItem(CharExpr charExpr)
@@ -241,6 +257,16 @@ public abstract class SpecParser extends beaver.Parser
 	}
 
 	protected TermDeclList onTermDeclList(TermDeclList list, TermDecl item)
+	{
+		return list.add(item);
+	}
+
+	protected ScannerStateList onScannerStateList(ScannerState item)
+	{
+		return new ScannerStateList().add(item);
+	}
+
+	protected ScannerStateList onScannerStateList(ScannerStateList list, ScannerState item)
 	{
 		return list.add(item);
 	}
@@ -381,18 +407,20 @@ public abstract class SpecParser extends beaver.Parser
 
 				return symbol ( onPrecItemRule(name) );
 			}
-			case 17: // ScannerSpec = "%tokens" TermDeclList
+			case 17: // ScannerSpec = "%tokens" TermDeclList OptScannerStateList
 			{
-				TermDeclList terminals = (TermDeclList) symbols[at - 1].getValue();
+				TermDeclList     terminals = (TermDeclList    ) symbols[at - 1].getValue();
+				ScannerStateList states    = (ScannerStateList) symbols[at - 2].getValue();
 
-				return symbol ( onScannerSpec(terminals) );
+				return symbol ( onScannerSpec(terminals, states) );
 			}
-			case 18: // ScannerSpec = "%macros" MacroDeclList "%tokens" TermDeclList
+			case 18: // ScannerSpec = "%macros" MacroDeclList "%tokens" TermDeclList OptScannerStateList
 			{
-				MacroDeclList macroDeclList = (MacroDeclList) symbols[at - 1].getValue();
-				TermDeclList  terminals     = (TermDeclList ) symbols[at - 3].getValue();
+				MacroDeclList    macros    = (MacroDeclList   ) symbols[at - 1].getValue();
+				TermDeclList     terminals = (TermDeclList    ) symbols[at - 3].getValue();
+				ScannerStateList states    = (ScannerStateList) symbols[at - 4].getValue();
 
-				return symbol ( onScannerSpec(macroDeclList, terminals) );
+				return symbol ( onScannerSpec(macros, terminals, states) );
 			}
 			case 19: // MacroDecl = NAME "=" RegExp ";"
 			{
@@ -416,204 +444,250 @@ public abstract class SpecParser extends beaver.Parser
 
 				return symbol ( onTermDecl(name, regExp, ctx) );
 			}
-			case 22: // RegExp = RegExpItemList
+			case 22: // TermDecl = NAME "=" RegExp "->" NAME ";"
+			{
+				Term   name   = (Term  ) symbols[at].getValue();
+				RegExp regExp = (RegExp) symbols[at - 2].getValue();
+				Term   event  = (Term  ) symbols[at - 4].getValue();
+
+				return symbol ( onTermDecl(name, regExp, event) );
+			}
+			case 23: // TermDecl = NAME "=" RegExp "/" RegExp "->" NAME ";"
+			{
+				Term   name   = (Term  ) symbols[at].getValue();
+				RegExp regExp = (RegExp) symbols[at - 2].getValue();
+				RegExp ctx    = (RegExp) symbols[at - 4].getValue();
+				Term   event  = (Term  ) symbols[at - 6].getValue();
+
+				return symbol ( onTermDecl(name, regExp, ctx, event) );
+			}
+			case 24: // ScannerState = STSEL NAME TermDeclList
+			{
+				Term         selector  = (Term        ) symbols[at].getValue();
+				Term         name      = (Term        ) symbols[at - 1].getValue();
+				TermDeclList terminals = (TermDeclList) symbols[at - 2].getValue();
+
+				return symbol ( onScannerState(selector, name, terminals) );
+			}
+			case 25: // RegExp = RegExpItemList
 			{
 				RegExpItemList regExpItemList = (RegExpItemList) symbols[at].getValue();
 
 				return symbol ( onRegExp(regExpItemList) );
 			}
-			case 23: // RegExp = RegExp "|" RegExpItemList
+			case 26: // RegExp = RegExp "|" RegExpItemList
 			{
 				RegExp         regExp         = (RegExp        ) symbols[at].getValue();
 				RegExpItemList regExpItemList = (RegExpItemList) symbols[at - 2].getValue();
 
 				return symbol ( onRegExp(regExp, regExpItemList) );
 			}
-			case 24: // RegExpItem = CharExpr
+			case 27: // RegExpItem = CharExpr
 			{
 				CharExpr charExpr = (CharExpr) symbols[at].getValue();
 
 				return symbol ( onRegExpItem(charExpr) );
 			}
-			case 25: // RegExpItem = CharExpr OPER
+			case 28: // RegExpItem = CharExpr OPER
 			{
 				CharExpr charExpr = (CharExpr) symbols[at].getValue();
 				Term     oper     = (Term    ) symbols[at - 1].getValue();
 
 				return symbol ( onRegExpItemClose(charExpr, oper) );
 			}
-			case 26: // RegExpItem = CharExpr Quantifier
+			case 29: // RegExpItem = CharExpr Quantifier
 			{
 				CharExpr   charExpr   = (CharExpr  ) symbols[at].getValue();
 				Quantifier quantifier = (Quantifier) symbols[at - 1].getValue();
 
 				return symbol ( onRegExpItemQuant(charExpr, quantifier) );
 			}
-			case 27: // Quantifier = "{" NUM "}"
+			case 30: // Quantifier = "{" NUM "}"
 			{
 				NumTerm min = (NumTerm) symbols[at - 1].getValue();
 
 				return symbol ( onQuantifier(min) );
 			}
-			case 28: // Quantifier = "{" NUM "," OptNUM "}"
+			case 31: // Quantifier = "{" NUM "," OptNUM "}"
 			{
 				NumTerm min = (NumTerm) symbols[at - 1].getValue();
 				NumTerm max = (NumTerm) symbols[at - 3].getValue();
 
 				return symbol ( onQuantifier(min, max) );
 			}
-			case 29: // CharExpr = TEXT
+			case 32: // CharExpr = TEXT
 			{
 				Term text = (Term) symbols[at].getValue();
 
 				return symbol ( onCharExprText(text) );
 			}
-			case 30: // CharExpr = RangeExpr
+			case 33: // CharExpr = RangeExpr
 			{
 				RangeExpr rangeExpr = (RangeExpr) symbols[at].getValue();
 
 				return symbol ( onCharExprRange(rangeExpr) );
 			}
-			case 31: // CharExpr = "(" RegExp ")"
+			case 34: // CharExpr = "(" RegExp ")"
 			{
 				RegExp regExp = (RegExp) symbols[at - 1].getValue();
 
 				return symbol ( onCharExprNested(regExp) );
 			}
-			case 32: // RangeExpr = RANGE
+			case 35: // RangeExpr = RANGE
 			{
 				Term range = (Term) symbols[at].getValue();
 
 				return symbol ( onRangeExprRange(range) );
 			}
-			case 33: // RangeExpr = NAME
+			case 36: // RangeExpr = NAME
 			{
 				Term macro = (Term) symbols[at].getValue();
 
 				return symbol ( onRangeExprMacro(macro) );
 			}
-			case 34: // RangeExpr = RangeExpr "\\" RangeExpr
+			case 37: // RangeExpr = RangeExpr "\\" RangeExpr
 			{
 				RangeExpr diff  = (RangeExpr) symbols[at].getValue();
 				RangeExpr range = (RangeExpr) symbols[at - 2].getValue();
 
 				return symbol ( onRangeExprMinus(diff, range) );
 			}
-			case 35: // OptParserSpec =
+			case 38: // OptParserSpec =
 			{
 				return symbol( null );
 			}
-			case 36: // OptParserSpec = ParserSpec
+			case 39: // OptParserSpec = ParserSpec
 			{
 				return copy( symbols[at] );
 			}
-			case 37: // OptScannerSpec =
+			case 40: // OptScannerSpec =
 			{
 				return symbol( null );
 			}
-			case 38: // OptScannerSpec = ScannerSpec
+			case 41: // OptScannerSpec = ScannerSpec
 			{
 				return copy( symbols[at] );
 			}
-			case 39: // RuleList = Rule
+			case 42: // RuleList = Rule
 			{
 				Rule item = (Rule) symbols[at].getValue();
 
 				return symbol ( onRuleList(item) );
 			}
-			case 40: // RuleList = RuleList Rule
+			case 43: // RuleList = RuleList Rule
 			{
 				RuleList list = (RuleList) symbols[at].getValue();
 				Rule     item = (Rule    ) symbols[at - 1].getValue();
 
 				return symbol ( onRuleList(list, item) );
 			}
-			case 41: // PrecedenceList = Precedence
+			case 44: // PrecedenceList = Precedence
 			{
 				Precedence item = (Precedence) symbols[at].getValue();
 
 				return symbol ( onPrecedenceList(item) );
 			}
-			case 42: // PrecedenceList = PrecedenceList Precedence
+			case 45: // PrecedenceList = PrecedenceList Precedence
 			{
 				PrecedenceList list = (PrecedenceList) symbols[at].getValue();
 				Precedence     item = (Precedence    ) symbols[at - 1].getValue();
 
 				return symbol ( onPrecedenceList(list, item) );
 			}
-			case 43: // ItemList = Item
+			case 46: // ItemList = Item
 			{
 				Item item = (Item) symbols[at].getValue();
 
 				return symbol ( onItemList(item) );
 			}
-			case 44: // ItemList = ItemList Item
+			case 47: // ItemList = ItemList Item
 			{
 				ItemList list = (ItemList) symbols[at].getValue();
 				Item     item = (Item    ) symbols[at - 1].getValue();
 
 				return symbol ( onItemList(list, item) );
 			}
-			case 45: // OptItemList =
+			case 48: // OptItemList =
 			{
 				return symbol( null );
 			}
-			case 46: // OptItemList = ItemList
+			case 49: // OptItemList = ItemList
 			{
 				return copy( symbols[at] );
 			}
-			case 47: // OptOPER =
+			case 50: // OptOPER =
 			{
 				return symbol( null );
 			}
-			case 48: // OptOPER = OPER
+			case 51: // OptOPER = OPER
 			{
 				return copy( symbols[at] );
 			}
-			case 49: // TermDeclList = TermDecl
+			case 52: // TermDeclList = TermDecl
 			{
 				TermDecl item = (TermDecl) symbols[at].getValue();
 
 				return symbol ( onTermDeclList(item) );
 			}
-			case 50: // TermDeclList = TermDeclList TermDecl
+			case 53: // TermDeclList = TermDeclList TermDecl
 			{
 				TermDeclList list = (TermDeclList) symbols[at].getValue();
 				TermDecl     item = (TermDecl    ) symbols[at - 1].getValue();
 
 				return symbol ( onTermDeclList(list, item) );
 			}
-			case 51: // MacroDeclList = MacroDecl
+			case 54: // ScannerStateList = ScannerState
+			{
+				ScannerState item = (ScannerState) symbols[at].getValue();
+
+				return symbol ( onScannerStateList(item) );
+			}
+			case 55: // ScannerStateList = ScannerStateList ScannerState
+			{
+				ScannerStateList list = (ScannerStateList) symbols[at].getValue();
+				ScannerState     item = (ScannerState    ) symbols[at - 1].getValue();
+
+				return symbol ( onScannerStateList(list, item) );
+			}
+			case 56: // OptScannerStateList =
+			{
+				return symbol( null );
+			}
+			case 57: // OptScannerStateList = ScannerStateList
+			{
+				return copy( symbols[at] );
+			}
+			case 58: // MacroDeclList = MacroDecl
 			{
 				MacroDecl item = (MacroDecl) symbols[at].getValue();
 
 				return symbol ( onMacroDeclList(item) );
 			}
-			case 52: // MacroDeclList = MacroDeclList MacroDecl
+			case 59: // MacroDeclList = MacroDeclList MacroDecl
 			{
 				MacroDeclList list = (MacroDeclList) symbols[at].getValue();
 				MacroDecl     item = (MacroDecl    ) symbols[at - 1].getValue();
 
 				return symbol ( onMacroDeclList(list, item) );
 			}
-			case 53: // RegExpItemList = RegExpItem
+			case 60: // RegExpItemList = RegExpItem
 			{
 				RegExpItem item = (RegExpItem) symbols[at].getValue();
 
 				return symbol ( onRegExpItemList(item) );
 			}
-			case 54: // RegExpItemList = RegExpItemList RegExpItem
+			case 61: // RegExpItemList = RegExpItemList RegExpItem
 			{
 				RegExpItemList list = (RegExpItemList) symbols[at].getValue();
 				RegExpItem     item = (RegExpItem    ) symbols[at - 1].getValue();
 
 				return symbol ( onRegExpItemList(list, item) );
 			}
-			case 55: // OptNUM =
+			case 62: // OptNUM =
 			{
 				return symbol( null );
 			}
-			case 56: // OptNUM = NUM
+			case 63: // OptNUM = NUM
 			{
 				return copy( symbols[at] );
 			}

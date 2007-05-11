@@ -1,114 +1,120 @@
 %rules
 
-	Spec
-		= ParserSpec? ScannerSpec?
-		;
-		
-	ParserSpec
-		= "%rules" Rule+ ("%precedence" Precedence+)?
-		;
+    Spec
+        = ParserSpec? ScannerSpec?
+        ;
 
-	Rule
-		= NAME "=" AltList ";"
-		;
+    ParserSpec
+        = "%rules" Rule+ ("%precedence" Precedence+)?
+        ;
 
-	AltList
-		= Alt
-		| AltList "|" Alt
-		;
+    Rule
+        = NAME "=" AltList ";"
+        ;
 
-	Alt
-		= ("{" NAME "}")? Item*
-		;
+    AltList
+        = Alt
+        | AltList "|" Alt
+        ;
 
-	Item
-		= { Static } TEXT
-		| { Symbol } (ref:NAME ":")? NAME OPER?
-		| { Inline } "(" Item+ ")?"
-		;
+    Alt
+        = ("{" NAME "}")? Item*
+        ;
 
-	Precedence
-		= PrecItemList ":" ASSOC ";"
-		;
+    Item
+        = { Static } TEXT
+        | { Symbol } (ref:NAME ":")? NAME OPER?
+        | { Inline } "(" Item+ ")?"
+        ;
 
-	PrecItemList
-		= PrecItem
-		| PrecItemList "," PrecItem
-		;
+    Precedence
+        = PrecItemList ":" ASSOC ";"
+        ;
 
-	PrecItem
-		= { Term } TEXT
-		| { Rule } NAME
-		;
-		
-	ScannerSpec
-		= ("%macros" macros:MacroDecl+)? "%tokens" terminals:TermDecl+
-		;
+    PrecItemList
+        = PrecItem
+        | PrecItemList "," PrecItem
+        ;
 
-	MacroDecl
-		= NAME "=" RegExp ";"
-		;
+    PrecItem
+        = { Term } TEXT
+        | { Rule } NAME
+        ;
 
-	TermDecl
-		= NAME "=" RegExp ("/" ctx:RegExp)? ";"
-		;
+    ScannerSpec
+        = ("%macros" macros:MacroDecl+)? "%tokens" terminals:TermDecl+ states:ScannerState*
+        ;
 
-	RegExp
-		= RegExpItem+
-		| RegExp "|" RegExpItem+
-		;
+    MacroDecl
+        = NAME "=" RegExp ";"
+        ;
 
-	RegExpItem
-		=           CharExpr
-		| { Close } CharExpr OPER
-		| { Quant } CharExpr Quantifier
-		;
+    TermDecl
+        = NAME "=" RegExp ("/" ctx:RegExp)? ("->" event:NAME)? ";"
+        ;
 
-	Quantifier
-		= "{" min:NUM "}"
-		| "{" min:NUM "," max:NUM? "}"
-		;
+    ScannerState
+        = selector:STSEL NAME terminals:TermDecl+
+        ;
 
-	CharExpr
-		= { Text   } TEXT
-		| { Range  } RangeExpr
-		| { Nested } "(" RegExp ")"
-		;
+    RegExp
+        = RegExpItem+
+        | RegExp "|" RegExpItem+
+        ;
 
-	RangeExpr
-		= { Range } RANGE
-		| { Macro } macro:NAME
-		| { Minus } diff:RangeExpr "\\" range:RangeExpr
-		;
+    RegExpItem
+        =           CharExpr
+        | { Close } CharExpr OPER
+        | { Quant } CharExpr Quantifier
+        ;
+
+    Quantifier
+        = "{" min:NUM "}"
+        | "{" min:NUM "," max:NUM? "}"
+        ;
+
+    CharExpr
+        = { Text   } TEXT
+        | { Range  } RangeExpr
+        | { Nested } "(" RegExp ")"
+        ;
+
+    RangeExpr
+        = { Range } RANGE
+        | { Macro } macro:NAME
+        | { Minus } diff:RangeExpr "\\" range:RangeExpr
+        ;
 
 %precedence
 
-	RangeExprMinus : left;
+    RangeExprMinus : left;
 
 %macros
 
-	any     = [^]
-			;
-	dot		= any \ $
-			;
-	esc		= dot \ [\\]
-			;
-	digit	= [0-9]
-			;
-	letter	= [a-zA-Z_]
-			;
+    any     = [^]
+            ;
+    dot     = any \ $
+            ;
+    esc     = dot \ [\\]
+            ;
+    digit   = [0-9]
+            ;
+    letter  = [a-zA-Z_]
+            ;
 
 %tokens
 
-	OPER	= "?" | "*" | "+"
-			;
-	NUM 	= digit+
-			;
-	ASSOC	= "left" | "right" | "none"
-			;
-	NAME	= letter ( letter | digit )* | "$"
-			;
-	TEXT	= "\"" ( esc \ ["] | "\\" dot )* "\""
-			;
-	RANGE	= "[" "^"? ( esc \ [\]] | "\\" dot )* "]"
-    ;
+    STSEL   = "@" | "&"
+            ;
+    OPER    = "?" | "*" | "+"
+            ;
+    NUM     = digit+
+            ;
+    ASSOC   = "left" | "right" | "none"
+            ;
+    NAME    = letter ( letter | digit )* | "$"
+            ;
+    TEXT    = "\"" ( esc \ ["] | "\\" dot )* "\""
+            ;
+    RANGE   = "[" "^"? ( esc \ [\]] | "\\" dot )* "]"
+            ;

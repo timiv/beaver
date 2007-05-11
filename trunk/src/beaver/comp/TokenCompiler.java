@@ -14,9 +14,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import beaver.comp.cst.CharExprText;
 import beaver.comp.cst.RegExpCompiler;
-import beaver.comp.cst.ScannerSpec;
+import beaver.comp.cst.RegExpItem;
+import beaver.comp.cst.RegExpItemClose;
+import beaver.comp.cst.RegExpItemList;
+import beaver.comp.cst.RegExpItemQuant;
 import beaver.comp.cst.TermDecl;
+import beaver.comp.cst.TermDeclList;
 
 /**
  * @author Alexander Demenchuk
@@ -24,41 +29,72 @@ import beaver.comp.cst.TermDecl;
  */
 public class TokenCompiler extends BasicRegExpCompiler implements RegExpCompiler
 {
-	private Collection names = new ArrayList();
-	private Map rules = new HashMap();
+	private Collection names  = new ArrayList();
+	private Map        rules  = new HashMap();
+	private Map        cTerms;
+	private Log        log;
 	
-	public TokenCompiler(Map macros)
+	public TokenCompiler(Map macros, Map constantTermNames, Log log)
 	{
 		super(macros);
+		cTerms = constantTermNames;
+		this.log = log;
 	}
 	
-	public Map compile(ScannerSpec spec)
+	public Map compile(TermDeclList terminals, String stateName)
 	{
-		if ( !names.isEmpty() )
+		if ( terminals != null )
 		{
-			names.clear();
-		}
-		if ( !rules.isEmpty() )
-		{
-			rules.clear();
-		}
-		
-		if ( spec.terminals != null )
-		{
-			for ( TermDecl item = (TermDecl) spec.terminals.first(); item != null; item = (TermDecl) item.next() )
+			for ( TermDecl item = (TermDecl) terminals.first(); item != null; item = (TermDecl) item.next() )
 			{
+				String name = item.name.toString(); 
 				beaver.comp.lexer.RegExp exp = item.regExp.accept(this);
-				beaver.comp.lexer.RegExp ctx = item.ctx != null ? item.ctx.accept(this) 
-						                                        : new beaver.comp.lexer.RegExp.NullOp();
-				names.add(item.name.toString());
-				rules.put(item.name.toString(), new beaver.comp.lexer.RegExp.RuleOp(exp, ctx));
+				beaver.comp.lexer.RegExp ctx;			
+				if ( item.ctx != null )
+				{
+					ctx = item.ctx.accept(this);
+				}
+				else
+				{
+					ctx = new beaver.comp.lexer.RegExp.NullOp();
+					//
+					// Check if this rule overrides a reserved word rule 
+					//
+					if ( item.regExp.length() == 1 )
+					{
+						RegExpItemList rel = (RegExpItemList) item.regExp.first();
+						if ( rel.length() == 1 )
+						{
+							RegExpItem rei = (RegExpItem) rel.first();
+    						if ( rei.charExpr instanceof CharExprText && !(rei instanceof RegExpItemClose) && !(rei instanceof RegExpItemQuant) )
+    						{
+    							//
+    							// Check naming "collisions"
+    							//
+    							String termText = ((CharExprText) rei.charExpr).text.text;
+    							String prevName = (String) cTerms.get(termText);
+    							if ( prevName != null && !prevName.equals(name) )
+    							{
+    		                    	log.error("State " + stateName + " changes name for terminal \"" + termText + "\" from " + prevName + " to " + name);
+    		                    	//
+    		                    	// ignore this rule
+    		                    	//
+    		                    	continue;
+    							}
+    							cTerms.put(termText, name);
+    						}
+						}
+					}
+				}
+				rules.put(name, new beaver.comp.lexer.RegExp.RuleOp(exp, ctx, item.event == null ? null : item.event.text));
+				names.add(name);
 			}
 		}
 		return rules;
 	}
-	
-	public String[] getTerminalNames()
+
+	public Collection getNames()
 	{
-		return (String[]) names.toArray(new String[names.size()]);
+		return names;
 	}
 }
