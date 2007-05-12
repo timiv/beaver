@@ -72,6 +72,7 @@ public class TokenCompiler extends BasicRegExpCompiler implements RegExpCompiler
     							// Check naming "collisions"
     							//
     							String termText = ((CharExprText) rei.charExpr).text.text;
+    							termText = termText.substring(1, termText.length() -1);
     							String prevName = (String) cTerms.get(termText);
     							if ( prevName != null && !prevName.equals(name) )
     							{

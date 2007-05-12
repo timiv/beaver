@@ -16,7 +16,7 @@ import java.util.Collections;
 
 public abstract class ScannerWriter
 {
-	public void write(String className, File binDir, DFA defDFA, DFA[] inclusiveDFAs, DFA[] exclusiveDFAs) throws IOException
+	public void write(String className, File binDir, DFA defDFA, String defDFAName, DFA[] inclusiveDFAs, String[] inclusiveDFANames, DFA[] exclusiveDFAs, String[] exclusiveDFANames) throws IOException
 	{
 		File clsFile = new File(binDir, className + ".class");
 		File outDir = clsFile.getParentFile();
@@ -28,7 +28,7 @@ public abstract class ScannerWriter
 		FileOutputStream out = new FileOutputStream(clsFile);
 		try
 		{
-			out.write(assemble(defDFA, inclusiveDFAs, exclusiveDFAs, className));
+			out.write(assemble(defDFA, defDFAName, inclusiveDFAs, inclusiveDFANames, exclusiveDFAs, exclusiveDFANames, className));
 		}
 		finally
 		{
@@ -36,7 +36,7 @@ public abstract class ScannerWriter
 		}
 	}
 	
-	protected abstract byte[] assemble(DFA defaultDFA, DFA[] incDFAs, DFA[] excDFAs, String className);
+	protected abstract byte[] assemble(DFA defaultDFA, String defaultName, DFA[] incDFAs, String[] incNames, DFA[] excDFAs, String[] excNames, String className);
 
 	protected static CharTransition[] getCharTransitions(DFA.State st)
 	{

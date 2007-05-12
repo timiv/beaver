@@ -270,7 +270,18 @@ public class Compiler
 		{
 			TokenNamesCollector nc = new TokenNamesCollector();
 			spec.scannerSpec.accept(nc);
-			terminalsPrecedence = nc.getNames();
+			Collection termNames = nc.getNames();
+			Map constTermAliases = nc.getConstTermAliases();
+			if ( constTermNames != null )
+			{
+				constTermNames.putAll(constTermAliases);
+			}
+			else
+			{
+				constTermNames = constTermAliases;
+			}
+			termNames.removeAll(constTermAliases.values());
+			terminalsPrecedence = (String[]) termNames.toArray(new String[termNames.size()]);
 		}
 
 		if ( spec.parserSpec != null )
@@ -337,7 +348,7 @@ public class Compiler
 							stateRules = inclStateRules;
 							break;
 						}
-						case '&':
+						case '^':
 						{
 							if ( exclStateRules == null )
 							{
@@ -394,16 +405,41 @@ public class Compiler
 				}
 			}
 
-			new CharScannerClassWriter().write(scannerClassName.replace('.', '/'), binDir, mainDFA, incDFAs, excDFAs);
+			new CharScannerClassWriter().write(scannerClassName.replace('.', '/'), binDir, mainDFA, "MAIN", incDFAs, incStateNames, excDFAs, excStateNames);
 
+			String unusedTokens = "";
+			String sep = "";
 			if ( !mainStateRules.isEmpty() )
 			{
-				String unusedTokens = "";
-				String sep = "";
 				for ( Iterator i = mainStateRules.keySet().iterator(); i.hasNext(); sep = ", " )
 				{
 					unusedTokens = unusedTokens + sep + i.next();
 				}
+				if ( inclStateRules != null )
+				{
+					for ( Iterator i = inclStateRules.values().iterator(); i.hasNext(); )
+                    {
+	                    Map rules = (Map) i.next();
+	                    for ( Iterator x = rules.keySet().iterator(); x.hasNext(); )
+                        {
+	    					unusedTokens = unusedTokens + sep + i.next();
+                        }
+                    }
+				}
+				if ( exclStateRules != null )
+				{
+					for ( Iterator i = exclStateRules.values().iterator(); i.hasNext(); )
+                    {
+	                    Map rules = (Map) i.next();
+	                    for ( Iterator x = rules.keySet().iterator(); x.hasNext(); )
+                        {
+	    					unusedTokens = unusedTokens + sep + i.next();
+                        }
+                    }
+				}
+			}
+			if ( unusedTokens.length() > 0 )
+			{
 				log.warning("The following terminals are not required for the parser: " + unusedTokens + ". They are ignored.");
 			}
 		}

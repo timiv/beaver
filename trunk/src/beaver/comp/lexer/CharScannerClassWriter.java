@@ -9,7 +9,12 @@
 package beaver.comp.lexer;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -32,7 +37,7 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 	private static final int      TEXT        = 4;
 	private static final int      EVENT       = 5;
 
-	protected byte[] assemble(DFA defaultDFA, DFA[] incDFAs, DFA[] excDFAs, String className)
+	protected byte[] assemble(DFA defaultDFA, String defaultName, DFA[] incDFAs, String[] incNames, DFA[] excDFAs, String[] excNames, String className)
 	{
 		DFA[] dfas = new DFA[1 + (incDFAs != null ? incDFAs.length : 0) + (excDFAs != null ? excDFAs.length : 0)];
 		
@@ -55,7 +60,7 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
             }
 		}
 		
-		List events = new ArrayList();
+		Map events = new HashMap();
 		int maxFill = 0;
 		for (int i = 0; i < dfas.length; i++)
 		{
@@ -73,8 +78,16 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 			{
 				if (st.eventName != null)
 				{
-					st.eventId = events.size();
-					events.add(st.eventName);
+					DFA.State orig = (DFA.State) events.get(st.eventName);
+					if ( orig == null )
+					{
+						st.eventId = events.size();
+						events.put(st.eventName, st);
+					}
+					else
+					{
+						st.eventId = orig.eventId;
+					}
 				}
 			}
 		}
@@ -87,6 +100,25 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 		{
 			FieldVisitor fv = cw.visitField(ACC_PROTECTED, "state", "I", null, null);
 			fv.visitEnd();
+			int id = 0;
+			fv = cw.visitField(ACC_PROTECTED | ACC_FINAL, defaultName, "I", null, new Integer(id++));
+			fv.visitEnd();
+			if ( incNames != null )
+			{
+				for ( int i = 0; i < incNames.length; i++ )
+                {
+					fv = cw.visitField(ACC_PROTECTED | ACC_FINAL, incNames[i], "I", null, new Integer(id++));
+					fv.visitEnd();
+                }
+			}
+			if ( excNames != null )
+			{
+				for ( int i = 0; i < excNames.length; i++ )
+                {
+					fv = cw.visitField(ACC_PROTECTED | ACC_FINAL, excNames[i], "I", null, new Integer(id++));
+					fv.visitEnd();
+                }
+			}
 		}
 
 		// public Constructor(java.io.Reader)
@@ -101,7 +133,7 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 			mv.visitEnd();
 		}
 
-		if (!events.isEmpty())
+		if ( !events.isEmpty() )
 		{
 			// private int event(int eventId)
 
@@ -113,15 +145,24 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 
 			mv.visitTableSwitchInsn(0, events.size() - 1, returnTrue, eventCases);
 
-			int n = events.size();
-			for (int i = 0; i < n; i++)
+			List eventDefStates = new ArrayList(events.values());
+			Collections.sort(eventDefStates, new Comparator()
 			{
-				String eventName = (String) events.get(i);
-				mv.visitLabel(eventCases[i]);
+                public int compare(Object o1, Object o2)
+                {
+	                return ((DFA.State) o1).eventId - ((DFA.State) o2).eventId;
+                }
+			});
+			int n = 0;
+			for ( Iterator i = eventDefStates.iterator(); i.hasNext(); n++ )
+            {
+	            DFA.State st = (DFA.State) i.next();
+	            
+				mv.visitLabel(eventCases[n]);
 				mv.visitVarInsn(ALOAD, THIS);
-				mv.visitMethodInsn(INVOKEVIRTUAL, className, eventName, "()Z");
+				mv.visitMethodInsn(INVOKEVIRTUAL, className, "on" + st.eventName, "()Z");
 				mv.visitInsn(IRETURN);
-			}
+            }
 			mv.visitLabel(returnTrue);
 			mv.visitInsn(ICONST_1);
 			mv.visitInsn(IRETURN);
@@ -129,11 +170,13 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 			mv.visitMaxs(1, 2);
 			mv.visitEnd();
 
-			for (int i = 0; i < n; i++)
-			{
-				mv = cw.visitMethod(ACC_PROTECTED + ACC_ABSTRACT, (String) events.get(i), "()Z", null, null);
+			for ( Iterator i = events.keySet().iterator(); i.hasNext(); )
+            {
+	            String eventName = (String) i.next();
+	            
+				mv = cw.visitMethod(ACC_PROTECTED + ACC_ABSTRACT, "on" + eventName, "()Z", null, null);
 				mv.visitEnd();
-			}
+            }
 		}
 
 		// public int next() throws UnexpectedCharacterException, IOException
@@ -187,25 +230,25 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 				int id = 0; // default DFA
 				{
     				mv.visitLabel(dfaLabels[id]); 
-    				compile(mv, className, events, dfas[id], startScan, unexpectedChar);
+    				compile(mv, className, !events.isEmpty(), dfas[id], startScan, unexpectedChar);
     				id++;
 				}				
 				while ( id <= lastIncDFAId )
 				{
 					mv.visitLabel(dfaLabels[id]); 
-					compile(mv, className, events, dfas[id], startScan, tryDefaultDFA);
+					compile(mv, className, !events.isEmpty(), dfas[id], startScan, tryDefaultDFA);
 					id++;
 				}
 				while ( id <= lastDFAId )
 				{
 					mv.visitLabel(dfaLabels[id]); 
-					compile(mv, className, events, dfas[id], startScan, unexpectedChar);
+					compile(mv, className, !events.isEmpty(), dfas[id], startScan, unexpectedChar);
 					id++;
 				}
 			}
 			else
 			{
-				compile(mv, className, events, defaultDFA, startScan, unexpectedChar);
+				compile(mv, className, !events.isEmpty(), defaultDFA, startScan, unexpectedChar);
 			}
 			
 			mv.visitLabel(unexpectedChar);
@@ -335,7 +378,7 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 		return cw.toByteArray();
 	}
 
-	private static void compile(MethodVisitor mv, String className, List events, DFA dfa, Label startScan, Label unexpectedChar)
+	private static void compile(MethodVisitor mv, String className, boolean hasEvents, DFA dfa, Label startScan, Label unexpectedChar)
 	{
 		Label[] dfaStateLabels = makeLabels(dfa.nStates);
 
@@ -419,7 +462,7 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 					}
 					compileLoadConst(mv, st.accept);
 					mv.visitVarInsn(ISTORE, ACCEPT);
-					if (!events.isEmpty())
+					if ( hasEvents )
 					{
 						compileLoadConst(mv, st.eventId);
 						mv.visitVarInsn(ISTORE, EVENT);
