@@ -5,7 +5,7 @@
         ;
 
     ParserSpec
-        = "%rules" Rule+ ("%precedence" Precedence+)?
+        = "%rules" Rule+ ["%precedence" Precedence+]
         ;
 
     Rule
@@ -18,13 +18,13 @@
         ;
 
     Alt
-        = ("{" NAME "}")? Item*
+        = ["{" NAME "}"] Item*
         ;
 
     Item
         = { Static } TEXT
-        | { Symbol } (ref:NAME ":")? NAME OPER?
-        | { Inline } "(" Item+ ")?"
+        | { Symbol } [ref:NAME ":"] NAME OPER?
+        | { Inline } "[" Item+ "]"
         ;
 
     Precedence
@@ -42,7 +42,7 @@
         ;
 
     ScannerSpec
-        = ("%macros" macros:MacroDecl+)? "%tokens" terminals:TermDecl+ states:ScannerState*
+        = ["%macros" macros:MacroDecl+] "%tokens" terminals:TermDecl+ states:ScannerState*
         ;
 
     MacroDecl
@@ -50,7 +50,7 @@
         ;
 
     TermDecl
-        = NAME "=" RegExp ("/" ctx:RegExp)? ("->" event:NAME)? ";"
+        = NAME "=" RegExp ["/" ctx:RegExp] ["->" event:NAME] ";"
         ;
 
     ScannerState
@@ -104,7 +104,11 @@
 
 %tokens
 
-    STSEL   = "@" | "&"
+    MACROS  = "%macros"     -> ScannerSpecStart
+            ;
+    TOKENS  = "%tokens"     -> ScannerSpecStart
+            ;
+    STSEL   = "@" | "^"
             ;
     OPER    = "?" | "*" | "+"
             ;
@@ -116,5 +120,8 @@
             ;
     TEXT    = "\"" ( esc \ ["] | "\\" dot )* "\""
             ;
+            
+@SCANNER_SPEC
+
     RANGE   = "[" "^"? ( esc \ [\]] | "\\" dot )* "]"
             ;

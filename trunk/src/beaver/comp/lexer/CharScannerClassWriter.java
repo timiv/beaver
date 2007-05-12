@@ -223,9 +223,24 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 				mv.visitTableSwitchInsn(0, lastDFAId, throwIllegalStateException, dfaLabels);
 				
 				mv.visitLabel(tryDefaultDFA);
-				// if (accept != 0)
-				mv.visitVarInsn(ILOAD, ACCEPT);
-				mv.visitJumpInsn(IFNE, returnAccepted);
+				//
+				// reset cursor moved by the current state
+				//
+				// super.cursor = cursor = start;
+				mv.visitVarInsn(ALOAD, THIS);
+				mv.visitInsn(DUP);
+				mv.visitFieldInsn(GETFIELD, SUPER, "start", "I");
+				mv.visitInsn(DUP);
+				mv.visitVarInsn(ISTORE, CURSOR);
+				mv.visitFieldInsn(PUTFIELD, SUPER, "cursor", "I");					
+				// int accept = 0;
+				mv.visitInsn(ICONST_0);
+				mv.visitVarInsn(ISTORE, ACCEPT);
+				if (!events.isEmpty())
+				{
+					mv.visitInsn(ICONST_M1);
+					mv.visitVarInsn(ISTORE, EVENT);
+				}
 
 				int id = 0; // default DFA
 				{
@@ -378,7 +393,7 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 		return cw.toByteArray();
 	}
 
-	private static void compile(MethodVisitor mv, String className, boolean hasEvents, DFA dfa, Label startScan, Label unexpectedChar)
+	private static void compile(MethodVisitor mv, String className, boolean hasEvents, DFA dfa, Label startScan, Label exit)
 	{
 		Label[] dfaStateLabels = makeLabels(dfa.nStates);
 
@@ -496,12 +511,13 @@ public class CharScannerClassWriter extends ScannerWriter implements Opcodes
 						compileCharTransitionBranch(mv, dfaStateLabels, ct);
 					}
 				}
-				if ( compileRangeTransitions(mv, dfaStateLabels, unexpectedChar, st) != unexpectedChar)
+				if ( compileRangeTransitions(mv, dfaStateLabels, exit, st) != exit)
 				{
-					mv.visitJumpInsn(GOTO, unexpectedChar);
+					mv.visitJumpInsn(GOTO, exit);
 				}
 			}
 		}
+		mv.visitJumpInsn(GOTO, exit);
 	}
 
 	private static Label[] makeLabels(int n)

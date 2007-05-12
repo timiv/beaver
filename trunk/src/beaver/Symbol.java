@@ -127,4 +127,12 @@ public final class Symbol implements Location
 	{
 		return value;
 	}
+	
+	/**
+	 * @return representation of this symbol useful in error reporting
+	 */
+	public String toString()
+	{
+		return Integer.toOctalString(id) + (value == null ? "" : "(" + value + ")") + "@" + getLocation(); 
+	}
 }

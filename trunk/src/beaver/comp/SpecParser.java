@@ -21,14 +21,16 @@ import beaver.comp.cst.*;
  */
 public abstract class SpecParser extends beaver.Parser
 {
-	public static final char EOF   = '\000';
-	public static final char STSEL = '\022';
-	public static final char OPER  = '\023';
-	public static final char NUM   = '\024';
-	public static final char ASSOC = '\025';
-	public static final char NAME  = '\026';
-	public static final char TEXT  = '\027';
-	public static final char RANGE = '\030';
+	public static final char EOF    = '\000';
+	public static final char MACROS = '\001'; // "%macros"
+	public static final char TOKENS = '\004'; // "%tokens"
+	public static final char STSEL  = '\023';
+	public static final char OPER   = '\024';
+	public static final char NUM    = '\025';
+	public static final char ASSOC  = '\026';
+	public static final char NAME   = '\027';
+	public static final char TEXT   = '\030';
+	public static final char RANGE  = '\031';
 
 
 	protected Spec onSpec(ParserSpec parserSpec, ScannerSpec scannerSpec)
@@ -361,7 +363,7 @@ public abstract class SpecParser extends beaver.Parser
 
 				return symbol ( onItemSymbol(name, oper) );
 			}
-			case 10: // Item = "(" ItemList ")?"
+			case 10: // Item = "[" ItemList "]"
 			{
 				ItemList itemList = (ItemList) symbols[at - 1].getValue();
 

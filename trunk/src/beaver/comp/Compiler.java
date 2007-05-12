@@ -264,7 +264,7 @@ public class Compiler
 
 	public void compile(File specFile) throws IOException, SyntaxErrorException, CompilationException
 	{
-		Spec spec = (Spec) new CSTBuilder().parse(new SpecScanner(new FileReader(specFile)));
+		Spec spec = (Spec) new CSTBuilder().parse(new MySpecScanner(new FileReader(specFile)));
 
 		if ( spec.scannerSpec != null )
 		{
