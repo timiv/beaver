@@ -104,6 +104,8 @@
 
 %tokens
 
+    WS      = [ \t]         -> skip
+            ;
     MACROS  = "%macros"     -> ScannerSpecStart
             ;
     TOKENS  = "%tokens"     -> ScannerSpecStart

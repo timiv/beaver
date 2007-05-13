@@ -138,7 +138,14 @@ public abstract class RegExp
 		public RuleOp(RegExp exp, RegExp ctx, String eventName)
 		{
 			this(exp, ctx);
-			this.eventName = eventName;
+			if ( "skip".equals(eventName) )
+			{
+				accept = -3;
+			}
+			else
+			{
+				this.eventName = eventName;				
+			}
 		}
 		
 		public RuleOp(RegExp exp, RegExp ctx, int accept)
@@ -151,13 +158,32 @@ public abstract class RegExp
 		public RuleOp(RegExp exp, RegExp ctx, int accept, String eventName)
 		{
 			this(exp, ctx, accept);
-			this.eventName = eventName;
+			boolean skipEvent = "skip".equals(eventName); 
+			if ( skipEvent && accept != -3 || accept == -3 && !skipEvent)
+			{
+				throw new IllegalArgumentException("invalid skippable rule");
+			}
+			else
+			{
+				this.eventName = eventName;				
+			}
+		}
+		
+		public boolean hasEvent()
+		{
+			return eventName != null;
+		}
+		
+		public boolean isSkipTokenRule()
+		{
+			return accept == -3;
 		}
 		
 		public void setId(int id)
 		{
 			if ( accept != 0 )
 				throw new IllegalStateException("already set");
+			
 			accept = id;
 		}
 		

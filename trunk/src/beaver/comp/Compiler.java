@@ -63,6 +63,8 @@ public class Compiler
 	private Map        cstTypes;
 	private String     cstTermType;
 	private String     cstPackageName;
+	
+	private int        nextEventFiringRuleId;
 
 	public Compiler(Log log)
 	{
@@ -281,6 +283,7 @@ public class Compiler
 				constTermNames = constTermAliases;
 			}
 			termNames.removeAll(constTermAliases.values());
+			termNames.removeAll(nc.getSkippableTermNames());
 			terminalsPrecedence = (String[]) termNames.toArray(new String[termNames.size()]);
 		}
 
@@ -366,6 +369,7 @@ public class Compiler
 					names.addAll(tc.getNames());
 				}
 			}
+			nextEventFiringRuleId = -4;
 
 			DFA mainDFA = compileMainStateDFA(mainStateRules, constTermNames);
 			DFA[] incDFAs = null;
@@ -463,9 +467,13 @@ public class Compiler
 
 			addRegexpTermRule(rules, t, tokenRules);
 		}
+		if ( !tokenRules.isEmpty() )
+		{
+			addEventFiringRules(rules, tokenRules);
+		}
+		
 		rules.add(ScannerBuilder.makeEndOfLineRule());
 		rules.add(ScannerBuilder.makeEndOfFileRule());
-		rules.add(ScannerBuilder.makeRule(-3, new RegExp.CloseOp(ScannerBuilder.rangeToRegExp("[ \t]"))));
 
 		return ScannerBuilder.compile(rules);
 	}
@@ -476,7 +484,6 @@ public class Compiler
 
 		rules.add(ScannerBuilder.makeEndOfLineRule());
 		rules.add(ScannerBuilder.makeEndOfFileRule());
-		rules.add(ScannerBuilder.makeRule(-3, new RegExp.CloseOp(ScannerBuilder.rangeToRegExp("[ \t]"))));
 
 		return ScannerBuilder.compile(rules);
 	}
@@ -503,7 +510,31 @@ public class Compiler
 
 			addRegexpTermRule(rules, t, tokenRules);
 		}
+		if ( !tokenRules.isEmpty() )
+		{
+			addEventFiringRules(rules, tokenRules);
+		}
 		return rules;
+	}
+	
+	private void addEventFiringRules(Collection rules, Map tokenRules)
+	{
+		for ( Iterator i = tokenRules.entrySet().iterator(); i.hasNext(); )
+        {
+			Map.Entry e = (Map.Entry) i.next();
+			RegExp.RuleOp rule = (RegExp.RuleOp) e.getValue();
+			
+	        if ( rule.hasEvent() || rule.isSkipTokenRule() )
+	        {
+	        	if ( !rule.isSkipTokenRule() )
+	        	{
+	        		rule.setId(nextEventFiringRuleId--);
+	        	}
+				rules.add(rule);
+				
+				i.remove();
+	        }
+        }
 	}
 
 	private void addRegexpTermRule(Collection rules, Terminal t, Map tokenRules)

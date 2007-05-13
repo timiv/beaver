@@ -25,6 +25,7 @@ public class TokenNamesCollector extends TreeWalker
 {
 	private Collection names   = new ArrayList();
 	private Collection marks   = new HashSet();
+	private Collection skips   = new ArrayList();
 	private Map        aliases = new HashMap();
 	private String     constTermText;
 	private int        textCounter;
@@ -39,7 +40,11 @@ public class TokenNamesCollector extends TreeWalker
     	}
     	textCounter = 0;
 	    super.visit(node);
-	    if ( node.ctx == null && textCounter == 1 )
+	    if ( node.event != null && node.event.text.equals("skip") )
+	    {
+	    	skips.add(name);
+	    }
+	    else if ( textCounter == 1 && node.ctx == null )
 	    {
 	    	aliases.put(constTermText, name);
 	    }
@@ -84,5 +89,10 @@ public class TokenNamesCollector extends TreeWalker
     public Map getConstTermAliases()
     {
     	return aliases;
+    }
+    
+    public Collection getSkippableTermNames()
+    {
+    	return skips;
     }
 }
