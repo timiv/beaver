@@ -148,19 +148,19 @@ public abstract class SpecParser extends beaver.Parser
 		return new RegExpItemClose(charExpr, oper);
 	}
 
-	protected RegExpItem onRegExpItemQuant(CharExpr charExpr, Quantifier quantifier)
+	protected RegExpItem onRegExpItemMulti(CharExpr charExpr, Multiplicity multiplicity)
 	{
-		return new RegExpItemQuant(charExpr, quantifier);
+		return new RegExpItemMulti(charExpr, multiplicity);
 	}
 
-	protected Quantifier onQuantifier(NumTerm min)
+	protected Multiplicity onMultiplicity(NumTerm min)
 	{
-		return new Quantifier(min);
+		return new Multiplicity(min);
 	}
 
-	protected Quantifier onQuantifier(NumTerm min, NumTerm max)
+	protected Multiplicity onMultiplicity(NumTerm min, NumTerm max)
 	{
-		return new Quantifier(min, max);
+		return new Multiplicity(min, max);
 	}
 
 	protected CharExpr onCharExprText(Term text)
@@ -497,25 +497,25 @@ public abstract class SpecParser extends beaver.Parser
 
 				return symbol ( onRegExpItemClose(charExpr, oper) );
 			}
-			case 29: // RegExpItem = CharExpr Quantifier
+			case 29: // RegExpItem = CharExpr Multiplicity
 			{
-				CharExpr   charExpr   = (CharExpr  ) symbols[at].getValue();
-				Quantifier quantifier = (Quantifier) symbols[at - 1].getValue();
+				CharExpr     charExpr     = (CharExpr    ) symbols[at].getValue();
+				Multiplicity multiplicity = (Multiplicity) symbols[at - 1].getValue();
 
-				return symbol ( onRegExpItemQuant(charExpr, quantifier) );
+				return symbol ( onRegExpItemMulti(charExpr, multiplicity) );
 			}
-			case 30: // Quantifier = "{" NUM "}"
+			case 30: // Multiplicity = "{" NUM "}"
 			{
 				NumTerm min = (NumTerm) symbols[at - 1].getValue();
 
-				return symbol ( onQuantifier(min) );
+				return symbol ( onMultiplicity(min) );
 			}
-			case 31: // Quantifier = "{" NUM "," OptNUM "}"
+			case 31: // Multiplicity = "{" NUM "," OptNUM "}"
 			{
 				NumTerm min = (NumTerm) symbols[at - 1].getValue();
 				NumTerm max = (NumTerm) symbols[at - 3].getValue();
 
-				return symbol ( onQuantifier(min, max) );
+				return symbol ( onMultiplicity(min, max) );
 			}
 			case 32: // CharExpr = TEXT
 			{

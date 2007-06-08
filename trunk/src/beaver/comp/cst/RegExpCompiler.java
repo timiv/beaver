@@ -24,6 +24,6 @@ public interface RegExpCompiler
 	beaver.comp.lexer.RegExp compile(RegExp          expr);
 	beaver.comp.lexer.RegExp compile(RegExpItem      expr);
 	beaver.comp.lexer.RegExp compile(RegExpItemClose expr);
-	beaver.comp.lexer.RegExp compile(RegExpItemQuant expr);
+	beaver.comp.lexer.RegExp compile(RegExpItemMulti expr);
 	beaver.comp.lexer.RegExp compile(RegExpItemList  expr);
 }

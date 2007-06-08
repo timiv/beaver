@@ -24,6 +24,7 @@ public interface NodeVisitor
 	void visit(ItemSymbol       node);
 	void visit(MacroDecl        node);
 	void visit(MacroDeclList    node);
+	void visit(Multiplicity     node);
 	void visit(NumTerm          node);
 	void visit(ParserSpec       node);
 	void visit(PrecItemList     node);
@@ -31,7 +32,6 @@ public interface NodeVisitor
 	void visit(PrecItemTerm     node);
 	void visit(Precedence       node);
 	void visit(PrecedenceList   node);
-	void visit(Quantifier       node);
 	void visit(RangeExprMacro   node);
 	void visit(RangeExprMinus   node);
 	void visit(RangeExprRange   node);
@@ -39,7 +39,7 @@ public interface NodeVisitor
 	void visit(RegExpItem       node);
 	void visit(RegExpItemClose  node);
 	void visit(RegExpItemList   node);
-	void visit(RegExpItemQuant  node);
+	void visit(RegExpItemMulti  node);
 	void visit(Rule             node);
 	void visit(RuleList         node);
 	void visit(ScannerSpec      node);

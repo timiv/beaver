@@ -22,7 +22,7 @@ import beaver.comp.cst.RegExpCompiler;
 import beaver.comp.cst.RegExpItem;
 import beaver.comp.cst.RegExpItemClose;
 import beaver.comp.cst.RegExpItemList;
-import beaver.comp.cst.RegExpItemQuant;
+import beaver.comp.cst.RegExpItemMulti;
 import beaver.comp.lexer.ScannerBuilder;
 import beaver.util.SubStr;
 
@@ -148,8 +148,8 @@ public class BasicRegExpCompiler implements RegExpCompiler
 		return re;
     }
 
-	public beaver.comp.lexer.RegExp compile(RegExpItemQuant expr)
+	public beaver.comp.lexer.RegExp compile(RegExpItemMulti expr)
     {
-		return new beaver.comp.lexer.RegExp.CloseVOp(expr.charExpr.accept(this), expr.quantifier.min.value, expr.quantifier.max == null ? -1 : expr.quantifier.max.value);
+		return new beaver.comp.lexer.RegExp.CloseVOp(expr.charExpr.accept(this), expr.multiplicity.min.value, expr.multiplicity.max == null ? -1 : expr.multiplicity.max.value);
     }
 }

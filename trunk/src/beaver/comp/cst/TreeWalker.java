@@ -68,10 +68,10 @@ public class TreeWalker implements NodeVisitor
 		if ( node.altList != null ) node.altList .accept(this);
 	}
 
-	public void visit(RegExpItemQuant node)
+	public void visit(Multiplicity node)
 	{
-		if ( node.charExpr   != null ) node.charExpr   .accept(this);
-		if ( node.quantifier != null ) node.quantifier .accept(this);
+		if ( node.min != null ) node.min .accept(this);
+		if ( node.max != null ) node.max .accept(this);
 	}
 
 	public void visit(PrecItemRule node)
@@ -136,15 +136,15 @@ public class TreeWalker implements NodeVisitor
 		if ( node.text != null ) node.text .accept(this);
 	}
 
+	public void visit(RegExpItemMulti node)
+	{
+		if ( node.charExpr     != null ) node.charExpr     .accept(this);
+		if ( node.multiplicity != null ) node.multiplicity .accept(this);
+	}
+
 	public void visit(ItemInline node)
 	{
 		if ( node.itemList != null ) node.itemList .accept(this);
-	}
-
-	public void visit(Quantifier node)
-	{
-		if ( node.min != null ) node.min .accept(this);
-		if ( node.max != null ) node.max .accept(this);
 	}
 
 	public void visit(RegExpItemClose node)

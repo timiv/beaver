@@ -13,7 +13,7 @@ import beaver.comp.cst.CharExprNested;
 import beaver.comp.cst.CharExprRange;
 import beaver.comp.cst.CharExprText;
 import beaver.comp.cst.RegExpItemClose;
-import beaver.comp.cst.RegExpItemQuant;
+import beaver.comp.cst.RegExpItemMulti;
 import beaver.comp.cst.TermDecl;
 import beaver.comp.cst.TreeWalker;
 
@@ -56,7 +56,7 @@ public class TokenNamesCollector extends TreeWalker
 	    super.visit(node);
     }
 
-    public void visit(RegExpItemQuant node)
+    public void visit(RegExpItemMulti node)
     {
     	textCounter = 2;
 	    super.visit(node);

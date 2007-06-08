@@ -65,10 +65,10 @@
     RegExpItem
         =           CharExpr
         | { Close } CharExpr OPER
-        | { Quant } CharExpr Quantifier
+        | { Multi } CharExpr Multiplicity
         ;
 
-    Quantifier
+    Multiplicity
         = "{" min:NUM "}"
         | "{" min:NUM "," max:NUM? "}"
         ;

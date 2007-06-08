@@ -19,7 +19,7 @@ import beaver.comp.cst.RegExpCompiler;
 import beaver.comp.cst.RegExpItem;
 import beaver.comp.cst.RegExpItemClose;
 import beaver.comp.cst.RegExpItemList;
-import beaver.comp.cst.RegExpItemQuant;
+import beaver.comp.cst.RegExpItemMulti;
 import beaver.comp.cst.TermDecl;
 import beaver.comp.cst.TermDeclList;
 
@@ -66,7 +66,7 @@ public class TokenCompiler extends BasicRegExpCompiler implements RegExpCompiler
 						if ( rel.length() == 1 )
 						{
 							RegExpItem rei = (RegExpItem) rel.first();
-    						if ( rei.charExpr instanceof CharExprText && !(rei instanceof RegExpItemClose) && !(rei instanceof RegExpItemQuant) )
+    						if ( rei.charExpr instanceof CharExprText && !(rei instanceof RegExpItemClose) && !(rei instanceof RegExpItemMulti) )
     						{
     							//
     							// Check naming "collisions"

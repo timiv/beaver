@@ -12,14 +12,14 @@ package beaver.comp.cst;
  * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
  * @author Alexander Demenchuk
  */
-public class RegExpItemQuant extends RegExpItem
+public class RegExpItemMulti extends RegExpItem
 {
-	public Quantifier quantifier;
+	public Multiplicity multiplicity;
 
-	public RegExpItemQuant(CharExpr charExpr, Quantifier quantifier)
+	public RegExpItemMulti(CharExpr charExpr, Multiplicity multiplicity)
 	{
 		super(charExpr);
-		this.quantifier = quantifier;
+		this.multiplicity = multiplicity;
 	}
 
 	public void accept(NodeVisitor visitor)

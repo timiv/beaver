@@ -12,18 +12,18 @@ package beaver.comp.cst;
  * @author <a href="http://beaver.sourceforge.net">Beaver</a> parser generator
  * @author Alexander Demenchuk
  */
-public class Quantifier extends beaver.util.Node
+public class Multiplicity extends beaver.util.Node
 {
 	public NumTerm min;
 	public NumTerm max;
 
-	public Quantifier(NumTerm min)
+	public Multiplicity(NumTerm min)
 	{
 		this.min = min;
 		this.max = min;
 	}
 
-	public Quantifier(NumTerm min, NumTerm max)
+	public Multiplicity(NumTerm min, NumTerm max)
 	{
 		this.min = min;
 		this.max = max;
