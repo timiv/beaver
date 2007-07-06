@@ -311,13 +311,13 @@ public class Compiler
 			sourceWriter.writeParserSources(srcDir);
 
 			Terminal[] terminals = grammar.getTerminals();
-			int n = 0;
+			int n = terminals[1] == Terminal.EOL ? 1 : 0;
 			while ( ++n < terminals.length && terminals[n] instanceof Terminal.Const )
 			{
 				continue;
 			}
-			constTerms = new Terminal[n - 1];
-			System.arraycopy(terminals, 1, constTerms, 0, constTerms.length);
+			constTerms = new Terminal[n - 2];
+			System.arraycopy(terminals, 2, constTerms, 0, constTerms.length);
 			regexTerms = new Terminal[terminals.length - n];
 			System.arraycopy(terminals, n, regexTerms, 0, regexTerms.length);
 		}

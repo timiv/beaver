@@ -93,7 +93,9 @@
 
     any     = [^]
             ;
-    dot     = any \ $
+    eol     = [\r\n]
+            ;
+    dot     = any \ eol
             ;
     esc     = dot \ [\\]
             ;
@@ -118,7 +120,7 @@
             ;
     ASSOC   = "left" | "right" | "none"
             ;
-    NAME    = letter ( letter | digit )* | "$"
+    NAME    = letter ( letter | digit )*
             ;
     TEXT    = "\"" ( esc \ ["] | "\\" dot )* "\""
             ;

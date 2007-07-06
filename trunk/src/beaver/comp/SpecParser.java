@@ -22,15 +22,16 @@ import beaver.comp.cst.*;
 public abstract class SpecParser extends beaver.Parser
 {
 	public static final char EOF    = '\000';
-	public static final char MACROS = '\001'; // "%macros"
-	public static final char TOKENS = '\004'; // "%tokens"
-	public static final char STSEL  = '\023';
-	public static final char OPER   = '\024';
-	public static final char NUM    = '\025';
-	public static final char ASSOC  = '\026';
-	public static final char NAME   = '\027';
-	public static final char TEXT   = '\030';
-	public static final char RANGE  = '\031';
+	public static final char EOL    = '\001';
+	public static final char MACROS = '\002'; // "%macros"
+	public static final char TOKENS = '\005'; // "%tokens"
+	public static final char STSEL  = '\024';
+	public static final char OPER   = '\025';
+	public static final char NUM    = '\026';
+	public static final char ASSOC  = '\027';
+	public static final char NAME   = '\030';
+	public static final char TEXT   = '\031';
+	public static final char RANGE  = '\032';
 
 
 	protected Spec onSpec(ParserSpec parserSpec, ScannerSpec scannerSpec)

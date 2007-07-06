@@ -53,7 +53,8 @@ public class GrammarBuilder extends TreeWalker
 		this.constTerms = constTerms;
 		
 		symbols.put("EOF", Terminal.EOF);
-		char id = Terminal.EOF.getId();
+		symbols.put("EOL", Terminal.EOL);
+		char id = Terminal.EOL.getId();
 		
 		List constTermRepresentations = new ArrayList(constTerms.keySet());
 		Collections.sort(constTermRepresentations);
@@ -69,11 +70,7 @@ public class GrammarBuilder extends TreeWalker
 			for ( int i = 0; i < termOrder.length; i++ )
             {
 				String name = termOrder[i];
-				if ( !namedTerms.contains(name) )
-				{
-					log.warning("Terminal " + name + " is in preferred order list, but is not used in the grammar");
-				}
-				else
+				if ( namedTerms.contains(name) && !symbols.containsKey(name) )
 				{
 					symbols.put(name, new Terminal(++id, name));
 				}

@@ -47,6 +47,7 @@ public class Terminal extends Symbol
 	}
 	
 	public static final Terminal EOF = new Terminal((char) 0, "EOF");
+	public static final Terminal EOL = new Terminal((char) 1, "EOL");
 	
 	public static class Const extends Terminal
 	{

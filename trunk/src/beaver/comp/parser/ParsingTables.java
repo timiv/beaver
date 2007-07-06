@@ -51,11 +51,11 @@ public class ParsingTables
         	ruleDefs[i] = (grammar.productions[i].lhs.id << 16) + grammar.productions[i].rhs.length;
         }
         
-        for ( char i = 1; i < grammar.terminals.length; i++ )
+        for ( int i = grammar.terminals[1] == Terminal.EOL ? 2 : 1; i < grammar.terminals.length; i++ )
         {
         	if ( !(grammar.terminals[i] instanceof Terminal.Const) )
         	{
-        		firstTerminalWithValueId = i;
+        		firstTerminalWithValueId = (char) i;
         		break;
         	}
         }
