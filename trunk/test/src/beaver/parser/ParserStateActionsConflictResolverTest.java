@@ -1,6 +1,12 @@
 package beaver.parser;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -38,7 +44,7 @@ public class ParserStateActionsConflictResolverTest
 		ParserAction.Shift shift = (ParserAction.Shift) conflict.action1;
 		assertEquals(3, shift.dest.id);
 		ParserAction.Reduce reduce = (ParserAction.Reduce) conflict.action2;		
-		assertEquals("Expr = Expr + Expr ;", reduce.production.toString());
+		assertEquals("Expr = Expr + Expr", reduce.production.toString());
 		assertNull(conflict.next);
 		state = state.next;
 		// state 5
@@ -87,7 +93,7 @@ public class ParserStateActionsConflictResolverTest
 		assertNotNull(state.reduce);
 		ParserAction.Reduce reduce = (ParserAction.Reduce) state.reduce;
 		assertEquals("EOF", reduce.lookahead.toString());
-		assertEquals("Expr = Expr + Expr ;", reduce.production.toString());
+		assertEquals("Expr = Expr + Expr", reduce.production.toString());
 		assertNull(reduce.next);
 		
 		state = state.next; // 4 -> 5
@@ -111,7 +117,7 @@ public class ParserStateActionsConflictResolverTest
 		// assign one to EXPR manually
 		for (int i = 0; i < grammar.productions.length; i++)
 		{
-			if (grammar.productions[i].toString().equals("Expr = Expr + Expr ;"))
+			if (grammar.productions[i].toString().equals("Expr = Expr + Expr"))
 			{
 				grammar.productions[i].precedence = '\uffff';
 				break;
@@ -131,11 +137,11 @@ public class ParserStateActionsConflictResolverTest
 		ParserAction.Reduce reduce = (ParserAction.Reduce) state.reduce;
 		// Notice shift-reduce conflict here
 		assertEquals("+", reduce.lookahead.toString());
-		assertEquals("Expr = Expr + Expr ;", reduce.production.toString());
+		assertEquals("Expr = Expr + Expr", reduce.production.toString());
 		assertNotNull(reduce.next);
 		reduce = (ParserAction.Reduce) reduce.next;
 		assertEquals("EOF", reduce.lookahead.toString());
-		assertEquals("Expr = Expr + Expr ;", reduce.production.toString());
+		assertEquals("Expr = Expr + Expr", reduce.production.toString());
 		assertNull(reduce.next);
 		
 		state = state.next; // 4 -> 5
@@ -182,7 +188,7 @@ public class ParserStateActionsConflictResolverTest
 		assertNotNull(state.reduce);
 		ParserAction.Reduce reduce = (ParserAction.Reduce) state.reduce;
 		assertEquals("EOF", reduce.lookahead.toString());
-		assertEquals("Expr = Expr + Expr ;", reduce.production.toString());
+		assertEquals("Expr = Expr + Expr", reduce.production.toString());
 		assertNull(reduce.next);
 		
 		state = state.next; // 4 -> 5
@@ -226,14 +232,159 @@ public class ParserStateActionsConflictResolverTest
 		ParserAction.Reduce reduce = (ParserAction.Reduce) state.reduce;
 		// Notice shift-reduce conflict here
 		assertEquals("+", reduce.lookahead.toString());
-		assertEquals("Expr = Expr + Expr ;", reduce.production.toString());
+		assertEquals("Expr = Expr + Expr", reduce.production.toString());
 		assertNotNull(reduce.next);
 		reduce = (ParserAction.Reduce) reduce.next;
 		assertEquals("EOF", reduce.lookahead.toString());
-		assertEquals("Expr = Expr + Expr ;", reduce.production.toString());
+		assertEquals("Expr = Expr + Expr", reduce.production.toString());
 		assertNull(reduce.next);
 		
 		state = state.next; // 4 -> 5
 		assertNull(state.next);
+	}
+	
+	@Test
+	public void exprWithPrecedenceConflictsShouldBeResolved()
+	{
+		GrammarFactory fact = new GrammarFactory(new String[] {"NUM"});
+		fact.def("Expr", "Number")
+			.sym("NUM")
+			.end();
+		fact.def("Expr", "Nested")
+			.txt("(")
+			.sym("Expr")
+			.txt(")")
+			.end();
+		fact.def("Expr", "Add")
+			.sym("Expr")
+			.txt("+")
+			.sym("Expr")
+			.end();
+		fact.def("Expr", "Sub")
+    		.sym("Expr")
+    		.txt("-")
+    		.sym("Expr")
+    		.end();
+		fact.def("Expr", "Mul")
+    		.sym("Expr")
+    		.txt("*")
+    		.sym("Expr")
+    		.end();
+		fact.def("Expr", "Div")
+    		.sym("Expr")
+    		.txt("/")
+    		.sym("Expr")
+    		.end();
+		fact.left()
+		    .prec("*")
+		    .prec("/");
+		fact.left()
+		    .prec("+")
+		    .prec("-");
+		Grammar grammar = fact.getGrammar();
+		ParserState firstState = new ParserStatesBuilder().buildParserStates(grammar);
+		/* 
+		 * Initial parser actions:
+		 * 
+              1: shift (, NUM, Expr
+            
+              2: shift /, *, -, +
+                   EOF Goal = Expr ;
+            
+              3: shift (, NUM, Expr
+            
+              4: shift /, *, -, +
+                     / Expr = { Add } Expr + Expr ;
+                     * Expr = { Add } Expr + Expr ;
+                     - Expr = { Add } Expr + Expr ;
+                     + Expr = { Add } Expr + Expr ;
+                     ) Expr = { Add } Expr + Expr ;
+                   EOF Expr = { Add } Expr + Expr ;
+            
+              5: shift (, NUM, Expr
+            
+              6: shift /, *, -, +
+                     / Expr = { Sub } Expr - Expr ;
+                     * Expr = { Sub } Expr - Expr ;
+                     - Expr = { Sub } Expr - Expr ;
+                     + Expr = { Sub } Expr - Expr ;
+                     ) Expr = { Sub } Expr - Expr ;
+                   EOF Expr = { Sub } Expr - Expr ;
+            
+              7: shift (, NUM, Expr
+            
+              8: shift /, *, -, +
+                     / Expr = { Mul } Expr * Expr ;
+                     * Expr = { Mul } Expr * Expr ;
+                     - Expr = { Mul } Expr * Expr ;
+                     + Expr = { Mul } Expr * Expr ;
+                     ) Expr = { Mul } Expr * Expr ;
+                   EOF Expr = { Mul } Expr * Expr ;
+            
+              9: shift (, NUM, Expr
+            
+             10: shift /, *, -, +
+                     / Expr = { Div } Expr / Expr ;
+                     * Expr = { Div } Expr / Expr ;
+                     - Expr = { Div } Expr / Expr ;
+                     + Expr = { Div } Expr / Expr ;
+                     ) Expr = { Div } Expr / Expr ;
+                   EOF Expr = { Div } Expr / Expr ;
+            
+             11:     / Expr = { Number } NUM ;
+                     * Expr = { Number } NUM ;
+                     - Expr = { Number } NUM ;
+                     + Expr = { Number } NUM ;
+                     ) Expr = { Number } NUM ;
+                   EOF Expr = { Number } NUM ;
+            
+             12: shift (, NUM, Expr
+            
+             13: shift /, *, -, +, )
+            
+             14:     / Expr = { Nested } ( Expr ) ;
+                     * Expr = { Nested } ( Expr ) ;
+                     - Expr = { Nested } ( Expr ) ;
+                     + Expr = { Nested } ( Expr ) ;
+                     ) Expr = { Nested } ( Expr ) ;
+                   EOF Expr = { Nested } ( Expr ) ;
+         *
+		 */
+		// go to state 4
+		ParserState state = firstState;
+		state = state.next; // 2
+		state = state.next; // 3
+		state = state.next; // 4
+		ParserAction.Conflict conflict = state.resolveConflicts(null);
+		assertNull(conflict);
+		assertUniqueLookaheads(state);
+		state = state.next; // 5
+		state = state.next; // 6
+		conflict = state.resolveConflicts(null);
+		assertNull(conflict);
+		assertUniqueLookaheads(state);		
+		state = state.next; // 7
+		state = state.next; // 8
+		conflict = state.resolveConflicts(null);
+		assertNull(conflict);
+		assertUniqueLookaheads(state);		
+		state = state.next; // 9
+		state = state.next; // 10
+		conflict = state.resolveConflicts(null);
+		assertNull(conflict);
+		assertUniqueLookaheads(state);		
+	}
+	
+	private static void assertUniqueLookaheads(ParserState state)
+	{
+		Set<Symbol> lookaheads = new HashSet<Symbol>();
+        for (ParserAction action = state.shift; action != null; action = action.next)
+        {
+        	assertTrue(lookaheads.add(action.lookahead));
+        }
+        for (ParserAction action = state.reduce; action != null; action = action.next)
+        {
+        	assertTrue(lookaheads.add(action.lookahead));
+        }
 	}
 }

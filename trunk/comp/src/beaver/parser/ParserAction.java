@@ -11,6 +11,11 @@ abstract class ParserAction
 	}
 
 	abstract int getId();
+	
+	public String toString()
+	{
+		return lookahead + " -> ?";
+	}
 
 	static class Shift extends ParserAction
 	{
@@ -29,6 +34,11 @@ abstract class ParserAction
 		int getId()
 		{
 			return dest.id;
+		}
+		
+		public String toString()
+		{
+			return lookahead + " -> " + dest.id;
 		}
 	}
 
@@ -49,6 +59,32 @@ abstract class ParserAction
 		int getId()
 		{
 			return ~production.id;
+		}
+		
+		public String toString()
+		{
+			return lookahead + " -> " + production;
+		}
+	}
+	
+	static class Accept extends ParserAction
+	{
+		Grammar grammar;
+		
+		Accept(Grammar grammar)
+		{
+			super(grammar.getGoal());
+			this.grammar = grammar;
+		}
+		
+		int getId()
+		{
+			return grammar.getAcceptActionId();
+		}
+		
+		public String toString()
+		{
+			return lookahead + " -> ACCEPT";
 		}
 	}
 

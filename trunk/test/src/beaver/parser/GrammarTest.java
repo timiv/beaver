@@ -52,7 +52,7 @@ public class GrammarTest
 			@Override
             public void visit(int i)
             {
-				assertEquals("Stmt = ID = Expr ; ;", grammar.productions[i].toString());
+				assertEquals("Stmt = ID = Expr ;", grammar.productions[i].toString());
             }
 		});
 	}

@@ -1,11 +1,19 @@
 package beaver.parser;
 
+import java.util.Comparator;
+
 class ParserState
 {
 	int          id;
 	ItemSet      config;
 	ParserAction shift;
 	ParserAction reduce;
+	ParserAction accept;
+	ParserAction defaultReduce;
+	/**
+	 * Total number of parser actions at this state
+	 */
+	int          numActions;
 
 	ParserState  next;
 
@@ -14,28 +22,117 @@ class ParserState
 		config = kernel;
 	}
 
+	public String toString()
+	{
+		StringBuffer buf = new StringBuffer(100);
+		if (id < 100)
+		{
+			buf.append(' ');
+			if (id < 10)
+			{
+				buf.append(' ');
+			}
+		}
+		buf.append(id).append(":\n");
+		if (shift != null)
+		{
+			buf.append("   shift:\n");
+			for (ParserAction action = shift; action != null; action = action.next)
+			{
+				String symstr = action.lookahead.toString();
+				int strlen = symstr.length();
+				for (int i = strlen; i < 10; i++)
+				{
+					buf.append(' ');
+				}
+				buf.append(action).append('\n');
+			}
+		}
+		if (reduce != null)
+		{
+			buf.append("   reduce:\n");
+			for (ParserAction action = reduce; action != null; action = action.next)
+			{
+				String symstr = action.lookahead.toString();
+				int strlen = symstr.length();
+				for (int i = strlen; i < 10; i++)
+				{
+					buf.append(' ');
+				}
+				buf.append(action).append('\n');
+			}
+		}
+		if (defaultReduce != null)
+		{
+			buf.append("   default:\n");
+			String symstr = defaultReduce.lookahead.toString();
+			int strlen = symstr.length();
+			for (int i = strlen; i < 10; i++)
+			{
+				buf.append(' ');
+			}
+			buf.append(defaultReduce).append('\n');
+		}
+		if (accept != null)
+		{
+			buf.append("   accept:\n");
+			String symstr = accept.lookahead.toString();
+			int strlen = symstr.length();
+			for (int i = strlen; i < 10; i++)
+			{
+				buf.append(' ');
+			}
+			buf.append(accept).append('\n');
+		}
+		return buf.toString();
+	}
+
 	void add(ParserAction.Shift action)
 	{
 		action.next = shift;
 		shift = action;
+		numActions++;
+		action.lookahead.numStates++;
 	}
 
 	void add(ParserAction.Reduce action)
 	{
 		action.next = reduce;
 		reduce = action;
+		numActions++;
+		action.lookahead.numStates++;
 	}
-	
+
 	ParserAction.Conflict resolveConflicts(ParserAction.Conflict last)
 	{
 		last = resolveShiftReduceConflicts(last);
-		return resolveReduceReduceConflicts(last); 
+		return resolveReduceReduceConflicts(last);
+	}
+
+	void createDefaultReduceAction(int productionId)
+	{
+		ParserAction.Reduce removed = null;
+		for (ParserAction.Reduce reduce = (ParserAction.Reduce) this.reduce, prevReduce = null; reduce != null; reduce = (ParserAction.Reduce) reduce.next)
+		{
+			if (reduce.production.id == productionId)
+			{
+				removeReduceAction(removed = reduce, prevReduce);
+				continue;
+			}
+			prevReduce = reduce;
+		}
+		if (removed != null)
+		{
+			removed.next = null;
+		}
+		defaultReduce = removed;
 	}
 
 	private ParserAction.Conflict resolveShiftReduceConflicts(ParserAction.Conflict last)
 	{
 		if (reduce != null)
 		{
+		nextShift: 
 			for (ParserAction.Shift shift = (ParserAction.Shift) this.shift, prevShift = null; shift != null; shift = (ParserAction.Shift) shift.next)
 			{
 				for (ParserAction.Reduce reduce = (ParserAction.Reduce) this.reduce, prevReduce = null; reduce != null; reduce = (ParserAction.Reduce) reduce.next)
@@ -46,7 +143,7 @@ class ParserState
 						if (remove == shift)
 						{
 							removeShiftAction(shift, prevShift);
-							break;
+							continue nextShift;
 						}
 						if (remove == reduce)
 						{
@@ -67,6 +164,7 @@ class ParserState
 	{
 		if (reduce != null)
 		{
+		nextReduce:
 			for (ParserAction.Reduce reduce1 = (ParserAction.Reduce) this.reduce, prevReduce1 = null; reduce1 != null; reduce1 = (ParserAction.Reduce) reduce1.next)
 			{
 				for (ParserAction.Reduce reduce2 = (ParserAction.Reduce) reduce1.next, prevReduce2 = reduce1; reduce2 != null; reduce2 = (ParserAction.Reduce) reduce2.next)
@@ -77,7 +175,7 @@ class ParserState
 						if (remove == reduce1)
 						{
 							removeReduceAction(reduce1, prevReduce1);
-							break;
+							continue nextReduce;
 						}
 						if (remove == reduce2)
 						{
@@ -104,6 +202,8 @@ class ParserState
 		{
 			prevAction.next = action.next;
 		}
+		numActions--;
+		action.lookahead.numStates--;
 	}
 
 	private void removeReduceAction(ParserAction action, ParserAction prevAction)
@@ -116,6 +216,8 @@ class ParserState
 		{
 			prevAction.next = action.next;
 		}
+		numActions--;
+		action.lookahead.numStates--;
 	}
 
 	private static ParserAction resolveConflict(ParserAction.Shift shift, ParserAction.Reduce reduce)
@@ -155,4 +257,34 @@ class ParserState
 
 		return null;
 	}
+
+	private static int countStates(ParserState state)
+	{
+		int n = 0;
+		for (; state != null; state = state.next)
+		{
+			n++;
+		}
+		return n;
+	}
+
+	static ParserState[] toArray(ParserState state)
+	{
+		ParserState[] states = new ParserState[countStates(state)];
+		int i = 0;
+		for (; state != null; state = state.next)
+		{
+			states[i++] = state;
+		}
+		return states;
+	}
+
+	static Comparator CMP_NUM_ACTIONS = new Comparator()
+	                                  {
+		                                  public int compare(Object obj1, Object obj2)
+		                                  {
+			                                  return ((ParserState) obj2).numActions - ((ParserState) obj1).numActions;
+			                                  ;
+		                                  }
+	                                  };
 }

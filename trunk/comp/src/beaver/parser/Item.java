@@ -208,19 +208,19 @@ class Item implements Comparable
 	
 	public String toString()
 	{
-		String repr = production.lhs + " = ";
+		String repr = production.lhs + " =";
 		for (int i = 0; i < production.rhs.length; i++)
 		{
 			if (i == dot)
 			{
-				repr += "* ";
+				repr += " *";
 			}
-			repr += production.rhs[i] + " ";
+			repr +=  " " + production.rhs[i];
 		}
 		if (dot == production.rhs.length)
 		{
-			repr += "* ";		
+			repr += " *";		
 		}
-		return repr + ";";
+		return repr;
 	}
 }

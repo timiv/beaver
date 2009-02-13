@@ -381,8 +381,8 @@ public class BitSetTest
 	@Test
 	public void testCountBits()
 	{
-		assertEquals(11, BitSet.countBits(0x7FC3));
-		assertEquals(1, BitSet.countBits(0x8000));
+		assertEquals(11, BitMath.countBits(0x7FC3));
+		assertEquals(1, BitMath.countBits(0x8000));
 	}
 
 }

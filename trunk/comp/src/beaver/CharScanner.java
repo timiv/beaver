@@ -52,7 +52,7 @@ public abstract class CharScanner
 	protected CharScanner(Reader in, int maxTokenLength)
 	{
 		this.in = in;
-		this.text = new char[(maxTokenLength * 2 | 0xff) + 1];
+		this.text = new char[(maxTokenLength * 2 | 0xfff) + 1];
 		this.line = 1;
 	}
 

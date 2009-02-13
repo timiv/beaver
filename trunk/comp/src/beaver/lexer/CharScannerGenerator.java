@@ -77,7 +77,7 @@ public class CharScannerGenerator implements Opcodes
 
 		generateGetNextTokenProlog(mv, startScan);
 		generateGetNextTokenDFACode(mv, tokenIsRecognized, endOfScan, refillBuffer);
-		generateGetNetTokenEpilog(mv, startScan, tokenIsRecognized, endOfScan);
+		generateGetNextTokenEpilog(mv, startScan, tokenIsRecognized, endOfScan);
 
 		generateRefillBuffer(mv, refillBuffer);
 
@@ -122,7 +122,7 @@ public class CharScannerGenerator implements Opcodes
 		mv.visitVarInsn(ISTORE, LOCAL_ACCEPT);
     }
 	
-	private static void generateGetNetTokenEpilog(MethodVisitor mv, Label startScan, Label tokenIsRecognized, Label endOfScan)
+	private static void generateGetNextTokenEpilog(MethodVisitor mv, Label startScan, Label tokenIsRecognized, Label endOfScan)
     {
 		Label saveCursor = new Label();
 		Label returnAccepted = new Label();
@@ -213,7 +213,7 @@ public class CharScannerGenerator implements Opcodes
 				}
 				else
 				{
-					throw new IllegalStateException("Invalid accept code (" + st.accept + ") in the final state.");
+					throw new IllegalStateException("Final state " + st.id + " has no accept code.");
 				}
 			}
 			else

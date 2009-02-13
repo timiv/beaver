@@ -1,16 +1,21 @@
 package beaver.parser;
 
+import java.util.Comparator;
+
 abstract class Symbol
 {
 	/**
 	 * Symbol's ID
 	 */
 	int    id;
-
 	/**
 	 * Name that was used to reference this symbol in the specification.
 	 */
 	String name;
+	/**
+	 * Number of states where this symbol is used as a lookahead
+	 */
+	int    numStates;
 
 	Symbol(String name)
 	{
@@ -30,4 +35,20 @@ abstract class Symbol
 	 * @return true if symbol can match an empty string
 	 */
 	abstract boolean isNullable();
+	
+	static Comparator CMP_NUM_STATES = new Comparator()
+	{
+		public int compare(Object obj1, Object obj2)
+        {
+			Symbol sym1 = (Symbol) obj1;
+			Symbol sym2 = (Symbol) obj2;
+			
+	        int cmp = sym2.numStates - sym1.numStates;
+	        if (cmp == 0)
+	        {
+	        	cmp = sym1.id - sym2.id;
+	        }
+	        return cmp;
+        }
+	};
 }

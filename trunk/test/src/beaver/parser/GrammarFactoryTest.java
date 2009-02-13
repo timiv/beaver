@@ -51,13 +51,13 @@ public class GrammarFactoryTest
 		assertEquals("Expr", grammar.nonterminals[0].toString());
 		assertEquals("Goal", grammar.nonterminals[1].toString());
 		assertEquals(7, grammar.productions.length);
-		assertEquals("Goal = Expr ;",                grammar.productions[0].toString());
-		assertEquals("Expr = { Number } NUM ;",      grammar.productions[1].toString());
-		assertEquals("Expr = { Nested } ( Expr ) ;", grammar.productions[2].toString());
-		assertEquals("Expr = { Add } Expr + Expr ;", grammar.productions[3].toString());
-		assertEquals("Expr = { Sub } Expr - Expr ;", grammar.productions[4].toString());
-		assertEquals("Expr = { Mul } Expr * Expr ;", grammar.productions[5].toString());
-		assertEquals("Expr = { Div } Expr / Expr ;", grammar.productions[6].toString());
+		assertEquals("Goal = Expr",                grammar.productions[0].toString());
+		assertEquals("Expr = { Number } NUM",      grammar.productions[1].toString());
+		assertEquals("Expr = { Nested } ( Expr )", grammar.productions[2].toString());
+		assertEquals("Expr = { Add } Expr + Expr", grammar.productions[3].toString());
+		assertEquals("Expr = { Sub } Expr - Expr", grammar.productions[4].toString());
+		assertEquals("Expr = { Mul } Expr * Expr", grammar.productions[5].toString());
+		assertEquals("Expr = { Div } Expr / Expr", grammar.productions[6].toString());
 	}
 	
 	@Test
@@ -93,7 +93,7 @@ public class GrammarFactoryTest
     		.sym("Expr")
     		.end();
 		fact.none()
-		    .prec("Expr", "Nested"); // this precedence not something that a real grammar would need
+		    .prec("Expr", "Nested"); // this precedence is not something that a real grammar would need
 		fact.left()
 		    .prec("*")
 		    .prec("/");
@@ -114,13 +114,13 @@ public class GrammarFactoryTest
 		assertEquals("Expr", grammar.nonterminals[0].toString());
 		assertEquals("Goal", grammar.nonterminals[1].toString());
 		assertEquals(7, grammar.productions.length);
-		assertEquals("Goal = Expr ;",                grammar.productions[0].toString());
-		assertEquals("Expr = { Number } NUM ;",      grammar.productions[1].toString());
-		assertEquals("Expr = { Nested } ( Expr ) ;", grammar.productions[2].toString());
-		assertEquals("Expr = { Add } Expr + Expr ;", grammar.productions[3].toString());
-		assertEquals("Expr = { Sub } Expr - Expr ;", grammar.productions[4].toString());
-		assertEquals("Expr = { Mul } Expr * Expr ;", grammar.productions[5].toString());
-		assertEquals("Expr = { Div } Expr / Expr ;", grammar.productions[6].toString());
+		assertEquals("Goal = Expr",                grammar.productions[0].toString());
+		assertEquals("Expr = { Number } NUM",      grammar.productions[1].toString());
+		assertEquals("Expr = { Nested } ( Expr )", grammar.productions[2].toString());
+		assertEquals("Expr = { Add } Expr + Expr", grammar.productions[3].toString());
+		assertEquals("Expr = { Sub } Expr - Expr", grammar.productions[4].toString());
+		assertEquals("Expr = { Mul } Expr * Expr", grammar.productions[5].toString());
+		assertEquals("Expr = { Div } Expr / Expr", grammar.productions[6].toString());
 		
 		assertEquals('\ufffe', grammar.productions[2].precedence);
 		assertEquals('\ufffd', grammar.terminals[5].precedence);

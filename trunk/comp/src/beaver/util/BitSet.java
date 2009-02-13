@@ -61,30 +61,30 @@ public final class BitSet
 				setmask |= mask;
 				mask <<= 1; 
 			}
-			int num_old_bits = countBits(bit_bags[first_bit_bag_index]);
+			int num_old_bits = BitMath.countBits(bit_bags[first_bit_bag_index]);
 			bit_bags[first_bit_bag_index] |= setmask;
-			int num_new_bits = countBits(bit_bags[first_bit_bag_index]);
+			int num_new_bits = BitMath.countBits(bit_bags[first_bit_bag_index]);
 			num_bits += num_new_bits - num_old_bits;
 		}
 		else
 		{
-			int num_old_bits = countBits(bit_bags[first_bit_bag_index]);
+			int num_old_bits = BitMath.countBits(bit_bags[first_bit_bag_index]);
 			int mask = 0x80000000 >> (31 - (lb & 31));
 			bit_bags[first_bit_bag_index] |= mask;
-			int num_new_bits = countBits(bit_bags[first_bit_bag_index]);
+			int num_new_bits = BitMath.countBits(bit_bags[first_bit_bag_index]);
 			num_bits += num_new_bits - num_old_bits;
 			
 			for (int i = first_bit_bag_index + 1; i < last_bit_bag_index; i++)
 			{
-				num_old_bits = countBits(bit_bags[i]);
+				num_old_bits = BitMath.countBits(bit_bags[i]);
 				bit_bags[i] = -1;
 				num_bits += 32 - num_old_bits; 
 			}
 			
-			num_old_bits = countBits(bit_bags[last_bit_bag_index]);
+			num_old_bits = BitMath.countBits(bit_bags[last_bit_bag_index]);
 			mask = ~((last_bit & 31) == 31 ? 0 : 0x80000000 >> (30 - (last_bit & 31)));
 			bit_bags[last_bit_bag_index] |= mask;
-			num_new_bits = countBits(bit_bags[last_bit_bag_index]);
+			num_new_bits = BitMath.countBits(bit_bags[last_bit_bag_index]);
 			num_bits += num_new_bits - num_old_bits;
 		}
 	}
@@ -153,7 +153,7 @@ public final class BitSet
 				if (diff != 0)
 				{
 					bit_bags[into_bag_index] |= diff;
-					num_bits += countBits(diff);
+					num_bits += BitMath.countBits(diff);
 					new_bits_added = true;
 				}
 			}
@@ -354,21 +354,6 @@ public final class BitSet
 		}
 	}
 	
-	/**
-	 * Counts set bits in a 32-bit bag
-	 * 
-	 * @param bits bag of bits
-	 * @return number of bits in a bag
-	 */
-	public static int countBits(int bits)
-	{
-		bits = (bits & 0x55555555) + ((bits >>> 1) & 0x55555555);
-		bits = (bits & 0x33333333) + ((bits >>> 2) & 0x33333333);
-		bits = (bits & 0x0F0F0F0F) + ((bits >>> 4) & 0x0F0F0F0F);
-		bits = (bits & 0x00FF00FF) + ((bits >>> 8) & 0x00FF00FF);
-		return (bits & 0x0000FFFF) + (bits >>> 16);
-	}
-
 	/**
 	 * Protocol that a bit processing entity has to follow 
 	 */

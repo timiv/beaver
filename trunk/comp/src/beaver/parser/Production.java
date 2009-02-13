@@ -56,16 +56,16 @@ class Production
 	
 	public String toString()
 	{
-		String repr = lhs + " = ";
+		String repr = lhs + " =";
 		if (name != null)
 		{
-			repr += "{ " + name + " } "; 
+			repr += " { " + name + " }"; 
 		}
 		for (int i = 0; i < rhs.length; i++)
 		{
-			repr += rhs[i] + " ";
+			repr += " " + rhs[i];
 		}
-		return repr + ";";
+		return repr;
 	}
 
 	static class RHSElement

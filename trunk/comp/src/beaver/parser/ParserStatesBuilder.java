@@ -1,5 +1,6 @@
 package beaver.parser;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +26,8 @@ class ParserStatesBuilder
 		}
 		propagateLookaheads(firstState);
 		buildReduceActions(firstState, grammar.terminals);
+		
+		firstState.accept = new ParserAction.Accept(grammar);
 		
 		return firstState;
 	}
@@ -121,6 +124,35 @@ class ParserStatesBuilder
 					builder.set(item.production);
 					item.lookaheads.forEachBitAccept(builder);
 				}
+			}
+		}
+	}
+	
+	static void makeDefaultReduceActions(ParserState firstState, Grammar grammar)
+	{
+		int[] ruleUseCounts = new int[grammar.productions.length];
+		for (ParserState state = firstState; state != null; state = state.next)
+		{
+			Arrays.fill(ruleUseCounts, 0);
+			
+			for (ParserAction.Reduce action = (ParserAction.Reduce) state.reduce; action != null; action = (ParserAction.Reduce) action.next)
+			{
+				ruleUseCounts[action.production.id]++;
+			}
+			
+			int maxUse = 2; // avoid default reductions in minor cases
+			int defaultProductionId = -1;
+			for (int i = 0; i < ruleUseCounts.length; i++)
+            {
+				if (ruleUseCounts[i] > maxUse)
+				{
+					maxUse = ruleUseCounts[i];
+					defaultProductionId = i;
+				}
+            }
+			if (defaultProductionId >= 0)
+			{
+				state.createDefaultReduceAction(defaultProductionId);
 			}
 		}
 	}
