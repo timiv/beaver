@@ -320,7 +320,8 @@ public class CompressedParsingTablesTest
           20:     x     x x x x            
           21: x                            
 		 */
-		CompressedParsingTables tables = new CompressedParsingTables(firstState);
+		CompressedParsingTables tables = new CompressedParsingTables();
+		tables.init(firstState);
 		// print(tables);
 		/*
               EOF
@@ -1155,7 +1156,6 @@ public class CompressedParsingTablesTest
 	public void testActionPacking()
 	{
 		CompressedParsingTables tables = new CompressedParsingTables(firstState);
-		tables.packParserActions();
 		assertEquals(100, tables.packedActionsSize);
 		assertArrayEquals(new int[] {0, 7, 14, 21, 28, 35, 42, 42, 57, 62, 68, 62, 68, 72, 76, 80, 84, 88, 53, 73, 99}, tables.stateActionsOffset);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7, 14, 12, 18, 3, -1, 2, 17, -12, -6, -6, -6, -6, -6, -2, 4, 6, 8, 10, 21, 19, 4, 6, 8, 10, -3, 16, 14, 12, 13, 5, 14, 12, 13, 7, 14, 12, 13, 9, 14, 12, 13, 11, 14, 12, 13, 15, 14, 12, 13, 20, -4}, getPackedActions(tables));	
@@ -1166,7 +1166,6 @@ public class CompressedParsingTablesTest
 	public void testSerialization() throws IOException
 	{
 		CompressedParsingTables tables = new CompressedParsingTables(firstState);
-		tables.packParserActions();
 		// prepare expected output
 		ByteArrayOutputStream out = new ByteArrayOutputStream(1000);
 		DataOutputStream data = new DataOutputStream(out);

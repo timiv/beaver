@@ -19,7 +19,17 @@ class CompressedParsingTables
 	int[]         packedParserActions;
 	int[]         packedParserActionCtrlIdxs;
 
+	CompressedParsingTables()
+	{
+	}
+	
 	CompressedParsingTables(ParserState firstState)
+	{
+		init(firstState);
+		packParserActions();
+	}
+	
+	void init(ParserState firstState)
 	{
 		this.firstState = firstState;
 		this.states = ParserState.toArray(firstState);
