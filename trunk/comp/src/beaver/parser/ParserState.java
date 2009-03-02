@@ -25,14 +25,6 @@ class ParserState
 	public String toString()
 	{
 		StringBuffer buf = new StringBuffer(100);
-		if (id < 100)
-		{
-			buf.append(' ');
-			if (id < 10)
-			{
-				buf.append(' ');
-			}
-		}
 		buf.append(id).append(":\n");
 		if (shift != null)
 		{

@@ -1,5 +1,8 @@
 package beaver.parser;
 
+import java.io.DataOutput;
+import java.io.IOException;
+
 import beaver.util.BitSet;
 
 class Grammar
@@ -10,7 +13,7 @@ class Grammar
 	Terminal[]    terminals;
 
 	/**
-	 * Symbols that are created by the parser, when a RHS of a production is reduced to a LHS.
+	 * Symbols that are created by the parser, when RHS of a production is reduced to LHS.
 	 */
 	Nonterminal[] nonterminals;
 
@@ -29,6 +32,43 @@ class Grammar
 		this.productions = productions;
 		this.nonterminals = nonterminals;
 		this.terminals = terminals;
+	}
+	
+	void writeTo(DataOutput out) throws IOException
+	{
+		out.writeChar(productions.length);
+		for (int i = 0; i < productions.length; i++)
+        {
+			int ruleSize = productions[i].rhs.length;
+			int lhsNtId  = productions[i].lhs.id;
+	        out.writeInt((lhsNtId << 16) | ruleSize);
+        }
+		// find first non-keyword symbol
+		int id = 0;
+		for (int i = 1; i < terminals.length; i++)
+        {
+	        if (terminals[i].text == null)
+	        {
+	        	id = terminals[i].id;
+	        	break;
+	        }
+        }
+		if (id == 0)
+		{
+			id = nonterminals[0].id;
+		}
+		out.writeChar(id);
+		// all symbols
+		out.writeChar(terminals.length + nonterminals.length);
+		for (int i = 0; i < terminals.length; i++)
+		{
+			out.writeUTF(terminals[i].toString());
+		}
+		for (int i = 0; i < nonterminals.length; i++)
+		{
+			out.writeUTF(nonterminals[i].toString());
+		}
+		out.writeByte(4);
 	}
 	
 	Nonterminal getGoal()

@@ -11,6 +11,7 @@ abstract class ParserAction
 	}
 
 	abstract int getId();
+	abstract String descr();
 	
 	public String toString()
 	{
@@ -34,6 +35,11 @@ abstract class ParserAction
 		int getId()
 		{
 			return dest.id;
+		}
+		
+		String descr()
+		{
+			return "shift and go to state " + dest.id;
 		}
 		
 		public String toString()
@@ -61,6 +67,11 @@ abstract class ParserAction
 			return ~production.id;
 		}
 		
+		String descr()
+		{
+			return "reduce " + production;
+		}
+		
 		public String toString()
 		{
 			return lookahead + " -> " + production;
@@ -80,6 +91,11 @@ abstract class ParserAction
 		int getId()
 		{
 			return grammar.getAcceptActionId();
+		}
+
+		String descr()
+		{
+			return "accept " + grammar.getGoal();
 		}
 		
 		public String toString()
@@ -102,6 +118,13 @@ abstract class ParserAction
 			this.action1 = action1;
 			this.action2 = action2;
 			this.next = last;
+		}
+		
+		public String toString()
+		{
+			StringBuffer text = new StringBuffer(100);
+	    	text.append("on ").append(action1.lookahead).append(' ').append(action1.descr()).append(" or ").append(action2.descr());
+	    	return text.toString();
 		}
 	}
 }

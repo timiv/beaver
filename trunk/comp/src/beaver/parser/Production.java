@@ -54,6 +54,11 @@ class Production
 		return true;
 	}
 	
+	String getFullName()
+	{
+		return name == null ? lhs.name : this.name + lhs.name; 
+	}
+	
 	public String toString()
 	{
 		String repr = lhs + " =";

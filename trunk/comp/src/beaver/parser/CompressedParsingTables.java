@@ -115,9 +115,8 @@ class CompressedParsingTables
         }		
 	}
 	
-	void write(DataOutput data) throws IOException
+	void writeTo(DataOutput data) throws IOException
 	{
-		data.writeBytes("BPT:");
 		data.writeChar(symbolIdxMap.length);
 		for (int i = 0; i < symbolIdxMap.length; i++)
         {

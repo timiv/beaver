@@ -76,13 +76,18 @@ public class CompressedParsingTablesTest
 			ParserAction.Conflict conflict = state.resolveConflicts(null);
 			if (conflict != null)
 			{
-				StringBuilder strb = new StringBuilder(100);
-				strb.append("Cannot resolve state ").append(state.id).append(" conflicts:\n");
+				StringBuffer text = new StringBuffer(500);
+				text.append("Cannot resolve conflict");
+				if (conflict.next != null)
+				{
+					text.append('s');
+				}
+				text.append(" in state ").append(state);
 			    for (; conflict != null; conflict = conflict.next)
 			    {
-			    	strb.append("  ").append(conflict.action1).append(" or ").append(conflict.action2).append('\n');
+			    	text.append("  ").append(conflict).append('\n');
 			    }
-			    throw new IllegalStateException(strb.toString());
+			    throw new IllegalStateException(text.toString());
 			}
 		}
 //		print(grammar.productions);
@@ -101,6 +106,14 @@ public class CompressedParsingTablesTest
 		 */
 //		for (ParserState state = firstState; state != null; state = state.next)
 //		{
+//    		if (state.id < 100)
+//    		{
+//    			System.out.print(' ');
+//    			if (state.id < 10)
+//    			{
+//    				System.out.print(' ');
+//    			}
+//    		}
 //			System.out.println(state);
 //		}		
 		/*
@@ -1169,7 +1182,6 @@ public class CompressedParsingTablesTest
 		// prepare expected output
 		ByteArrayOutputStream out = new ByteArrayOutputStream(1000);
 		DataOutputStream data = new DataOutputStream(out);
-		data.writeBytes("BPT:");
 		/*
             EOF
             : =
@@ -1273,7 +1285,7 @@ public class CompressedParsingTablesTest
 		byte[] expectedStream = out.toByteArray();
 		out.reset();
 		
-		tables.write(data);
+		tables.writeTo(data);
 		data.flush();
 		byte[] serializedStream = out.toByteArray();
 		assertArrayEquals(expectedStream, serializedStream);

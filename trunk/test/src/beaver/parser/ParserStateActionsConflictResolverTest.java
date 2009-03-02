@@ -40,11 +40,11 @@ public class ParserStateActionsConflictResolverTest
 		assertNotNull(conflict);
 		assertTrue(conflict.action1 instanceof ParserAction.Shift);
 		assertTrue(conflict.action2 instanceof ParserAction.Reduce);
-		assertEquals("+", conflict.action1.lookahead.toString());
+		assertEquals("\"+\"", conflict.action1.lookahead.toString());
 		ParserAction.Shift shift = (ParserAction.Shift) conflict.action1;
 		assertEquals(3, shift.dest.id);
 		ParserAction.Reduce reduce = (ParserAction.Reduce) conflict.action2;		
-		assertEquals("Expr = Expr + Expr", reduce.production.toString());
+		assertEquals("Expr = Expr \"+\" Expr", reduce.production.toString());
 		assertNull(conflict.next);
 		state = state.next;
 		// state 5
@@ -70,7 +70,7 @@ public class ParserStateActionsConflictResolverTest
 		// assign one to "+" manually
 		for (int i = 1; i < grammar.terminals.length; i++)
 		{
-			if (grammar.terminals[i].toString().equals("+"))
+			if (grammar.terminals[i].toString().equals("\"+\""))
 			{
 				grammar.terminals[i].precedence = '\uffff';
 				break;
@@ -86,14 +86,14 @@ public class ParserStateActionsConflictResolverTest
 		
 		assertNotNull(state.shift);
 		ParserAction.Shift shift = (ParserAction.Shift) state.shift;
-		assertEquals("+", shift.lookahead.toString());
+		assertEquals("\"+\"", shift.lookahead.toString());
 		assertEquals(3, shift.dest.id);
 		assertNull(shift.next);
 		
 		assertNotNull(state.reduce);
 		ParserAction.Reduce reduce = (ParserAction.Reduce) state.reduce;
 		assertEquals("EOF", reduce.lookahead.toString());
-		assertEquals("Expr = Expr + Expr", reduce.production.toString());
+		assertEquals("Expr = Expr \"+\" Expr", reduce.production.toString());
 		assertNull(reduce.next);
 		
 		state = state.next; // 4 -> 5
@@ -117,7 +117,7 @@ public class ParserStateActionsConflictResolverTest
 		// assign one to EXPR manually
 		for (int i = 0; i < grammar.productions.length; i++)
 		{
-			if (grammar.productions[i].toString().equals("Expr = Expr + Expr"))
+			if (grammar.productions[i].toString().equals("Expr = Expr \"+\" Expr"))
 			{
 				grammar.productions[i].precedence = '\uffff';
 				break;
@@ -136,12 +136,12 @@ public class ParserStateActionsConflictResolverTest
 		assertNotNull(state.reduce);
 		ParserAction.Reduce reduce = (ParserAction.Reduce) state.reduce;
 		// Notice shift-reduce conflict here
-		assertEquals("+", reduce.lookahead.toString());
-		assertEquals("Expr = Expr + Expr", reduce.production.toString());
+		assertEquals("\"+\"", reduce.lookahead.toString());
+		assertEquals("Expr = Expr \"+\" Expr", reduce.production.toString());
 		assertNotNull(reduce.next);
 		reduce = (ParserAction.Reduce) reduce.next;
 		assertEquals("EOF", reduce.lookahead.toString());
-		assertEquals("Expr = Expr + Expr", reduce.production.toString());
+		assertEquals("Expr = Expr \"+\" Expr", reduce.production.toString());
 		assertNull(reduce.next);
 		
 		state = state.next; // 4 -> 5
@@ -165,7 +165,7 @@ public class ParserStateActionsConflictResolverTest
 		// assign one to "+" manually
 		for (int i = 1; i < grammar.terminals.length; i++)
 		{
-			if (grammar.terminals[i].toString().equals("+"))
+			if (grammar.terminals[i].toString().equals("\"+\""))
 			{
 				grammar.terminals[i].associativity = 'R';
 				break;
@@ -181,14 +181,14 @@ public class ParserStateActionsConflictResolverTest
 		
 		assertNotNull(state.shift);
 		ParserAction.Shift shift = (ParserAction.Shift) state.shift;
-		assertEquals("+", shift.lookahead.toString());
+		assertEquals("\"+\"", shift.lookahead.toString());
 		assertEquals(3, shift.dest.id);
 		assertNull(shift.next);
 		
 		assertNotNull(state.reduce);
 		ParserAction.Reduce reduce = (ParserAction.Reduce) state.reduce;
 		assertEquals("EOF", reduce.lookahead.toString());
-		assertEquals("Expr = Expr + Expr", reduce.production.toString());
+		assertEquals("Expr = Expr \"+\" Expr", reduce.production.toString());
 		assertNull(reduce.next);
 		
 		state = state.next; // 4 -> 5
@@ -212,7 +212,7 @@ public class ParserStateActionsConflictResolverTest
 		// assign one to EXPR manually
 		for (int i = 1; i < grammar.terminals.length; i++)
 		{
-			if (grammar.terminals[i].toString().equals("+"))
+			if (grammar.terminals[i].toString().equals("\"+\""))
 			{
 				grammar.terminals[i].associativity = 'L';
 				break;
@@ -231,12 +231,12 @@ public class ParserStateActionsConflictResolverTest
 		assertNotNull(state.reduce);
 		ParserAction.Reduce reduce = (ParserAction.Reduce) state.reduce;
 		// Notice shift-reduce conflict here
-		assertEquals("+", reduce.lookahead.toString());
-		assertEquals("Expr = Expr + Expr", reduce.production.toString());
+		assertEquals("\"+\"", reduce.lookahead.toString());
+		assertEquals("Expr = Expr \"+\" Expr", reduce.production.toString());
 		assertNotNull(reduce.next);
 		reduce = (ParserAction.Reduce) reduce.next;
 		assertEquals("EOF", reduce.lookahead.toString());
-		assertEquals("Expr = Expr + Expr", reduce.production.toString());
+		assertEquals("Expr = Expr \"+\" Expr", reduce.production.toString());
 		assertNull(reduce.next);
 		
 		state = state.next; // 4 -> 5

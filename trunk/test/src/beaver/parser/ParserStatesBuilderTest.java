@@ -35,7 +35,7 @@ public class ParserStatesBuilderTest
 		assertEquals(
 				"  Goal = * Expr\n" +
 				"+ Expr = * NUM\n" +
-				"+ Expr = * Expr + Expr",
+				"+ Expr = * Expr \"+\" Expr",
 				state.config.toString() 
 		);
 		assertNotNull(state.shift);
@@ -56,12 +56,12 @@ public class ParserStatesBuilderTest
 		assertEquals(2, state.id);
 		assertEquals(
 				"  Goal = Expr *\n" +
-				"  Expr = Expr * + Expr",
+				"  Expr = Expr * \"+\" Expr",
 				state.config.toString() 
 		);
 		assertNotNull(state.shift);
 		ParserAction.Shift shift = (ParserAction.Shift) state.shift;
-		assertEquals("+", shift.lookahead.toString());
+		assertEquals("\"+\"", shift.lookahead.toString());
 		testAdderState3(shift.dest);
 		assertNull(shift.next);
 		
@@ -76,9 +76,9 @@ public class ParserStatesBuilderTest
 	{
 		assertEquals(3, state.id);
 		assertEquals(
-				"  Expr = Expr + * Expr\n" +
+				"  Expr = Expr \"+\" * Expr\n" +
 				"+ Expr = * NUM\n" +
-				"+ Expr = * Expr + Expr",
+				"+ Expr = * Expr \"+\" Expr",
 				state.config.toString() 
 		);
 		assertNotNull(state.shift);
@@ -98,25 +98,25 @@ public class ParserStatesBuilderTest
 	{
 		assertEquals(4, state.id);
 		assertEquals(
-				"  Expr = Expr * + Expr\n" +
-				"  Expr = Expr + Expr *",
+				"  Expr = Expr * \"+\" Expr\n" +
+				"  Expr = Expr \"+\" Expr *",
 				state.config.toString() 
 		);
 		assertNotNull(state.shift);
 		ParserAction.Shift shift = (ParserAction.Shift) state.shift;
-		assertEquals("+", shift.lookahead.toString());
+		assertEquals("\"+\"", shift.lookahead.toString());
 		assertEquals(3, shift.dest.id);
 		assertNull(shift.next);
 		
 		assertNotNull(state.reduce);
 		ParserAction.Reduce reduce = (ParserAction.Reduce) state.reduce;
 		// Notice shift-reduce conflict here
-		assertEquals("+", reduce.lookahead.toString());
-		assertEquals("Expr = Expr + Expr", reduce.production.toString());
+		assertEquals("\"+\"", reduce.lookahead.toString());
+		assertEquals("Expr = Expr \"+\" Expr", reduce.production.toString());
 		assertNotNull(reduce.next);
 		reduce = (ParserAction.Reduce) reduce.next;
 		assertEquals("EOF", reduce.lookahead.toString());
-		assertEquals("Expr = Expr + Expr", reduce.production.toString());
+		assertEquals("Expr = Expr \"+\" Expr", reduce.production.toString());
 		assertNull(reduce.next);
 	}
 	
@@ -131,7 +131,7 @@ public class ParserStatesBuilderTest
 		
 		assertNotNull(state.reduce);
 		ParserAction.Reduce reduce = (ParserAction.Reduce) state.reduce;
-		assertEquals("+", reduce.lookahead.toString());
+		assertEquals("\"+\"", reduce.lookahead.toString());
 		assertEquals("Expr = NUM", reduce.production.toString());
 		assertNotNull(reduce.next);
 		reduce = (ParserAction.Reduce) reduce.next;

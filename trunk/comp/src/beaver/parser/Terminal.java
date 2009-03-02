@@ -41,6 +41,6 @@ class Terminal extends Symbol
 	
 	public String toString()
 	{
-		return text != null ? text : name;
+		return text != null ? '"' + text + '"' : name;
 	}
 }
