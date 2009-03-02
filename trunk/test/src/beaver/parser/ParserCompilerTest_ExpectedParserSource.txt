@@ -1,0 +1,81 @@
+public abstract class ExprCalc extends beaver.Parser {
+	public ExprCalc() {
+		super(ExprCalc.class.getResourceAsStream("ExprCalc.bpt"));
+	}
+	protected abstract Goal makeGoal(Eval eval);
+	protected abstract ExprEval makeExprEval(Expr expr);
+	protected abstract StmtEval makeStmtEval(Stmt stmt);
+	protected abstract Stmt makeStmt(Term id, Expr expr);
+	protected abstract NumberExpr makeNumberExpr(Term num);
+	protected abstract VarExpr makeVarExpr(Term id);
+	protected abstract NestedExpr makeNestedExpr(Expr expr);
+	protected abstract AddExpr makeAddExpr(Expr expr, Expr expr2);
+	protected abstract SubExpr makeSubExpr(Expr expr, Expr expr2);
+	protected abstract MulExpr makeMulExpr(Expr expr, Expr expr2);
+	protected abstract DivExpr makeDivExpr(Expr expr, Expr expr2);
+	protected Symbol reduce(Symbol[] stack, int top, int rule) {
+		switch (rule) {
+			case 0: { // Goal = Eval
+				Eval eval = (Eval) stack[top].value();
+
+				return symbol(makeGoal(eval));
+			}
+			case 1: { // Eval = { Expr } Expr
+				Expr expr = (Expr) stack[top].value();
+
+				return symbol(makeExprEval(expr));
+			}
+			case 2: { // Eval = { Stmt } Stmt
+				Stmt stmt = (Stmt) stack[top].value();
+
+				return symbol(makeStmtEval(stmt));
+			}
+			case 3: { // Stmt = ID "=" Expr ";"
+				Term id = (Term) stack[top + 3].value();
+				Expr expr = (Expr) stack[top + 1].value();
+
+				return symbol(makeStmt(id, expr));
+			}
+			case 4: { // Expr = { Number } NUM
+				Term num = (Term) stack[top].value();
+
+				return symbol(makeNumberExpr(num));
+			}
+			case 5: { // Expr = { Var } ID
+				Term id = (Term) stack[top].value();
+
+				return symbol(makeVarExpr(id));
+			}
+			case 6: { // Expr = { Nested } "(" Expr ")"
+				Expr expr = (Expr) stack[top + 1].value();
+
+				return symbol(makeNestedExpr(expr));
+			}
+			case 7: { // Expr = { Add } Expr "+" Expr
+				Expr expr = (Expr) stack[top + 2].value();
+				Expr expr2 = (Expr) stack[top].value();
+
+				return symbol(makeAddExpr(expr, expr2));
+			}
+			case 8: { // Expr = { Sub } Expr "-" Expr
+				Expr expr = (Expr) stack[top + 2].value();
+				Expr expr2 = (Expr) stack[top].value();
+
+				return symbol(makeSubExpr(expr, expr2));
+			}
+			case 9: { // Expr = { Mul } Expr "*" Expr
+				Expr expr = (Expr) stack[top + 2].value();
+				Expr expr2 = (Expr) stack[top].value();
+
+				return symbol(makeMulExpr(expr, expr2));
+			}
+			case 10: { // Expr = { Div } Expr "/" Expr
+				Expr expr = (Expr) stack[top + 2].value();
+				Expr expr2 = (Expr) stack[top].value();
+
+				return symbol(makeDivExpr(expr, expr2));
+			}
+		}
+		throw new IndexOutOfBoundsException("production #" + rule);
+	}
+}
