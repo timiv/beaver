@@ -127,10 +127,9 @@ public class ParserCompiler
 			Production rule = grammar.productions[i];
 			out.print('\t');
 		    out.print("protected abstract ");
-		    String ruleFullName = rule.getFullName();
-		    out.print(ruleFullName);
+		    out.print(rule.lhs.name);
 		    out.print(" make");
-		    out.print(ruleFullName);
+		    out.print(rule.getFullName());
 		    out.print('(');
 		    forEach(rule.rhs, new ProductionRHSVisitor()
 		    {

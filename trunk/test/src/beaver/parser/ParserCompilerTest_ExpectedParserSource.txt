@@ -3,16 +3,16 @@ public abstract class ExprCalc extends beaver.Parser {
 		super(ExprCalc.class.getResourceAsStream("ExprCalc.bpt"));
 	}
 	protected abstract Goal makeGoal(Eval eval);
-	protected abstract ExprEval makeExprEval(Expr expr);
-	protected abstract StmtEval makeStmtEval(Stmt stmt);
+	protected abstract Eval makeExprEval(Expr expr);
+	protected abstract Eval makeStmtEval(Stmt stmt);
 	protected abstract Stmt makeStmt(Term id, Expr expr);
-	protected abstract NumberExpr makeNumberExpr(Term num);
-	protected abstract VarExpr makeVarExpr(Term id);
-	protected abstract NestedExpr makeNestedExpr(Expr expr);
-	protected abstract AddExpr makeAddExpr(Expr expr, Expr expr2);
-	protected abstract SubExpr makeSubExpr(Expr expr, Expr expr2);
-	protected abstract MulExpr makeMulExpr(Expr expr, Expr expr2);
-	protected abstract DivExpr makeDivExpr(Expr expr, Expr expr2);
+	protected abstract Expr makeNumberExpr(Term num);
+	protected abstract Expr makeVarExpr(Term id);
+	protected abstract Expr makeNestedExpr(Expr expr);
+	protected abstract Expr makeAddExpr(Expr expr, Expr expr2);
+	protected abstract Expr makeSubExpr(Expr expr, Expr expr2);
+	protected abstract Expr makeMulExpr(Expr expr, Expr expr2);
+	protected abstract Expr makeDivExpr(Expr expr, Expr expr2);
 	protected Symbol reduce(Symbol[] stack, int top, int rule) {
 		switch (rule) {
 			case 0: { // Goal = Eval
