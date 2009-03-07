@@ -13,15 +13,21 @@ import beaver.cc.Log;
 
 public class ParserCompiler
 {
-	private Log    log;
-	private String parserName;
-	private File   outputDir;
+	Log     log;
+	String  parserName;
+	File    outputDir;
+	boolean doNotWritePassThroughActions;
 
 	public ParserCompiler(Log log, String parserName, File outputDir)
 	{
 		this.log = log;
 		this.parserName = parserName;
 		this.outputDir = outputDir;
+	}
+	
+	public void setDoNotWritePassThroughActions()
+	{
+		doNotWritePassThroughActions = true;
 	}
 
 	public boolean compile(Grammar grammar)
@@ -125,34 +131,32 @@ public class ParserCompiler
 		for (int i = 0; i < grammar.productions.length; i++)
         {
 			Production rule = grammar.productions[i];
-			out.print('\t');
-		    out.print("protected abstract ");
-		    if (rule.lhs.delegate != null)
-		    {
-			    out.print(rule.lhs.delegate instanceof Terminal ? "Term" : rule.lhs.delegate.name);
-		    }
-		    else
-		    {
-			    out.print(rule.lhs.name);
-		    }
-		    out.print(" make");
-		    out.print(rule.getFullName());
-		    out.print('(');
-		    forEach(rule.rhs, new ProductionRHSVisitor()
-		    {
-			    String sep = "";
-		    	
-				public void visit(int argNum, String type, String name)
-		        {
-		            out.print(sep);
-		            out.print(type);
-		            out.print(' ');
-		            out.print(name);
-		            sep = ", ";
-		        }
-			});
-		    out.print(')');
-		    out.println(';');
+			String returnType = getType(rule.lhs);
+			Symbol ruleValue;
+			if (!doNotWritePassThroughActions || (ruleValue = rule.findSingleValue()) == null || !returnType.equals(getType(ruleValue)))
+			{
+    			out.print('\t');
+    		    out.print("protected abstract ");
+    		    out.print(returnType);
+    		    out.print(" make");
+    		    out.print(rule.getFullName());
+    		    out.print('(');
+    		    forEach(rule.rhs, new ProductionRHSVisitor()
+    		    {
+    			    String sep = "";
+    		    	
+    				public void visit(int argNum, String type, String name)
+    		        {
+    		            out.print(sep);
+    		            out.print(type);
+    		            out.print(' ');
+    		            out.print(name);
+    		            sep = ", ";
+    		        }
+    			});
+    		    out.print(')');
+    		    out.println(';');
+			}
         }
 	}
 	
@@ -184,7 +188,7 @@ public class ParserCompiler
 	
 	private void writeProductionReduceCase(final PrintWriter out, final Production rule)
 	{
-		final StringBuffer makeArgs = new StringBuffer();
+		final StringBuffer args = new StringBuffer();
 		
 	    forEach(rule.rhs, new ProductionRHSVisitor()
 	    {
@@ -208,17 +212,48 @@ public class ParserCompiler
 				}
 				out.println("].value();");
 				
-				makeArgs.append(sep).append(name);
+				args.append(sep).append(name);
 	            sep = ", ";
 	        }
 		});
 	    out.println();
 		out.print("\t\t\t\t");
-	    out.print("return symbol(make");
-	    out.print(rule.getFullName());
-	    out.print("(");
-	    out.print(makeArgs.toString());
-	    out.println("));");    
+	    out.print("return symbol(");
+		Symbol ruleValue;
+		if (doNotWritePassThroughActions && (ruleValue = rule.findSingleValue()) != null && getType(rule.lhs).equals(getType(ruleValue)))
+		{
+		    out.print(args.toString());
+		}
+		else
+		{
+		    out.print("make");
+		    out.print(rule.getFullName());
+		    out.print("(");
+		    out.print(args.toString());
+		    out.print(")");
+		}
+	    out.println(");");    
+	}
+	
+	private static String getType(Symbol symbol)
+	{
+        if (symbol instanceof Terminal)
+        {
+        	return "Term";
+        }
+    	Nonterminal nt = (Nonterminal) symbol;
+    	if (nt.delegate == null)
+    	{
+    		return nt.name;
+    	}
+    	else if (nt.delegate instanceof Terminal)
+    	{
+    		return "Term";
+    	}
+    	else
+    	{
+    		return nt.delegate.name;
+    	}
 	}
 	
 	private static void forEach(Production.RHSElement[] ruleRhs, ProductionRHSVisitor visitor)

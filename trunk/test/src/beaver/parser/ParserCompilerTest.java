@@ -219,11 +219,9 @@ public class ParserCompilerTest
 		assertArrayEquals(getExpectedData(), data);
 	}
 	
-	@Test
-	public void testWritingParserSource() throws IOException
+	private static ParserCompiler getCompiler(String parserName, File outDir)
 	{
-		File outDir = new File("/temp");
-		ParserCompiler comp = new ParserCompiler(new Log()
+		return new ParserCompiler(new Log()
 		{
 			@Override
 		    public void warning(String text)
@@ -238,11 +236,14 @@ public class ParserCompilerTest
 			    System.err.print("Error: ");
 			    System.err.println(text);
 		    }
-		}, "ExprCalc", outDir);
+		}, parserName, outDir);
+	}
+	
+	private void testWritingParserSource(ParserCompiler comp, Grammar grammar, String fileNameOfExpectedOutput) throws IOException
+	{
+		comp.compile(grammar);
 		
-		comp.compile(getTestGrammar());
-		
-		File srcFile = new File(outDir, "ExprCalc.java");
+		File srcFile = new File(comp.outputDir, comp.parserName + ".java");
 		assertTrue(srcFile.exists());
 		char[] buf = new char[(int) srcFile.length()];
 		FileReader in = new FileReader(srcFile);
@@ -251,7 +252,7 @@ public class ParserCompilerTest
 //		srcFile.delete();
 		String actualSource = new String(buf);
 		
-		InputStreamReader is = new InputStreamReader(this.getClass().getResourceAsStream("ParserCompilerTest_ExpectedParserSource.txt"));
+		InputStreamReader is = new InputStreamReader(this.getClass().getResourceAsStream(fileNameOfExpectedOutput));
 		StringBuilder txt = new StringBuilder(buf.length);
 		for (int cnt = is.read(buf); cnt > 0; cnt = is.read(buf))
 		{
@@ -260,5 +261,90 @@ public class ParserCompilerTest
 		String expectedSource = txt.toString();
 		
 		assertEquals(expectedSource, actualSource);
+	}
+	
+	@Test
+	public void testWritingParserSource() throws IOException
+	{
+		testWritingParserSource(getCompiler("ExprCalc", new File("/temp")), getTestGrammar(), "ParserCompilerTest_ExpectedParserSource.txt");
+	}
+	
+	private static Grammar getExprCalcGrammar()
+	{
+		GrammarFactory fact = new GrammarFactory(new String[] {"NUM", "ID"});
+		fact.def("Eval")
+     		.sym("OptStmtList")
+			.sym("Expr")
+    		.end();
+		fact.def("OptStmtList")
+     		.sym("StmtList")
+    		.end();
+		fact.def("OptStmtList")
+			.end();
+		fact.def("StmtList", "New")
+     		.sym("Stmt")
+    		.end();
+		fact.def("StmtList", "Ext")
+     		.sym("StmtList")
+     		.sym("Stmt")
+    		.end();
+		fact.def("Stmt")
+			.sym("ID")
+			.txt("=")
+			.sym("Expr")
+			.txt(";")
+			.end();
+		fact.def("Expr", "Num")
+			.sym("NUM")
+			.end();
+		fact.def("Expr", "Var")
+			.sym("ID")
+			.end();
+		fact.def("Expr", "Nested")
+			.txt("(")
+			.sym("Expr")
+			.txt(")")
+			.end();
+		fact.def("Expr", "Add")
+			.sym("Expr", "left")
+			.txt("+")
+			.sym("Expr", "right")
+			.end();
+		fact.def("Expr", "Sub")
+    		.sym("Expr", "left")
+    		.txt("-")
+    		.sym("Expr", "right")
+    		.end();
+		fact.def("Expr", "Mul")
+    		.sym("Expr", "left")
+    		.txt("*")
+    		.sym("Expr", "right")
+    		.end();
+		fact.def("Expr", "Div")
+    		.sym("Expr", "left")
+    		.txt("/")
+    		.sym("Expr", "right")
+    		.end();
+		fact.left()
+		    .prec("*")
+		    .prec("/");
+		fact.left()
+		    .prec("+")
+		    .prec("-");
+		return fact.getGrammar();
+	}
+	
+	@Test
+	public void testWritingMoreRealisticExprCalc() throws IOException
+	{
+		testWritingParserSource(getCompiler("ExprCalc2", new File("/temp")), getExprCalcGrammar(), "ParserCompilerTest_ExprCalc2ParserSource.txt");
+	}
+	
+	@Test
+	public void testWritingExprCalc() throws IOException
+	{
+		ParserCompiler comp = getCompiler("ExprCalc3", new File("/temp"));
+		comp.setDoNotWritePassThroughActions();
+		testWritingParserSource(comp, getExprCalcGrammar(), "ParserCompilerTest_ExprCalc3ParserSource.txt");
 	}
 }
