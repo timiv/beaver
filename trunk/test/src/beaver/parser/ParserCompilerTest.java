@@ -44,14 +44,14 @@ public class ParserCompilerTest
 			.txt(")")
 			.end();
 		fact.def("Expr", "Add")
-			.sym("Expr")
+			.sym("Expr", "left")
 			.txt("+")
-			.sym("Expr")
+			.sym("Expr", "right")
 			.end();
 		fact.def("Expr", "Sub")
-    		.sym("Expr")
+    		.sym("Expr", "left")
     		.txt("-")
-    		.sym("Expr")
+    		.sym("Expr", "right")
     		.end();
 		fact.def("Expr", "Mul")
     		.sym("Expr")

@@ -2,15 +2,15 @@ public abstract class ExprCalc extends beaver.Parser {
 	public ExprCalc() {
 		super(ExprCalc.class.getResourceAsStream("ExprCalc.bpt"));
 	}
-	protected abstract Goal makeGoal(Eval eval);
+	protected abstract Eval makeGoal(Eval eval);
 	protected abstract Eval makeExprEval(Expr expr);
 	protected abstract Eval makeStmtEval(Stmt stmt);
 	protected abstract Stmt makeStmt(Term id, Expr expr);
 	protected abstract Expr makeNumberExpr(Term num);
 	protected abstract Expr makeVarExpr(Term id);
 	protected abstract Expr makeNestedExpr(Expr expr);
-	protected abstract Expr makeAddExpr(Expr expr, Expr expr2);
-	protected abstract Expr makeSubExpr(Expr expr, Expr expr2);
+	protected abstract Expr makeAddExpr(Expr left, Expr right);
+	protected abstract Expr makeSubExpr(Expr left, Expr right);
 	protected abstract Expr makeMulExpr(Expr expr, Expr expr2);
 	protected abstract Expr makeDivExpr(Expr expr, Expr expr2);
 	protected Symbol reduce(Symbol[] stack, int top, int rule) {
@@ -51,17 +51,17 @@ public abstract class ExprCalc extends beaver.Parser {
 
 				return symbol(makeNestedExpr(expr));
 			}
-			case 7: { // Expr = { Add } Expr "+" Expr
-				Expr expr = (Expr) stack[top + 2].value();
-				Expr expr2 = (Expr) stack[top].value();
+			case 7: { // Expr = { Add } left:Expr "+" right:Expr
+				Expr left = (Expr) stack[top + 2].value();
+				Expr right = (Expr) stack[top].value();
 
-				return symbol(makeAddExpr(expr, expr2));
+				return symbol(makeAddExpr(left, right));
 			}
-			case 8: { // Expr = { Sub } Expr "-" Expr
-				Expr expr = (Expr) stack[top + 2].value();
-				Expr expr2 = (Expr) stack[top].value();
+			case 8: { // Expr = { Sub } left:Expr "-" right:Expr
+				Expr left = (Expr) stack[top + 2].value();
+				Expr right = (Expr) stack[top].value();
 
-				return symbol(makeSubExpr(expr, expr2));
+				return symbol(makeSubExpr(left, right));
 			}
 			case 9: { // Expr = { Mul } Expr "*" Expr
 				Expr expr = (Expr) stack[top + 2].value();

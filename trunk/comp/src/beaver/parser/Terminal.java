@@ -39,6 +39,14 @@ class Terminal extends Symbol
 		return false;
 	}
 	
+	/**
+	 * Terminal produces a value when it matches a non-static/non-keyword text.
+	 */
+	boolean isValueProducer()
+	{
+		return text == null;
+	}
+	
 	public String toString()
 	{
 		return text != null ? '"' + text + '"' : name;

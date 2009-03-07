@@ -36,6 +36,14 @@ abstract class Symbol
 	 */
 	abstract boolean isNullable();
 	
+	/**
+	 * Informs the caller if this symbols carries a value. A value is non-keyword/non-static data
+	 * matched by a scanner.  
+	 * 
+	 * @return true is symbol carries a value
+	 */
+	abstract boolean isValueProducer();
+	
 	static Comparator CMP_NUM_STATES = new Comparator()
 	{
 		public int compare(Object obj1, Object obj2)

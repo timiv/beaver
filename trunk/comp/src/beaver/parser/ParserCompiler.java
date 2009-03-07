@@ -127,7 +127,14 @@ public class ParserCompiler
 			Production rule = grammar.productions[i];
 			out.print('\t');
 		    out.print("protected abstract ");
-		    out.print(rule.lhs.name);
+		    if (rule.lhs.delegate != null)
+		    {
+			    out.print(rule.lhs.delegate instanceof Terminal ? "Term" : rule.lhs.delegate.name);
+		    }
+		    else
+		    {
+			    out.print(rule.lhs.name);
+		    }
 		    out.print(" make");
 		    out.print(rule.getFullName());
 		    out.print('(');
@@ -177,9 +184,12 @@ public class ParserCompiler
 	
 	private void writeProductionReduceCase(final PrintWriter out, final Production rule)
 	{
+		final StringBuffer makeArgs = new StringBuffer();
+		
 	    forEach(rule.rhs, new ProductionRHSVisitor()
 	    {
 	    	int lastRhsItem = rule.rhs.length - 1; 
+		    String sep = "";
 	    	
 			public void visit(int argNum, String type, String name)
 	        {
@@ -197,6 +207,9 @@ public class ParserCompiler
 					out.print(stackOffset);
 				}
 				out.println("].value();");
+				
+				makeArgs.append(sep).append(name);
+	            sep = ", ";
 	        }
 		});
 	    out.println();
@@ -204,17 +217,7 @@ public class ParserCompiler
 	    out.print("return symbol(make");
 	    out.print(rule.getFullName());
 	    out.print("(");
-	    forEach(rule.rhs, new ProductionRHSVisitor()
-	    {
-		    String sep = "";
-	    	
-			public void visit(int argNum, String type, String name)
-	        {
-	            out.print(sep);
-	            out.print(name);
-	            sep = ", ";
-	        }
-		});
+	    out.print(makeArgs.toString());
 	    out.println("));");    
 	}
 	
@@ -224,47 +227,41 @@ public class ParserCompiler
 	    for (int i = 0; i < ruleRhs.length; i++)
         {
             Production.RHSElement arg = ruleRhs[i];
-            String argType, argName;
-            if (arg.symbol instanceof Terminal)
+            if (arg.symbol.isValueProducer())
             {
-            	Terminal term = (Terminal) arg.symbol;
-            	if (term.text != null)
-            	{
-            		// this is a keyword
-            		continue;
-            	}
-            	argType = "Term";
-            	if (arg.name != null)
-            	{
-            		argName = arg.name;
-            	}
-            	else
-            	{
-            		argName = term.name.toLowerCase();
-            	}
+                String argType, argName;
+                if (arg.symbol instanceof Terminal)
+                {
+                	argType = "Term";
+                	argName = arg.name != null ? arg.name : arg.symbol.name.toLowerCase();  
+                }
+                else
+                {
+                	Nonterminal ntArg = (Nonterminal) arg.symbol;
+                	if (ntArg.delegate == null)
+                	{
+                		argType = ntArg.name;
+                	}
+                	else if (ntArg.delegate instanceof Terminal)
+                	{
+                		argType = "Term";
+                	}
+                	else
+                	{
+                		argType = ntArg.delegate.name;
+                	}
+                	argName = arg.name != null ? arg.name : Character.toLowerCase(ntArg.name.charAt(0)) + ntArg.name.substring(1); 
+                }
+                String nameProbe = argName;
+                int argNameCount = 1;
+                while (names.contains(nameProbe))
+                {
+                	nameProbe = argName + Integer.toString(++argNameCount); 
+                }
+                names.add(argName = nameProbe);
+    
+                visitor.visit(i, argType, argName);
             }
-            else
-            {
-            	argType = arg.symbol.name;
-            	if (arg.name != null)
-            	{
-            		argName = arg.name;
-            	}
-            	else
-            	{
-            		argName = Character.toLowerCase(argType.charAt(0)) + argType.substring(1);
-            	}
-            }
-            String nameProbe = argName;
-            int version = 1;
-            while (names.contains(nameProbe))
-            {
-            	nameProbe = argName + Integer.toString(++version); 
-            }
-            argName = nameProbe;
-            names.add(argName);
-
-            visitor.visit(i, argType, argName);
         }
 	}
 	

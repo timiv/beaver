@@ -28,6 +28,8 @@ class Grammar
 		buildFirstSets(productions, nonterminals, terminals);
 		assignIDs(productions, nonterminals, terminals);
 		assignPrecedences(productions);
+		markValueProducers(nonterminals);
+		findDelegates(nonterminals);
 
 		this.productions = productions;
 		this.nonterminals = nonterminals;
@@ -99,6 +101,92 @@ class Grammar
 		}
 		return set;
 	}
+	
+	private static void findDelegates(Nonterminal[] nonterminals)
+	{
+		for (boolean mutating = true; mutating;)
+		{
+			mutating = false;
+			
+			for (int i = 0; i < nonterminals.length; i++)
+			{
+				Nonterminal nt = nonterminals[i];
+				if (nt.delegate == null)
+				{
+    				switch (nt.rules.length)
+    				{
+    					case 1:
+    					{
+    						Symbol sym = nt.rules[0].findSingleValue();
+    						if (sym != null)
+    						{
+    							nt.delegate = sym;
+    							mutating = true;
+    						}
+    						break;
+    					}
+    					case 2:
+    					{
+    						if (nt.rules[0].rhs.length == 0)
+    						{
+        						Symbol sym = nt.rules[1].findSingleValue();
+        						if (sym != null)
+        						{
+        							nt.delegate = sym;
+        							mutating = true;
+        						}
+    						}
+    						else if (nt.rules[1].rhs.length == 0)
+    						{
+        						Symbol sym = nt.rules[0].findSingleValue();
+        						if (sym != null)
+        						{
+        							nt.delegate = sym;
+        							mutating = true;
+        						}
+    						}
+    						break;
+    					}
+    				}
+				}
+				else if (nt.delegate instanceof Nonterminal)
+				{
+					Nonterminal delegate = (Nonterminal) nt.delegate;
+					if (delegate.delegate != null)
+					{
+						nt.delegate = delegate.delegate;
+						mutating = true;
+					}
+				}
+			}			
+		}		
+	}
+
+	private static void markValueProducers(Nonterminal[] nonterminals)
+    {
+		for (boolean marking = true; marking;)
+		{
+			marking = false;
+
+			for (int i = 0; i < nonterminals.length; i++)
+			{
+				Nonterminal nt = nonterminals[i];
+
+				if (!nt.isValueProducer)
+				{
+					for (int j = 0; j < nt.rules.length; j++)
+					{
+						if (nt.rules[j].isValueProducer())
+						{
+							nt.isValueProducer = true;
+							marking = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+    }
 
 	private static void markNullable(Nonterminal[] nonterminals)
     {

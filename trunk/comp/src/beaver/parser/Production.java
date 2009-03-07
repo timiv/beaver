@@ -54,6 +54,46 @@ class Production
 		return true;
 	}
 	
+	/**
+	 * Production is a value producer if its RHS has at least one symbol that returns a value (i.e.
+	 * it's not a keyword symbol)
+	 */
+	boolean isValueProducer()
+	{
+		for (int i = 0; i < rhs.length; i++)
+		{
+			if (rhs[i].symbol.isValueProducer())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * If this rule produces a value and that value is derived from the single RHS symbol, this
+	 * methods will return that symbol.
+	 * 
+	 * @return RHS symbol that carries this rule value or null
+	 */
+	Symbol findSingleValue()
+	{
+		Symbol sym = null;
+		for (int i = 0; i < rhs.length; i++)
+		{
+			if (rhs[i].symbol.isValueProducer())
+			{
+				if (sym != null)
+				{
+					// this rule create new symbol that represents a record of multiple values
+					return null;
+				}
+				sym = rhs[i].symbol;
+			}
+		}
+		return sym;
+	}
+	
 	String getFullName()
 	{
 		return name == null ? lhs.name : this.name + lhs.name; 
