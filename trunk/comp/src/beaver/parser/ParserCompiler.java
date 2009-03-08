@@ -132,31 +132,39 @@ public class ParserCompiler
         {
 			Production rule = grammar.productions[i];
 			String returnType = getType(rule.lhs);
-			Symbol ruleValue;
-			if (!doNotWritePassThroughActions || (ruleValue = rule.findSingleValue()) == null || !returnType.equals(getType(ruleValue)))
+			if (doNotWritePassThroughActions)
 			{
-    			out.print('\t');
-    		    out.print("protected abstract ");
-    		    out.print(returnType);
-    		    out.print(" make");
-    		    out.print(rule.getFullName());
-    		    out.print('(');
-    		    forEach(rule.rhs, new ProductionRHSVisitor()
-    		    {
-    			    String sep = "";
-    		    	
-    				public void visit(int argNum, String type, String name)
-    		        {
-    		            out.print(sep);
-    		            out.print(type);
-    		            out.print(' ');
-    		            out.print(name);
-    		            sep = ", ";
-    		        }
-    			});
-    		    out.print(')');
-    		    out.println(';');
+				if (!rule.isValueProducer())
+				{
+					continue;
+				}
+				Symbol ruleValue = rule.findSingleValue();
+				if (ruleValue != null && getType(ruleValue).equals(returnType))
+				{
+					continue;
+				}
 			}
+			out.print('\t');
+		    out.print("protected abstract ");
+		    out.print(returnType);
+		    out.print(" make");
+		    out.print(rule.getFullName());
+		    out.print('(');
+		    forEach(rule.rhs, new ProductionRHSVisitor()
+		    {
+			    String sep = "";
+		    	
+				public void visit(int argNum, String type, String name)
+		        {
+		            out.print(sep);
+		            out.print(type);
+		            out.print(' ');
+		            out.print(name);
+		            sep = ", ";
+		        }
+			});
+		    out.print(')');
+		    out.println(';');
         }
 	}
 	
@@ -188,7 +196,7 @@ public class ParserCompiler
 	
 	private void writeProductionReduceCase(final PrintWriter out, final Production rule)
 	{
-		final StringBuffer args = new StringBuffer();
+		final StringBuffer argsBuffer = new StringBuffer();
 		
 	    forEach(rule.rhs, new ProductionRHSVisitor()
 	    {
@@ -212,24 +220,29 @@ public class ParserCompiler
 				}
 				out.println("].value();");
 				
-				args.append(sep).append(name);
+				argsBuffer.append(sep).append(name);
 	            sep = ", ";
 	        }
 		});
 	    out.println();
 		out.print("\t\t\t\t");
 	    out.print("return symbol(");
-		Symbol ruleValue;
-		if (doNotWritePassThroughActions && (ruleValue = rule.findSingleValue()) != null && getType(rule.lhs).equals(getType(ruleValue)))
+	    Symbol ruleValue;
+	    String args = argsBuffer.toString();
+		if (doNotWritePassThroughActions && args.length() == 0)
 		{
-		    out.print(args.toString());
+		    out.print("null");
+		}
+		else if (doNotWritePassThroughActions && (ruleValue = rule.findSingleValue()) != null && getType(ruleValue).equals(getType(rule.lhs)))
+		{
+		    out.print(args);
 		}
 		else
 		{
 		    out.print("make");
 		    out.print(rule.getFullName());
 		    out.print("(");
-		    out.print(args.toString());
+		    out.print(args);
 		    out.print(")");
 		}
 	    out.println(");");    
