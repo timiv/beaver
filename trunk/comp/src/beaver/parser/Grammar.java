@@ -28,8 +28,11 @@ class Grammar
 		buildFirstSets(productions, nonterminals, terminals);
 		assignIDs(productions, nonterminals, terminals);
 		assignPrecedences(productions);
+		// data discovered below are needed for parser source(s) generation
 		markValueProducers(nonterminals);
 		findDelegates(nonterminals);
+		markListProducers(nonterminals);
+		findSignatures(productions);
 
 		this.productions = productions;
 		this.nonterminals = nonterminals;
@@ -100,6 +103,14 @@ class Grammar
 			}
 		}
 		return set;
+	}
+	
+	private static void findSignatures(Production[] productions)
+	{
+		for (int i = 0; i < productions.length; i++)
+		{
+			productions[i].findRhsValueProducers();
+		}
 	}
 	
 	private static void findDelegates(Nonterminal[] nonterminals)
@@ -188,6 +199,66 @@ class Grammar
 		}
     }
 
+	private static void markListProducers(Nonterminal[] nonterminals)
+	{
+		checkingNonterminals:
+		for (int i = 0; i < nonterminals.length; i++)
+		{
+			Nonterminal nt = nonterminals[i];
+			if (nt.delegate == null && nt.rules.length == 2)
+			{
+				int newListRule;
+				Symbol element = nt.rules[newListRule = 0].findSingleValue();
+				if (element == null)
+				{
+					element = nt.rules[newListRule = 1].findSingleValue();
+					if (element == null)
+					{
+						continue checkingNonterminals;
+					}
+				}
+				int extListRule = newListRule ^ 1;
+				Production.RHSElement[] rhs = nt.rules[extListRule].rhs;
+				int matching = 0;
+				for (int j = 0; j < rhs.length; j++)
+                {
+					if (rhs[j].symbol.isValueProducer())
+					{
+						switch (matching)
+						{
+							case 0:
+							{
+								if (rhs[j].symbol != nt)
+								{
+									continue checkingNonterminals;
+								}
+								matching = 1;
+								break;
+							}
+							case 1:
+							{
+								if (rhs[j].symbol != element)
+								{
+									continue checkingNonterminals;
+								}
+								matching = -1;
+								break;
+							}
+							default:
+							{
+								continue checkingNonterminals;
+							}
+						}
+					}
+                }
+				if (matching < 0)
+				{
+					nt.isListProducer = true;
+				}
+			}
+		}		
+	}
+	
 	private static void markNullable(Nonterminal[] nonterminals)
     {
 		for (boolean marking = true; marking;)

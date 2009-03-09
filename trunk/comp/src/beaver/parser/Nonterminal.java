@@ -18,6 +18,8 @@ class Nonterminal extends Symbol
 	 * Nonterminal is a value producer if at least one of its defining rules produces a value.
 	 */
 	boolean      isValueProducer;
+	
+	boolean      isListProducer;
 
 	/**
 	 * The set of all terminal symbols that could appear at the beginning of a string derived from
@@ -58,5 +60,10 @@ class Nonterminal extends Symbol
 	boolean isValueProducer()
 	{
 		return isValueProducer;
+	}
+	
+	boolean isListProducer()
+	{
+		return isListProducer;
 	}
 }

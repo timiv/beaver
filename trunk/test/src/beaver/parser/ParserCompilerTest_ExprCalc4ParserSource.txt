@@ -1,0 +1,111 @@
+public abstract class ExprCalc4 extends beaver.Parser {
+	public ExprCalc4() {
+		super(ExprCalc4.class.getResourceAsStream("ExprCalc4.bpt"));
+	}
+	protected Eval makeEval(StmtList optStmtList, Expr expr) {
+		return new Eval(optStmtList, expr);
+	}
+	protected StmtList makeNewStmtList(Stmt stmt) {
+		return new StmtList(stmt);
+	}
+	protected StmtList makeExtStmtList(StmtList stmtList, Stmt stmt) {
+		return stmtList.add(stmt);
+	}
+	protected Stmt makeStmt(Term id, Expr expr) {
+		return new Stmt(id, expr);
+	}
+	protected Expr makeNumExpr(Term num) {
+		return new NumExpr(num);
+	}
+	protected Expr makeVarExpr(Term id) {
+		return new VarExpr(id);
+	}
+	protected Expr makeAddExpr(Expr left, Expr right) {
+		return new AddExpr(left, right);
+	}
+	protected Expr makeSubExpr(Expr left, Expr right) {
+		return new SubExpr(left, right);
+	}
+	protected Expr makeMulExpr(Expr left, Expr right) {
+		return new MulExpr(left, right);
+	}
+	protected Expr makeDivExpr(Expr left, Expr right) {
+		return new DivExpr(left, right);
+	}
+	protected Symbol reduce(Symbol[] stack, int top, int rule) {
+		switch (rule) {
+			case 0: { // Eval = OptStmtList Expr
+				StmtList optStmtList = (StmtList) stack[top + 1].value();
+				Expr expr = (Expr) stack[top].value();
+
+				return symbol(makeEval(optStmtList, expr));
+			}
+			case 1: { // OptStmtList = StmtList
+				StmtList stmtList = (StmtList) stack[top].value();
+
+				return symbol(stmtList);
+			}
+			case 2: { // OptStmtList =
+
+				return symbol(null);
+			}
+			case 3: { // StmtList = { New } Stmt
+				Stmt stmt = (Stmt) stack[top].value();
+
+				return symbol(makeNewStmtList(stmt));
+			}
+			case 4: { // StmtList = { Ext } StmtList Stmt
+				StmtList stmtList = (StmtList) stack[top + 1].value();
+				Stmt stmt = (Stmt) stack[top].value();
+
+				return symbol(makeExtStmtList(stmtList, stmt));
+			}
+			case 5: { // Stmt = ID "=" Expr ";"
+				Term id = (Term) stack[top + 3].value();
+				Expr expr = (Expr) stack[top + 1].value();
+
+				return symbol(makeStmt(id, expr));
+			}
+			case 6: { // Expr = { Num } NUM
+				Term num = (Term) stack[top].value();
+
+				return symbol(makeNumExpr(num));
+			}
+			case 7: { // Expr = { Var } ID
+				Term id = (Term) stack[top].value();
+
+				return symbol(makeVarExpr(id));
+			}
+			case 8: { // Expr = { Nested } "(" Expr ")"
+				Expr expr = (Expr) stack[top + 1].value();
+
+				return symbol(expr);
+			}
+			case 9: { // Expr = { Add } left:Expr "+" right:Expr
+				Expr left = (Expr) stack[top + 2].value();
+				Expr right = (Expr) stack[top].value();
+
+				return symbol(makeAddExpr(left, right));
+			}
+			case 10: { // Expr = { Sub } left:Expr "-" right:Expr
+				Expr left = (Expr) stack[top + 2].value();
+				Expr right = (Expr) stack[top].value();
+
+				return symbol(makeSubExpr(left, right));
+			}
+			case 11: { // Expr = { Mul } left:Expr "*" right:Expr
+				Expr left = (Expr) stack[top + 2].value();
+				Expr right = (Expr) stack[top].value();
+
+				return symbol(makeMulExpr(left, right));
+			}
+			case 12: { // Expr = { Div } left:Expr "/" right:Expr
+				Expr left = (Expr) stack[top + 2].value();
+				Expr right = (Expr) stack[top].value();
+
+				return symbol(makeDivExpr(left, right));
+			}
+		}
+		throw new IndexOutOfBoundsException("production #" + rule);
+	}
+}

@@ -1,5 +1,8 @@
 package beaver.parser;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 class Production
 {
 	/**
@@ -94,6 +97,51 @@ class Production
 		return sym;
 	}
 	
+	void findRhsValueProducers()
+	{
+        Collection names = new HashSet();
+	    for (int i = 0; i < rhs.length; i++)
+        {
+            RHSElement arg = rhs[i];
+            if (arg.symbol.isValueProducer())
+            {
+                String argType, argName;
+                if (arg.symbol instanceof Terminal)
+                {
+                	argType = "Term";
+                	argName = arg.name != null ? arg.name : arg.symbol.name.toLowerCase();  
+                }
+                else
+                {
+                	Nonterminal ntArg = (Nonterminal) arg.symbol;
+                	if (ntArg.delegate == null)
+                	{
+                		argType = ntArg.name;
+                	}
+                	else if (ntArg.delegate instanceof Terminal)
+                	{
+                		argType = "Term";
+                	}
+                	else
+                	{
+                		argType = ntArg.delegate.name;
+                	}
+                	argName = arg.name != null ? arg.name : Character.toLowerCase(ntArg.name.charAt(0)) + ntArg.name.substring(1); 
+                }
+                String nameProbe = argName;
+                int argNameCount = 1;
+                while (names.contains(nameProbe))
+                {
+                	nameProbe = argName + Integer.toString(++argNameCount); 
+                }
+                names.add(argName = nameProbe);
+    
+                arg.fieldType = argType;
+                arg.fieldName = argName;
+            }
+        }
+	}
+	
 	String getFullName()
 	{
 		return name == null ? lhs.name : this.name + lhs.name; 
@@ -117,6 +165,8 @@ class Production
 	{
 		String name;
 		Symbol symbol;
+		String fieldType;
+		String fieldName;
 
 		RHSElement(String name, Symbol symbol)
 		{

@@ -6,8 +6,6 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collection;
-import java.util.HashSet;
 
 import beaver.cc.Log;
 
@@ -17,6 +15,7 @@ public class ParserCompiler
 	String  parserName;
 	File    outputDir;
 	boolean doNotWritePassThroughActions;
+	boolean generateAstStubs;
 
 	public ParserCompiler(Log log, String parserName, File outputDir)
 	{
@@ -25,9 +24,17 @@ public class ParserCompiler
 		this.outputDir = outputDir;
 	}
 	
-	public void setDoNotWritePassThroughActions()
+	public void setDoNotWritePassThroughActions(boolean flag)
 	{
-		doNotWritePassThroughActions = true;
+		doNotWritePassThroughActions = flag;
+	}
+	
+	public void setGenerateAstStubs(boolean flag)
+	{
+		if ((generateAstStubs = flag))
+		{
+			doNotWritePassThroughActions = true;
+		}
 	}
 
 	public boolean compile(Grammar grammar)
@@ -105,7 +112,7 @@ public class ParserCompiler
 	    out.print(parserName);
 	    out.println(" extends beaver.Parser {");
 	    writeParserConstructor(out);
-	    writeAbstractActions(out, grammar);
+    	writeParserActions(out, grammar);
 	    writeReduceSwitch(out, grammar);
 	    out.println("}");
     }
@@ -126,7 +133,7 @@ public class ParserCompiler
 		out.println("}");
 	}
 	
-	private void writeAbstractActions(final PrintWriter out, Grammar grammar)
+	private void writeParserActions(PrintWriter out, Grammar grammar)
 	{
 		for (int i = 0; i < grammar.productions.length; i++)
         {
@@ -144,28 +151,121 @@ public class ParserCompiler
 					continue;
 				}
 			}
-			out.print('\t');
-		    out.print("protected abstract ");
-		    out.print(returnType);
-		    out.print(" make");
-		    out.print(rule.getFullName());
-		    out.print('(');
-		    forEach(rule.rhs, new ProductionRHSVisitor()
+		    if (generateAstStubs)
 		    {
-			    String sep = "";
-		    	
-				public void visit(int argNum, String type, String name)
-		        {
-		            out.print(sep);
-		            out.print(type);
-		            out.print(' ');
-		            out.print(name);
-		            sep = ", ";
-		        }
-			});
-		    out.print(')');
-		    out.println(';');
+		    	writeAstAction(out, rule);
+		    }
+		    else
+		    {
+		    	writeAbstractAction(out, rule);
+		    }
         }
+	}
+
+	private void writeAstAction(PrintWriter out, Production rule)
+	{
+		String returnType = getType(rule.lhs);
+		out.print('\t');
+	    out.print("protected ");
+	    out.print(returnType);
+	    out.print(" make");
+	    out.print(rule.getFullName());
+	    out.print("(");	    
+	    String sep = "";
+	    for (int j = 0; j < rule.rhs.length; j++)
+        {
+	    	Production.RHSElement arg = rule.rhs[j];
+            if (arg.fieldType != null)
+            {
+	            out.print(sep);
+	            out.print(arg.fieldType);
+	            out.print(' ');
+	            out.print(arg.fieldName);
+	            sep = ", ";
+            }
+        }
+	    out.println(") {");
+		out.print("\t\t");
+	    if (rule.lhs.isListProducer())
+	    {
+		    out.print("return ");
+	    	boolean isAdd = false;
+		    for (int j = 0; j < rule.rhs.length; j++)
+	        {
+		    	Production.RHSElement arg = rule.rhs[j];
+	            if (arg.fieldType != null)
+	            {
+	            	if (arg.fieldType.equals(returnType))
+	            	{
+	            		out.print(arg.fieldName);
+	            		out.print(".add(");
+	            		isAdd = true;
+	            	}
+	            	else if (isAdd)
+	            	{
+	            		out.print(arg.fieldName);
+	            		out.print(")");
+	            	}
+	            	else
+	            	{
+	            		out.print("new ");
+	            		out.print(returnType);
+	            		out.print("(");
+	            		out.print(arg.fieldName);
+	            		out.print(")");
+	            	}
+	            }
+	        }
+		    out.println(";");
+	    }
+	    else
+	    {
+		    out.print("return ");
+		    out.print("new ");
+		    out.print(rule.getFullName());
+		    out.print("(");	    
+		    sep = "";
+		    for (int j = 0; j < rule.rhs.length; j++)
+	        {
+		    	Production.RHSElement arg = rule.rhs[j];
+	            if (arg.fieldType != null)
+	            {
+		            out.print(sep);
+		            out.print(arg.fieldName);
+		            sep = ", ";
+	            }
+	        }
+		    out.print(")");	    
+		    out.println(";");	    
+	    }
+		out.print('\t');
+	    out.println('}');
+	}
+	
+	private void writeAbstractAction(PrintWriter out, Production rule)
+	{
+		out.print('\t');
+	    out.print("protected ");
+	    out.print("abstract ");
+	    out.print(getType(rule.lhs));
+	    out.print(" make");
+	    out.print(rule.getFullName());
+	    out.print('(');	    
+	    String sep = "";
+	    for (int j = 0; j < rule.rhs.length; j++)
+        {
+	    	Production.RHSElement arg = rule.rhs[j];
+            if (arg.fieldType != null)
+            {
+	            out.print(sep);
+	            out.print(arg.fieldType);
+	            out.print(' ');
+	            out.print(arg.fieldName);
+	            sep = ", ";
+            }
+        }
+	    out.print(')');
+	    out.println(';');
 	}
 	
 	private void writeReduceSwitch(PrintWriter out, Grammar grammar)
@@ -194,25 +294,24 @@ public class ParserCompiler
 		out.println("}");
 	}
 	
-	private void writeProductionReduceCase(final PrintWriter out, final Production rule)
+	private void writeProductionReduceCase(PrintWriter out, Production rule)
 	{
-		final StringBuffer argsBuffer = new StringBuffer();
-		
-	    forEach(rule.rhs, new ProductionRHSVisitor()
-	    {
-	    	int lastRhsItem = rule.rhs.length - 1; 
-		    String sep = "";
-	    	
-			public void visit(int argNum, String type, String name)
-	        {
+		StringBuffer argsBuffer = new StringBuffer();
+    	int lastRhsItem = rule.rhs.length - 1; 
+	    String sep = "";
+	    for (int i = 0; i < rule.rhs.length; i++)
+        {
+	    	Production.RHSElement arg = rule.rhs[i];
+            if (arg.fieldType != null)
+            {
 				out.print("\t\t\t\t");
-				out.print(type);
+				out.print(arg.fieldType);
 				out.print(' ');
-				out.print(name);
+				out.print(arg.fieldName);
 				out.print(" = (");
-				out.print(type);
+				out.print(arg.fieldType);
 				out.print(") stack[top");
-				int stackOffset = lastRhsItem - argNum;
+				int stackOffset = lastRhsItem - i;
 				if (stackOffset > 0)
 				{
 					out.print(" + ");
@@ -220,10 +319,10 @@ public class ParserCompiler
 				}
 				out.println("].value();");
 				
-				argsBuffer.append(sep).append(name);
+				argsBuffer.append(sep).append(arg.fieldName);
 	            sep = ", ";
-	        }
-		});
+            }
+        }
 	    out.println();
 		out.print("\t\t\t\t");
 	    out.print("return symbol(");
@@ -267,54 +366,5 @@ public class ParserCompiler
     	{
     		return nt.delegate.name;
     	}
-	}
-	
-	private static void forEach(Production.RHSElement[] ruleRhs, ProductionRHSVisitor visitor)
-	{
-        Collection names = new HashSet();
-	    for (int i = 0; i < ruleRhs.length; i++)
-        {
-            Production.RHSElement arg = ruleRhs[i];
-            if (arg.symbol.isValueProducer())
-            {
-                String argType, argName;
-                if (arg.symbol instanceof Terminal)
-                {
-                	argType = "Term";
-                	argName = arg.name != null ? arg.name : arg.symbol.name.toLowerCase();  
-                }
-                else
-                {
-                	Nonterminal ntArg = (Nonterminal) arg.symbol;
-                	if (ntArg.delegate == null)
-                	{
-                		argType = ntArg.name;
-                	}
-                	else if (ntArg.delegate instanceof Terminal)
-                	{
-                		argType = "Term";
-                	}
-                	else
-                	{
-                		argType = ntArg.delegate.name;
-                	}
-                	argName = arg.name != null ? arg.name : Character.toLowerCase(ntArg.name.charAt(0)) + ntArg.name.substring(1); 
-                }
-                String nameProbe = argName;
-                int argNameCount = 1;
-                while (names.contains(nameProbe))
-                {
-                	nameProbe = argName + Integer.toString(++argNameCount); 
-                }
-                names.add(argName = nameProbe);
-    
-                visitor.visit(i, argType, argName);
-            }
-        }
-	}
-	
-	static interface ProductionRHSVisitor
-	{
-		void visit(int argNum, String type, String name);
 	}
 }

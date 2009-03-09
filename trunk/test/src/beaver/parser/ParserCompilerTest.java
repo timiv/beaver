@@ -344,7 +344,15 @@ public class ParserCompilerTest
 	public void testWritingExprCalc() throws IOException
 	{
 		ParserCompiler comp = getCompiler("ExprCalc3", new File("/temp"));
-		comp.setDoNotWritePassThroughActions();
+		comp.setDoNotWritePassThroughActions(true);
 		testWritingParserSource(comp, getExprCalcGrammar(), "ParserCompilerTest_ExprCalc3ParserSource.txt");
+	}
+	
+	@Test
+	public void testWritingExprCalcWithAst() throws IOException
+	{
+		ParserCompiler comp = getCompiler("ExprCalc4", new File("/temp"));
+		comp.setGenerateAstStubs(true);
+		testWritingParserSource(comp, getExprCalcGrammar(), "ParserCompilerTest_ExprCalc4ParserSource.txt");
 	}
 }
