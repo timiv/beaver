@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.HashSet;
 
 import beaver.cc.Log;
 
@@ -42,7 +44,8 @@ public class ParserCompiler
 		ParserState firstState = new ParserStatesBuilder().buildParserStates(grammar);
 		return resolveConflicts(firstState)
 			&& writeParsingTables(firstState, grammar)
-			&& writeParserSource(grammar);
+			&& writeParserSource(grammar)
+			&& (!generateAstStubs || writeAstStubs(grammar));
 	}
 	
 	private boolean resolveConflicts(ParserState firstState)
@@ -138,15 +141,17 @@ public class ParserCompiler
 		for (int i = 0; i < grammar.productions.length; i++)
         {
 			Production rule = grammar.productions[i];
-			String returnType = getType(rule.lhs);
 			if (doNotWritePassThroughActions)
 			{
-				if (!rule.isValueProducer())
+				if (rule.isValueProducer())
 				{
-					continue;
+					Symbol ruleValue = rule.findSingleValue();
+					if (ruleValue != null && getType(ruleValue).equals(getType(rule.lhs)))
+					{
+						continue;
+					}
 				}
-				Symbol ruleValue = rule.findSingleValue();
-				if (ruleValue != null && getType(ruleValue).equals(returnType))
+				else if (!rule.lhs.isOptionalListProducer())
 				{
 					continue;
 				}
@@ -216,6 +221,19 @@ public class ParserCompiler
 	            	}
 	            }
 	        }
+		    out.println(";");
+	    }
+	    else if (rule.lhs.isOptionalListProducer())
+	    {
+	    	if (rule.rhs.length != 0)
+	    	{
+	    		throw new IllegalStateException();
+	    	}
+		    out.print("return ");
+    		out.print("new ");
+    		out.print(returnType);
+    		out.print("(");
+    		out.print(")");
 		    out.println(";");
 	    }
 	    else
@@ -328,9 +346,9 @@ public class ParserCompiler
 	    out.print("return symbol(");
 	    Symbol ruleValue;
 	    String args = argsBuffer.toString();
-		if (doNotWritePassThroughActions && args.length() == 0)
+		if (doNotWritePassThroughActions && args.length() == 0 && !rule.lhs.isOptionalListProducer())
 		{
-		    out.print("null");
+			out.print("null");
 		}
 		else if (doNotWritePassThroughActions && (ruleValue = rule.findSingleValue()) != null && getType(ruleValue).equals(getType(rule.lhs)))
 		{
@@ -345,6 +363,219 @@ public class ParserCompiler
 		    out.print(")");
 		}
 	    out.println(");");    
+	}
+	
+	private boolean writeAstStubs(Grammar grammar)
+	{
+		try
+		{
+			writeTermStub();
+			for (int i = 0; i < grammar.nonterminals.length; i++)
+            {
+				Nonterminal nt = grammar.nonterminals[i];
+	            if (nt.delegate == null)
+	            {
+	            	if (nt.isListProducer())
+	            	{
+	            		writeListNode(nt);
+	            	}
+	            	else
+	            	{
+	            		writeNodeStubs(nt);
+	            	}
+	            }
+            }
+		}
+		catch (IOException e)
+		{
+			log.error("Failed writing AST node source file: " + e.getMessage());
+			return false;
+		}
+		return true;
+	}
+	
+	private void writeTermStub() throws IOException
+	{
+		PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, "Term" + ".java")));
+		out.println("public class Term {");
+		out.print('\t');
+		out.println("String text;");
+		out.print('\t');
+		out.println("public Term(String text) {");
+		out.print("\t\t");
+		out.println("this.text = text;");
+		out.print('\t');
+		out.println("}");
+		out.println("}");
+		out.close();
+	}
+	
+	private void writeListNode(Nonterminal nt) throws IOException
+	{
+		PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, nt.name + ".java")));
+		out.print("public class ");
+		out.print(nt.name);
+		out.println(" {");
+		
+		out.print('\t');
+		out.print("public ");
+		out.print(nt.name);
+		out.println("() {");
+		out.print('\t');
+		out.println("}");
+		
+		Symbol element = nt.rules[0].findSingleValue();
+		if (element == null)
+		{
+			element = nt.rules[1].findSingleValue();
+			if (element == null)
+			{
+				throw new IllegalStateException();
+			}
+		}
+		out.print('\t');
+		out.print("public ");
+		out.print(nt.name);
+		out.print('(');
+		out.print(getType(element));
+		out.print(' ');
+		out.print("firstItem");
+		out.print(')');
+		out.println(" {");
+		out.print('\t');
+		out.println("}");
+		
+		out.print('\t');
+		out.print("public ");
+		out.print(nt.name);
+		out.print(" add");
+		out.print('(');
+		out.print(getType(element));
+		out.print(' ');
+		out.print("anotherItem");
+		out.print(')');
+		out.println(" {");
+		out.print("\t\t");
+		out.println("return this;");
+		out.print('\t');
+		out.println("}");
+		
+		out.println("}");
+		out.close();
+	}
+
+	private void writeNodeStubs(Nonterminal nt) throws IOException
+	{
+		Collection types = new HashSet();
+		for (int i = 0; i < nt.rules.length; i++)
+        {
+			Production rule = nt.rules[i];
+			Symbol ruleValue;
+	        String ruleName = rule.getFullName();
+	        if (!types.contains(ruleName) && (!doNotWritePassThroughActions || (ruleValue = rule.findSingleValue()) == null || !getType(ruleValue).equals(getType(nt))))
+	        {
+	        	writeNodeStub(nt, ruleName);
+	        	types.add(ruleName);
+	        }
+        }
+		if (!types.contains(nt.name))
+		{
+			writeAbstractNodeStub(nt);
+		}
+	}
+	
+	private void writeAbstractNodeStub(Nonterminal nt) throws IOException
+	{
+		PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, nt.name + ".java")));
+		out.print("public abstract class ");
+		out.print(nt.name);
+		out.println(" {");
+		
+		out.println("}");
+		out.close();
+	}
+
+	private void writeNodeStub(Nonterminal nt, String fullName) throws IOException
+	{
+		PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, fullName + ".java")));
+		out.print("public class ");
+		out.print(fullName);
+		boolean ext = !fullName.equals(nt.name); 
+		if (ext)
+		{
+			out.print(" extends ");
+			out.print(nt.name);
+		}
+		out.println(" {");
+
+		Collection fields = new HashSet();
+		for (int i = 0; i < nt.rules.length; i++)
+        {
+			Production rule = nt.rules[i];
+	        String ruleName = rule.getFullName();
+	        if (ruleName.equals(fullName))
+	        {
+	        	for (int j = 0; j < rule.rhs.length; j++)
+                {
+	        		Production.RHSElement rhs = rule.rhs[j]; 
+	                if (rhs.symbol.isValueProducer() && !fields.contains(rhs.fieldName))
+	                {
+	            		out.print('\t');
+	            		out.print(rhs.fieldType);
+	            		out.print(' ');
+	            		out.print(rhs.fieldName);
+	            		out.println(';');
+	            		
+	            		fields.add(rhs.fieldName);
+	                }
+                }
+	        }
+        }
+		
+		for (int i = 0; i < nt.rules.length; i++)
+        {
+			Production rule = nt.rules[i];
+	        String ruleName = rule.getFullName();
+	        if (ruleName.equals(fullName))
+	        {
+        		out.print('\t');
+        		out.print("public ");
+        		out.print(fullName);
+        		out.print('(');
+        		String sep = "";
+	        	for (int j = 0; j < rule.rhs.length; j++)
+                {
+	        		Production.RHSElement rhs = rule.rhs[j]; 
+	                if (rhs.symbol.isValueProducer())
+	                {
+	            		out.print(sep);
+	            		out.print(rhs.fieldType);
+	            		out.print(' ');
+	            		out.print(rhs.fieldName);
+	            		sep = ", ";
+	                }
+                }
+	        	out.print(')');
+	        	out.println(" {");
+	        	for (int j = 0; j < rule.rhs.length; j++)
+                {
+	        		Production.RHSElement rhs = rule.rhs[j]; 
+	                if (rhs.symbol.isValueProducer())
+	                {
+	            		out.print("\t\t");
+	            		out.print("this.");
+	            		out.print(rhs.fieldName);
+	            		out.print(" = ");
+	            		out.print(rhs.fieldName);
+	            		out.println(';');
+	                }
+                }
+        		out.print('\t');
+        		out.println("}");
+	        }
+        }
+		out.println("}");
+		out.close();
 	}
 	
 	private static String getType(Symbol symbol)

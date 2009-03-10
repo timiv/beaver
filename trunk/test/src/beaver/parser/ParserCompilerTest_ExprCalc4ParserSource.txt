@@ -5,6 +5,9 @@ public abstract class ExprCalc4 extends beaver.Parser {
 	protected Eval makeEval(StmtList optStmtList, Expr expr) {
 		return new Eval(optStmtList, expr);
 	}
+	protected StmtList makeOptStmtList() {
+		return new StmtList();
+	}
 	protected StmtList makeNewStmtList(Stmt stmt) {
 		return new StmtList(stmt);
 	}
@@ -47,7 +50,7 @@ public abstract class ExprCalc4 extends beaver.Parser {
 			}
 			case 2: { // OptStmtList =
 
-				return symbol(null);
+				return symbol(makeOptStmtList());
 			}
 			case 3: { // StmtList = { New } Stmt
 				Stmt stmt = (Stmt) stack[top].value();

@@ -3,6 +3,7 @@ public abstract class ExprCalc3 extends beaver.Parser {
 		super(ExprCalc3.class.getResourceAsStream("ExprCalc3.bpt"));
 	}
 	protected abstract Eval makeEval(StmtList optStmtList, Expr expr);
+	protected abstract StmtList makeOptStmtList();
 	protected abstract StmtList makeNewStmtList(Stmt stmt);
 	protected abstract StmtList makeExtStmtList(StmtList stmtList, Stmt stmt);
 	protected abstract Stmt makeStmt(Term id, Expr expr);
@@ -27,7 +28,7 @@ public abstract class ExprCalc3 extends beaver.Parser {
 			}
 			case 2: { // OptStmtList =
 
-				return symbol(null);
+				return symbol(makeOptStmtList());
 			}
 			case 3: { // StmtList = { New } Stmt
 				Stmt stmt = (Stmt) stack[top].value();

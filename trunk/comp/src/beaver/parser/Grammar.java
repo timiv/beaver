@@ -187,11 +187,10 @@ class Grammar
 				{
 					for (int j = 0; j < nt.rules.length; j++)
 					{
-						if (nt.rules[j].isValueProducer())
+						if (nt.rules[j].markValueProducer())
 						{
 							nt.isValueProducer = true;
 							marking = true;
-							break;
 						}
 					}
 				}

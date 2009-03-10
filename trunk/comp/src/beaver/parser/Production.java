@@ -29,6 +29,12 @@ class Production
 	 * Sequence of symbols that defines LHS non-terminal.
 	 */
 	RHSElement[] rhs;
+	
+	/**
+	 * Production is a value producer if it matches at least one symbol that is a value
+	 * producer.
+	 */
+	boolean      isValueProducer;
 
 	Production(String name, Nonterminal lhs, RHSElement[] rhs)
 	{
@@ -63,11 +69,16 @@ class Production
 	 */
 	boolean isValueProducer()
 	{
+		return isValueProducer;
+	}
+	
+	boolean markValueProducer()
+	{
 		for (int i = 0; i < rhs.length; i++)
 		{
 			if (rhs[i].symbol.isValueProducer())
 			{
-				return true;
+				return (isValueProducer = true);
 			}
 		}
 		return false;

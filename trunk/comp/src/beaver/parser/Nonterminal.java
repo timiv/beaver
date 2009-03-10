@@ -66,4 +66,14 @@ class Nonterminal extends Symbol
 	{
 		return isListProducer;
 	}
+	
+	boolean isOptional()
+	{
+		return rules.length == 2 && delegate != null;
+	}
+	
+	boolean isOptionalListProducer()
+	{
+		return rules.length == 2 && delegate instanceof Nonterminal && ((Nonterminal) delegate).isListProducer;
+	}
 }
