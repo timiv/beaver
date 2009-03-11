@@ -6,8 +6,11 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 import beaver.cc.Log;
 
@@ -45,7 +48,11 @@ public class ParserCompiler
 		return resolveConflicts(firstState)
 			&& writeParsingTables(firstState, grammar)
 			&& writeParserSource(grammar)
-			&& (!generateAstStubs || writeAstStubs(grammar));
+			&& (!generateAstStubs 
+				|| writeAstTermStub()
+				&& writeAstListStubs(grammar) 
+				&& writeNodeVisitor(grammar)
+				&& writeAstNodeStubs(grammar));
 	}
 	
 	private boolean resolveConflicts(ParserState firstState)
@@ -145,8 +152,8 @@ public class ParserCompiler
 			{
 				if (rule.isValueProducer())
 				{
-					Symbol ruleValue = rule.findSingleValue();
-					if (ruleValue != null && getType(ruleValue).equals(getType(rule.lhs)))
+					Production.RHSElement ruleValue = rule.findValueProducer();
+					if (ruleValue != null && getType(rule.lhs).equals(ruleValue.fieldType))
 					{
 						continue;
 					}
@@ -344,13 +351,13 @@ public class ParserCompiler
 	    out.println();
 		out.print("\t\t\t\t");
 	    out.print("return symbol(");
-	    Symbol ruleValue;
+	    Production.RHSElement ruleValue;
 	    String args = argsBuffer.toString();
 		if (doNotWritePassThroughActions && args.length() == 0 && !rule.lhs.isOptionalListProducer())
 		{
 			out.print("null");
 		}
-		else if (doNotWritePassThroughActions && (ruleValue = rule.findSingleValue()) != null && getType(ruleValue).equals(getType(rule.lhs)))
+		else if (doNotWritePassThroughActions && (ruleValue = rule.findValueProducer()) != null && getType(rule.lhs).equals(ruleValue.fieldType))
 		{
 		    out.print(args);
 		}
@@ -365,81 +372,70 @@ public class ParserCompiler
 	    out.println(");");    
 	}
 	
-	private boolean writeAstStubs(Grammar grammar)
+	private boolean writeAstTermStub()
 	{
 		try
 		{
-			writeTermStub();
-			for (int i = 0; i < grammar.nonterminals.length; i++)
-            {
-				Nonterminal nt = grammar.nonterminals[i];
-	            if (nt.delegate == null)
-	            {
-	            	if (nt.isListProducer())
-	            	{
-	            		writeListNode(nt);
-	            	}
-	            	else
-	            	{
-	            		writeNodeStubs(nt);
-	            	}
-	            }
-            }
+    		PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, "Term" + ".java")));
+    		out.println("public class Term {");
+    		out.print('\t');
+    		out.println("String text;");
+    		out.print('\t');
+    		out.println("public Term(String text) {");
+    		out.print("\t\t");
+    		out.println("this.text = text;");
+    		out.print('\t');
+    		out.println("}");
+    		out.println("}");
+    		out.close();
 		}
 		catch (IOException e)
 		{
-			log.error("Failed writing AST node source file: " + e.getMessage());
+			log.error("Failed writing AST Term source file: " + e.getMessage());
 			return false;
 		}
 		return true;
 	}
 	
-	private void writeTermStub() throws IOException
+	private boolean writeAstListStubs(Grammar grammar)
 	{
-		PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, "Term" + ".java")));
-		out.println("public class Term {");
-		out.print('\t');
-		out.println("String text;");
-		out.print('\t');
-		out.println("public Term(String text) {");
-		out.print("\t\t");
-		out.println("this.text = text;");
-		out.print('\t');
-		out.println("}");
-		out.println("}");
-		out.close();
+		AstList[] lists = findAstLists(grammar);
+		for (int i = 0; i < lists.length; i++)
+        {
+			try
+			{
+				writeListNode(lists[i]);
+			}
+			catch (IOException e)
+			{
+				log.error("Failed writing " + lists[i].listType + " source file: " + e.getMessage());
+				return false;
+			}
+        }
+		return true;
 	}
 	
-	private void writeListNode(Nonterminal nt) throws IOException
+	private void writeListNode(AstList node) throws IOException
 	{
-		PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, nt.name + ".java")));
+		PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, node.listType + ".java")));
 		out.print("public class ");
-		out.print(nt.name);
+		out.print(node.listType);
 		out.println(" {");
 		
 		out.print('\t');
 		out.print("public ");
-		out.print(nt.name);
+		out.print(node.listType);
 		out.println("() {");
 		out.print('\t');
 		out.println("}");
 		
-		Symbol element = nt.rules[0].findSingleValue();
-		if (element == null)
-		{
-			element = nt.rules[1].findSingleValue();
-			if (element == null)
-			{
-				throw new IllegalStateException();
-			}
-		}
 		out.print('\t');
 		out.print("public ");
-		out.print(nt.name);
+		out.print(node.listType);
 		out.print('(');
-		out.print(getType(element));
+		out.print(node.itemType);
 		out.print(' ');
-		out.print("firstItem");
+		out.print(node.itemName);
 		out.print(')');
 		out.println(" {");
 		out.print('\t');
@@ -447,12 +443,12 @@ public class ParserCompiler
 		
 		out.print('\t');
 		out.print("public ");
-		out.print(nt.name);
+		out.print(node.listType);
 		out.print(" add");
 		out.print('(');
-		out.print(getType(element));
+		out.print(node.itemType);
 		out.print(' ');
-		out.print("anotherItem");
+		out.print(node.itemName);
 		out.print(')');
 		out.println(" {");
 		out.print("\t\t");
@@ -464,118 +460,162 @@ public class ParserCompiler
 		out.close();
 	}
 
-	private void writeNodeStubs(Nonterminal nt) throws IOException
+	private boolean writeAstNodeStubs(Grammar grammar)
 	{
-		Collection types = new HashSet();
-		for (int i = 0; i < nt.rules.length; i++)
+		AstType[] types = findAstTypes(grammar);
+		for (int i = 0; i < types.length; i++)
         {
-			Production rule = nt.rules[i];
-			Symbol ruleValue;
-	        String ruleName = rule.getFullName();
-	        if (!types.contains(ruleName) && (!doNotWritePassThroughActions || (ruleValue = rule.findSingleValue()) == null || !getType(ruleValue).equals(getType(nt))))
-	        {
-	        	writeNodeStub(nt, ruleName);
-	        	types.add(ruleName);
-	        }
+			String src = types[i].parentType;
+			try
+			{
+				if (src != null)
+				{
+					writeAbstractTypeStub(types[i]);
+				}
+				src = types[i].nodeType;
+				writeAstTypeStub(types[i]);
+			}
+			catch (IOException e)
+			{
+				log.error("Failed writing " + src + " source file: " + e.getMessage());
+				return false;
+			}
         }
-		if (!types.contains(nt.name))
-		{
-			writeAbstractNodeStub(nt);
-		}
+		return true;
 	}
-	
-	private void writeAbstractNodeStub(Nonterminal nt) throws IOException
+
+	private void writeAbstractTypeStub(AstType type) throws IOException
 	{
-		PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, nt.name + ".java")));
+		PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, type.parentType + ".java")));
 		out.print("public abstract class ");
-		out.print(nt.name);
+		out.print(type.parentType);
 		out.println(" {");
 		
 		out.println("}");
 		out.close();
 	}
 
-	private void writeNodeStub(Nonterminal nt, String fullName) throws IOException
+	private void writeAstTypeStub(AstType type) throws IOException
 	{
-		PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, fullName + ".java")));
+		PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, type.nodeType + ".java")));
 		out.print("public class ");
-		out.print(fullName);
-		boolean ext = !fullName.equals(nt.name); 
-		if (ext)
+		out.print(type.nodeType);
+		if (type.parentType != null)
 		{
 			out.print(" extends ");
-			out.print(nt.name);
+			out.print(type.parentType);
 		}
 		out.println(" {");
-
-		Collection fields = new HashSet();
-		for (int i = 0; i < nt.rules.length; i++)
-        {
-			Production rule = nt.rules[i];
-	        String ruleName = rule.getFullName();
-	        if (ruleName.equals(fullName))
-	        {
-	        	for (int j = 0; j < rule.rhs.length; j++)
-                {
-	        		Production.RHSElement rhs = rule.rhs[j]; 
-	                if (rhs.symbol.isValueProducer() && !fields.contains(rhs.fieldName))
-	                {
-	            		out.print('\t');
-	            		out.print(rhs.fieldType);
-	            		out.print(' ');
-	            		out.print(rhs.fieldName);
-	            		out.println(';');
-	            		
-	            		fields.add(rhs.fieldName);
-	                }
-                }
-	        }
-        }
 		
-		for (int i = 0; i < nt.rules.length; i++)
+		for (AstNodeField field = type.firstField; field != null; field = field.next)
         {
-			Production rule = nt.rules[i];
-	        String ruleName = rule.getFullName();
-	        if (ruleName.equals(fullName))
-	        {
-        		out.print('\t');
-        		out.print("public ");
-        		out.print(fullName);
-        		out.print('(');
-        		String sep = "";
-	        	for (int j = 0; j < rule.rhs.length; j++)
-                {
-	        		Production.RHSElement rhs = rule.rhs[j]; 
-	                if (rhs.symbol.isValueProducer())
-	                {
-	            		out.print(sep);
-	            		out.print(rhs.fieldType);
-	            		out.print(' ');
-	            		out.print(rhs.fieldName);
-	            		sep = ", ";
-	                }
-                }
-	        	out.print(')');
-	        	out.println(" {");
-	        	for (int j = 0; j < rule.rhs.length; j++)
-                {
-	        		Production.RHSElement rhs = rule.rhs[j]; 
-	                if (rhs.symbol.isValueProducer())
-	                {
-	            		out.print("\t\t");
-	            		out.print("this.");
-	            		out.print(rhs.fieldName);
-	            		out.print(" = ");
-	            		out.print(rhs.fieldName);
-	            		out.println(';');
-	                }
-                }
-        		out.print('\t');
-        		out.println("}");
-	        }
+    		out.print('\t');
+    		out.print(field.type);
+    		out.print(' ');
+    		out.print(field.name);
+    		out.println(';');
         }
+
+		for (AstNodeConstructor constructor = type.firstConstructor; constructor != null; constructor = constructor.next)
+		{
+    		out.print('\t');
+    		out.print("public ");
+    		out.print(type.nodeType);
+    		out.print('(');
+    		String sep = "";
+    		for (AstNodeField arg = constructor.firstArg; arg != null; arg = arg.next)
+    		{
+        		out.print(sep);
+        		out.print(arg.type);
+        		out.print(' ');
+        		out.print(arg.name);
+        		sep = ", ";
+    		}
+        	out.print(')');
+        	out.println(" {");
+    		for (AstNodeField arg = constructor.firstArg; arg != null; arg = arg.next)
+    		{
+        		out.print("\t\t");
+        		out.print("this.");
+        		out.print(arg.name);
+        		out.print(" = ");
+        		out.print(arg.name);
+        		out.println(';');
+    		}
+    		out.print('\t');
+    		out.println("}");
+		}
 		out.println("}");
 		out.close();
+	}
+	
+	private boolean writeNodeVisitor(Grammar grammar)
+	{
+		try
+		{
+			PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, "NodeVisitor" + ".java")));
+			out.print("public interface ");
+			out.print("NodeVisitor");
+			out.println(" {");
+			for (int i = 0; i < grammar.nonterminals.length; i++)
+            {
+				Nonterminal nt = grammar.nonterminals[i];
+	            if (nt.delegate == null)
+	            {
+	            	if (nt.isListProducer())
+	            	{
+	            		writeVisitorMethods(out, nt.name);
+	            	}
+	            }
+            }
+			Collection types = new HashSet();
+			for (int i = 0; i < grammar.productions.length; i++)
+            {
+	            Production rule = grammar.productions[i];
+	            if (rule.isValueProducer() && !rule.lhs.isListProducer() && !rule.lhs.isOptionalListProducer())
+	            {
+					Production.RHSElement ruleValue = rule.findValueProducer();
+					if (ruleValue != null && getType(rule.lhs).equals(ruleValue.fieldType))
+					{
+						continue;
+					}	            	
+	            	String nodeType = rule.getFullName();
+	            	if (types.add(nodeType))
+	            	{
+	            		writeVisitorMethods(out, nodeType);
+	            	}
+	            }
+            }
+			out.print('\t');
+			out.print("void visit(");
+			out.print("Term");
+			out.println(" node);");
+			
+			out.println("}");
+			out.close();
+		}
+		catch (IOException e)
+		{
+			log.error("Failed writing AST node visitor source file: " + e.getMessage());
+			return false;
+		}
+		return true;
+	}
+	
+	private static void writeVisitorMethods(PrintWriter out, String nodeType)
+	{
+		out.print('\t');
+		out.print("void enter(");
+		out.print(nodeType);
+		out.println(" node);");
+		out.print('\t');
+		out.print("void visit(");
+		out.print(nodeType);
+		out.println(" node);");
+		out.print('\t');
+		out.print("void leave(");
+		out.print(nodeType);
+		out.println(" node);");
 	}
 	
 	private static String getType(Symbol symbol)
@@ -597,5 +637,172 @@ public class ParserCompiler
     	{
     		return nt.delegate.name;
     	}
+	}
+	
+	private static class AstList
+	{
+		String listType;
+		String itemType;
+		String itemName;
+		
+		AstList(Nonterminal nt)
+		{
+			listType = nt.name;
+    		Production.RHSElement element = nt.rules[0].findValueProducer();
+    		if (element == null)
+    		{
+    			element = nt.rules[1].findValueProducer();
+    			if (element == null)
+    			{
+    				throw new IllegalStateException();
+    			}
+    		}
+    		itemType = element.fieldType;
+    		itemName = element.fieldName;
+		}
+	}
+	
+	private static class AstType
+	{
+		String             parentType;
+		String             nodeType;
+		AstNodeField       firstField;
+		AstNodeConstructor firstConstructor;
+		Collection         fieldNames;
+		
+		AstType(String parentType, String nodeType)
+		{
+			this.nodeType = nodeType;
+			if (!nodeType.equals(parentType))
+			{
+				this.parentType = parentType;
+			}
+			this.fieldNames = new HashSet();
+		}
+		
+		void add(AstNodeField field)
+		{
+			if (fieldNames.add(field.name))
+			{
+				if (firstField == null)
+				{
+					firstField = field;
+				}
+				else
+				{
+					AstNodeField lastField = firstField;
+					while (lastField.next != null)
+					{
+						lastField = lastField.next;
+					}
+					lastField.next = field; 
+				}
+			}
+		}
+		
+		void add(AstNodeConstructor constructor)
+		{
+			constructor.next = firstConstructor;
+			firstConstructor = constructor;
+		}
+	}
+	
+	private static class AstNodeField
+	{
+		AstNodeField next;
+		String       type;
+		String       name;
+		
+		AstNodeField(Production.RHSElement rhs)
+		{
+			type = rhs.fieldType;
+			name = rhs.fieldName;
+		}
+	}
+	
+	private static class AstNodeConstructor
+	{
+		AstNodeConstructor next;
+		AstNodeField       firstArg;
+		
+		void add(AstNodeField arg)
+		{
+			if (firstArg == null)
+			{
+				firstArg = arg;
+			}
+			else
+			{
+				AstNodeField lastArg = firstArg;
+				while (lastArg.next != null)
+				{
+					lastArg = lastArg.next;
+				}
+				lastArg.next = arg;
+			}
+		}
+	}
+	
+	private static AstList[] findAstLists(Grammar grammar)
+	{
+		Collection lists = new ArrayList();
+		for (int i = 0; i < grammar.nonterminals.length; i++)
+        {
+			Nonterminal nt = grammar.nonterminals[i];
+            if (nt.delegate == null && nt.isListProducer())
+            {
+            	lists.add(new AstList(nt));
+            }
+        }
+		return (AstList[]) lists.toArray(new AstList[lists.size()]);
+	}
+	
+	private static AstType[] findAstTypes(Grammar grammar)
+	{
+		Collection types = new ArrayList();
+		Map nameToType = new HashMap();
+
+		for (int i = 0; i < grammar.productions.length; i++)
+        {
+            Production rule = grammar.productions[i];
+    	    if (rule.lhs.isListProducer() || rule.lhs.isOptionalListProducer())
+    	    {
+    	    	continue;
+    	    }
+			Production.RHSElement ruleValue = rule.findValueProducer();
+			if (ruleValue != null && getType(rule.lhs).equals(ruleValue.fieldType))
+			{
+    	    	continue;
+			}
+    	    
+			String astTypeName = rule.getFullName();
+			AstType type = (AstType) nameToType.get(astTypeName);
+			if (type == null)
+			{
+				types.add(type = new AstType(getType(rule.lhs), astTypeName));
+				nameToType.put(astTypeName, type);
+			}
+			
+    	    for (int j = 0; j < rule.rhs.length; j++)
+            {
+    	    	Production.RHSElement arg = rule.rhs[j];
+                if (arg.fieldType != null)
+                {
+                	type.add(new AstNodeField(arg));
+                }
+            }
+    	    
+    	    AstNodeConstructor constructor = new AstNodeConstructor(); 
+    	    for (int j = 0; j < rule.rhs.length; j++)
+            {
+    	    	Production.RHSElement arg = rule.rhs[j];
+                if (arg.fieldType != null)
+                {
+                	constructor.add(new AstNodeField(arg));
+                }
+            }
+    	    type.add(constructor);
+        }	
+		return (AstType[]) types.toArray(new AstType[types.size()]);
 	}
 }

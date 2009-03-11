@@ -108,6 +108,23 @@ class Production
 		return sym;
 	}
 	
+	RHSElement findValueProducer()
+	{
+		RHSElement e = null;
+		for (int i = 0; i < rhs.length; i++)
+		{
+			if (rhs[i].symbol.isValueProducer())
+			{
+				if (e != null)
+				{
+					return null;
+				}
+				e = rhs[i];
+			}
+		}
+		return e;
+	}
+	
 	void findRhsValueProducers()
 	{
         Collection names = new HashSet();
