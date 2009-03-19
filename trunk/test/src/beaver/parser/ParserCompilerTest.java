@@ -274,12 +274,17 @@ public class ParserCompilerTest
 		GrammarFactory fact = new GrammarFactory(new String[] {"NUM", "ID"});
 		fact.def("Eval")
      		.sym("OptStmtList")
-			.sym("Expr")
+			.sym("OptExpr")
     		.end();
 		fact.def("OptStmtList")
      		.sym("StmtList")
     		.end();
 		fact.def("OptStmtList")
+			.end();
+		fact.def("OptExpr")
+		    .sym("Expr")
+		    .end();
+		fact.def("OptExpr")
 			.end();
 		fact.def("StmtList", "New")
      		.sym("Stmt")
