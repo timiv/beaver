@@ -94,10 +94,28 @@ public class ParserCompilerTest
 		DataOutputStream data = new DataOutputStream(out);
 		data.writeBytes("BPT>");
 		data.writeChar(21); // number of states
-		// stateActionsMinIds
-		writeUnsignedData(new int[] { 8, 1, 1,  8, 1,  8, 1,  8, 1,  8, 1, 1, 1,  8, 2, 1, 1,  1,  8, 2, 1}, data);
-		// stateActionsMaxIds
-		writeUnsignedData(new int[] {15, 1, 5, 11, 7, 11, 7, 11, 7, 11, 7, 7, 7, 11, 7, 7, 1, 12, 11, 6, 1}, data);
+		// packed state lookaheads ranges
+		data.writeInt((15 << 16) | 8);
+		data.writeInt(( 1 << 16) | 1);
+		data.writeInt(( 5 << 16) | 1);
+		data.writeInt((11 << 16) | 8);
+		data.writeInt(( 7 << 16) | 1);
+		data.writeInt((11 << 16) | 8);
+		data.writeInt(( 7 << 16) | 1);
+		data.writeInt((11 << 16) | 8);
+		data.writeInt(( 7 << 16) | 1);
+		data.writeInt((11 << 16) | 8);
+		data.writeInt(( 7 << 16) | 1);
+		data.writeInt(( 7 << 16) | 1);
+		data.writeInt(( 7 << 16) | 1);
+		data.writeInt((11 << 16) | 8);
+		data.writeInt(( 7 << 16) | 2);
+		data.writeInt(( 7 << 16) | 1);
+		data.writeInt(( 1 << 16) | 1);
+		data.writeInt((12 << 16) | 1);
+		data.writeInt((11 << 16) | 8);
+		data.writeInt(( 6 << 16) | 2);
+		data.writeInt(( 1 << 16) | 1);
 		// minOffset
 		data.writeShort(-1);
 		

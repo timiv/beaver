@@ -115,11 +115,7 @@ class CompressedParsingTables
 		data.writeChar(states.length);
 		for (int stateId = 1; stateId <= states.length; stateId++)
 		{
-			data.writeChar(stateActionsMinId[stateIdx[stateId]]);
-		}
-		for (int stateId = 1; stateId <= states.length; stateId++)
-		{
-			data.writeChar(stateActionsMaxId[stateIdx[stateId]]);
+			data.writeInt((stateActionsMaxId[stateIdx[stateId]] << 16) | stateActionsMinId[stateIdx[stateId]]);
 		}
 		
 		int minStateActionsOffset = Integer.MAX_VALUE;
@@ -130,6 +126,7 @@ class CompressedParsingTables
 	        	minStateActionsOffset = stateActionsOffset[i];
 	        }
         }
+		
 		data.writeShort(minStateActionsOffset);
 		for (int stateId = 1; stateId <= states.length; stateId++)
 		{
