@@ -11,27 +11,18 @@ import org.objectweb.asm.Opcodes;
 
 public class CharScannerGenerator implements Opcodes
 {
-	private static final String   SUPER        = "beaver/CharScanner";
-	private static final String[] EXCEPTIONS   = { "beaver/UnexpectedCharacterException", "java/io/IOException" };
+	private DFA dfa;
+	private int eof;
 
-	private static final int      THIS         = 0;
-	private static final int      ARG1         = 1;
-
-	private static final int      LOCAL_CURSOR = 1;  // points to the current character while scan is in progress
-	private static final int      LOCAL_CHAR   = 2;  // keeps the current character to minimize array accesses
-	private static final int      LOCAL_ACCEPT = 3;
-	private static final int      LOCAL_TEXT   = 4;  // shadow copy of super.text
-	private static final int      LOCAL_LIMIT  = 5;  // shadow copy of super.limit
-	private static final int      LOCAL_MARKER = 6;  // marks cursor position when a token is recognized, 
-	                                                 // but the recognition is not final
-	private static final int      LOCAL_CTXPTR = 7;  // marks cursor position at the beginning of a trailing context
-	private static final int      LOCAL_RETURN = 8;  // keeps return address for RET
-
-	private DFA                   dfa;
+	public CharScannerGenerator(DFA dfa, int eofTokenId)
+	{
+		this.dfa = dfa;
+		this.eof = eofTokenId;
+	}
 
 	public CharScannerGenerator(DFA dfa)
 	{
-		this.dfa = dfa;
+		this(dfa, 0);
 	}
 
 	public byte[] compile(String className)
@@ -52,9 +43,12 @@ public class CharScannerGenerator implements Opcodes
 		int maxDepth = 0;
 		for (DFAState st = dfa.start; st != null; st = st.next)
 		{
-			if (st.depth > maxDepth) maxDepth = st.depth;
+			if (st.depth > maxDepth)
+			{
+				maxDepth = st.depth;
+			}
 		}
-		
+
 		// public Constructor(java.io.Reader)
 
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(Ljava/io/Reader;)V", null, null);
@@ -86,8 +80,8 @@ public class CharScannerGenerator implements Opcodes
 	}
 
 	private static void generateGetNextTokenProlog(MethodVisitor mv, Label startScan)
-    {
-	    // char[] text = super.text;
+	{
+		// char[] text = super.text;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitFieldInsn(GETFIELD, SUPER, "text", "[C");
 		mv.visitVarInsn(ASTORE, LOCAL_TEXT);
@@ -120,14 +114,14 @@ public class CharScannerGenerator implements Opcodes
 		// int accept = -2;
 		generateLoadConstInsn(mv, -2);
 		mv.visitVarInsn(ISTORE, LOCAL_ACCEPT);
-    }
-	
+	}
+
 	private static void generateGetNextTokenEpilog(MethodVisitor mv, Label startScan, Label tokenIsRecognized, Label endOfScan)
-    {
+	{
 		Label saveCursor = new Label();
 		Label returnAccepted = new Label();
-		
-	    mv.visitLabel(tokenIsRecognized);
+
+		mv.visitLabel(tokenIsRecognized);
 		// if (ctxptr >= 0) marker = ctxptr;
 		mv.visitVarInsn(ILOAD, LOCAL_CTXPTR);
 		mv.visitJumpInsn(IFLT, endOfScan);
@@ -150,25 +144,25 @@ public class CharScannerGenerator implements Opcodes
 		// if (accept >= 0) return accept;
 		mv.visitVarInsn(ILOAD, LOCAL_ACCEPT);
 		mv.visitJumpInsn(IFGE, returnAccepted);
-		
+
 		// if (accept == -1) goto startScan;
 		mv.visitVarInsn(ILOAD, LOCAL_ACCEPT);
 		mv.visitInsn(ICONST_M1);
 		mv.visitJumpInsn(IF_ICMPEQ, startScan);
-		
+
 		mv.visitTypeInsn(NEW, "beaver/UnexpectedCharacterException");
 		mv.visitInsn(DUP);
 		mv.visitMethodInsn(INVOKESPECIAL, "beaver/UnexpectedCharacterException", "<init>", "()V");
 		mv.visitInsn(ATHROW);
-		
+
 		mv.visitLabel(returnAccepted);
 		mv.visitVarInsn(ILOAD, LOCAL_ACCEPT);
 		mv.visitInsn(IRETURN);
-    }
+	}
 
 	private static void generateRefillBuffer(MethodVisitor mv, Label refillBuffer)
-    {
-	    mv.visitLabel(refillBuffer);
+	{
+		mv.visitLabel(refillBuffer);
 
 		mv.visitVarInsn(ASTORE, LOCAL_RETURN);
 		mv.visitVarInsn(ALOAD, THIS);
@@ -193,7 +187,7 @@ public class CharScannerGenerator implements Opcodes
 		mv.visitVarInsn(ISTORE, LOCAL_LIMIT);
 
 		mv.visitVarInsn(RET, LOCAL_RETURN);
-    }
+	}
 
 	private void generateGetNextTokenDFACode(MethodVisitor mv, Label tokenIsRecognized, Label endOfScan, Label refillBuffer)
 	{
@@ -250,7 +244,7 @@ public class CharScannerGenerator implements Opcodes
 						mv.visitVarInsn(ILOAD, LOCAL_LIMIT);
 						mv.visitVarInsn(ILOAD, LOCAL_CURSOR);
 						mv.visitJumpInsn(IF_ICMPGT, endBufferCheck);
-						mv.visitInsn(ICONST_0); // EOF
+						generateLoadConstInsn(mv, eof);
 						mv.visitVarInsn(ISTORE, LOCAL_ACCEPT);
 						mv.visitJumpInsn(GOTO, endOfScan);
 					}
@@ -505,4 +499,20 @@ public class CharScannerGenerator implements Opcodes
 			}
 		}
 	}
+
+	private static final String   SUPER        = "beaver/CharScanner";
+	private static final String[] EXCEPTIONS   = { "beaver/UnexpectedCharacterException", "java/io/IOException" };
+
+	private static final int      THIS         = 0;
+	private static final int      ARG1         = 1;
+
+	private static final int      LOCAL_CURSOR = 1;                                                               // points to the current character while scan is in progress
+	private static final int      LOCAL_CHAR   = 2;                                                               // keeps the current character to minimize array accesses
+	private static final int      LOCAL_ACCEPT = 3;
+	private static final int      LOCAL_TEXT   = 4;                                                               // shadow copy of super.text
+	private static final int      LOCAL_LIMIT  = 5;                                                               // shadow copy of super.limit
+	private static final int      LOCAL_MARKER = 6;                                                               // marks cursor position when a token is recognized, 
+	// but the recognition is not final
+	private static final int      LOCAL_CTXPTR = 7;                                                               // marks cursor position at the beginning of a trailing context
+	private static final int      LOCAL_RETURN = 8;                                                               // keeps return address for RET
 }

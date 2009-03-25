@@ -9,15 +9,13 @@ import java.util.Set;
 class CompressedParsingTables
 {
 	ParserState[] states;
-	ParserState   firstState;
 	Symbol[]      symbols;
-	int[]         symbolIdxMap;
-	int[]         stateActionsMinIdx;
-	int[]         stateActionsMaxIdx;
+	int[]         stateActionsMinId;
+	int[]         stateActionsMaxId;
 	int[]         stateActionsOffset;
 	int           packedActionsSize;
 	int[]         packedParserActions;
-	int[]         packedParserActionCtrlIdxs;
+	int[]         packedParserActionCtrls;
 
 	CompressedParsingTables()
 	{
@@ -31,21 +29,17 @@ class CompressedParsingTables
 	
 	void init(ParserState firstState)
 	{
-		this.firstState = firstState;
-		this.states = ParserState.toArray(firstState);
-		Arrays.sort(states, ParserState.CMP_NUM_ACTIONS);
+		Arrays.sort(states = ParserState.toArray(firstState), ParserState.CMP_NUM_ACTIONS);
 		
-		this.symbols = collectLookaheads(firstState);
-		Arrays.sort(symbols, Symbol.CMP_NUM_STATES);
-		symbolIdxMap = new int[symbols.length];
+		Arrays.sort(symbols = collectLookaheads(firstState), Symbol.CMP_NUM_STATES);
 		for (int i = 0; i < symbols.length; i++)
         {
-			symbolIdxMap[symbols[i].id] = i;
+			symbols[i].id = i + 1;
         }
 		
 		// find action lookahead boundaries
-		this.stateActionsMinIdx = new int[states.length];
-		this.stateActionsMaxIdx = new int[states.length];
+		this.stateActionsMinId = new int[states.length];
+		this.stateActionsMaxId = new int[states.length];
 		int maxCompressedSize = 0;
 		for (int i = 0; i < states.length; i++)
         {
@@ -55,7 +49,7 @@ class CompressedParsingTables
 			
 			for (ParserAction action = state.shift; action != null; action = action.next)
 			{
-				int idx = symbolIdxMap[action.lookahead.id];
+				int idx = action.lookahead.id;
 				if (idx < min)
 				{
 					min = idx;
@@ -67,7 +61,7 @@ class CompressedParsingTables
 			}
 			for (ParserAction action = state.reduce; action != null; action = action.next)
 			{
-				int idx = symbolIdxMap[action.lookahead.id];
+				int idx = action.lookahead.id;
 				if (idx < min)
 				{
 					min = idx;
@@ -79,7 +73,7 @@ class CompressedParsingTables
 			}
 			if (state.accept != null)
 			{
-				int idx = symbolIdxMap[state.accept.lookahead.id];
+				int idx = state.accept.lookahead.id;
 				if (idx < min)
 				{
 					min = idx;
@@ -89,25 +83,20 @@ class CompressedParsingTables
 					max = idx;
 				}
 			}
-			stateActionsMinIdx[i] = min;
-			stateActionsMaxIdx[i] = max;
+			stateActionsMinId[i] = min;
+			stateActionsMaxId[i] = max;
 			
 			maxCompressedSize += max - min + 1;
         }
 		
-		this.packedParserActions = new int[maxCompressedSize];
-		this.packedParserActionCtrlIdxs = new int[maxCompressedSize];
-		for (int i = 0; i < packedParserActionCtrlIdxs.length; i++)
-        {
-	        packedParserActionCtrlIdxs[i] = -1;
-        }
-		
-		this.stateActionsOffset = new int[states.length];
+		this.packedParserActions     = new int[maxCompressedSize];
+		this.packedParserActionCtrls = new int[maxCompressedSize];
+		this.stateActionsOffset      = new int[states.length];
 	}
 	
 	void packParserActions()
 	{
-		int[] stateActions = new int[symbols.length];
+		int[] stateActions = new int[symbols.length + 1]; // note, symbols ID start at 1 (thus statesActions[0] will never be used)
 		for (int i = 0; i < states.length; i++)
         {
 			loadStateActions(i, stateActions);
@@ -117,25 +106,22 @@ class CompressedParsingTables
 	
 	void writeTo(DataOutput data) throws IOException
 	{
-		data.writeChar(symbolIdxMap.length);
-		for (int i = 0; i < symbolIdxMap.length; i++)
-        {
-			data.writeChar(symbolIdxMap[i]);
-        }
-		int[] stateIdxMap = new int[states.length + 1];
+		int[] stateIdx = new int[states.length + 1];
 		for (int i = 0; i < states.length; i++)
         {
-			stateIdxMap[states[i].id] = i;
+	        stateIdx[states[i].id] = i;
         }
+		
 		data.writeChar(states.length);
 		for (int stateId = 1; stateId <= states.length; stateId++)
 		{
-			data.writeChar(stateActionsMinIdx[stateIdxMap[stateId]]);
+			data.writeChar(stateActionsMinId[stateIdx[stateId]]);
 		}
 		for (int stateId = 1; stateId <= states.length; stateId++)
 		{
-			data.writeChar(stateActionsMaxIdx[stateIdxMap[stateId]]);
+			data.writeChar(stateActionsMaxId[stateIdx[stateId]]);
 		}
+		
 		int minStateActionsOffset = Integer.MAX_VALUE;
 		for (int i = 0; i < stateActionsOffset.length; i++)
         {
@@ -147,8 +133,9 @@ class CompressedParsingTables
 		data.writeShort(minStateActionsOffset);
 		for (int stateId = 1; stateId <= states.length; stateId++)
 		{
-			data.writeChar(stateActionsOffset[stateIdxMap[stateId]] - minStateActionsOffset);
+			data.writeChar(stateActionsOffset[stateIdx[stateId]] - minStateActionsOffset);
 		}
+		
 		data.writeChar(packedActionsSize);
 		for (int i = 0; i < packedActionsSize; i++)
         {
@@ -156,8 +143,14 @@ class CompressedParsingTables
         }
 		for (int i = 0; i < packedActionsSize; i++)
         {
-			data.writeShort(packedParserActionCtrlIdxs[i]);
+			data.writeChar(packedParserActionCtrls[i]);
         }
+		
+		for (int stateId = 1; stateId <= states.length; stateId++)
+		{
+			ParserAction defaultReduce = states[stateIdx[stateId]].defaultReduce;
+			data.writeChar(defaultReduce != null ? defaultReduce.getId() : 0);
+		}
 	}
 	
 	void loadStateActions(int stateIdx, int[] stateActions)
@@ -171,15 +164,15 @@ class CompressedParsingTables
 		// set IDs of state actions
 		for (action = states[stateIdx].shift; action != null; action = action.next)
 		{
-			stateActions[symbolIdxMap[action.lookahead.id]] = action.getId();
+			stateActions[action.lookahead.id] = action.getId();
 		}
 		for (action = states[stateIdx].reduce; action != null; action = action.next)
 		{
-			stateActions[symbolIdxMap[action.lookahead.id]] = action.getId();
+			stateActions[action.lookahead.id] = action.getId();
 		}
 		if ((action = states[stateIdx].accept) != null)
 		{
-			stateActions[symbolIdxMap[action.lookahead.id]] = action.getId();
+			stateActions[action.lookahead.id] = action.getId();
 		}
 	}
 	
@@ -190,13 +183,13 @@ class CompressedParsingTables
 		{
 			packedActionsIdx = findFirstStateActionPackingIndex(packedActionsIdx, stateIdx, stateActions);
 		}		
-		stateActionsOffset[stateIdx] = packedActionsIdx - stateActionsMinIdx[stateIdx];
-		for (int i = stateActionsMinIdx[stateIdx]; i <= stateActionsMaxIdx[stateIdx]; i++)
+		stateActionsOffset[stateIdx] = packedActionsIdx - stateActionsMinId[stateIdx];
+		for (int i = stateActionsMinId[stateIdx]; i <= stateActionsMaxId[stateIdx]; i++)
 		{
 			if (stateActions[i] != 0)
 			{
 				packedParserActions[packedActionsIdx] = stateActions[i];
-				packedParserActionCtrlIdxs[packedActionsIdx] = i;
+				packedParserActionCtrls[packedActionsIdx] = i;
 			}
 			packedActionsIdx++;
 		}
@@ -209,7 +202,7 @@ class CompressedParsingTables
 	private int findFirstStateActionPackingIndex(int lastTriedPackedActionsIdx, int stateIdx, int[] stateActions)
 	{
 		int packedActionsIdx = lastTriedPackedActionsIdx + 1;
-		while (!canActionBePackedAt(packedActionsIdx, stateActions, stateActionsMinIdx[stateIdx]))
+		while (!canActionBePackedAt(packedActionsIdx, stateActions, stateActionsMinId[stateIdx]))
 		{
 			packedActionsIdx++;
 		}
@@ -222,12 +215,12 @@ class CompressedParsingTables
 			   ||
 			   packedParserActions[packedActionsIdx] == stateActions[stateActionIdx] 
 			   && 
-			   packedParserActionCtrlIdxs[packedActionsIdx] == stateActionIdx;
+			   packedParserActionCtrls[packedActionsIdx] == stateActionIdx;
 	}
 	
 	private boolean canStateActionsBePackedAt(int packedActionsIdx, int stateIdx, int[] stateActions)
 	{
-		for (int ai = stateActionsMinIdx[stateIdx], pi = packedActionsIdx; ai <= stateActionsMaxIdx[stateIdx]; ai++, pi++)
+		for (int ai = stateActionsMinId[stateIdx], pi = packedActionsIdx; ai <= stateActionsMaxId[stateIdx]; ai++, pi++)
 		{			
 			if (stateActions[ai] != 0 && !canActionBePackedAt(pi, stateActions, ai))
 			{
@@ -240,12 +233,12 @@ class CompressedParsingTables
 	private boolean willStateActionsConflictWithAlreadyPackedActions(int packedActionsIdx, int stateIdx, int[] stateActions)
 	{
 		int thisStateIdxRangeFrom = packedActionsIdx;
-		int thisStateIdxRangeThru = packedActionsIdx + (stateActionsMaxIdx[stateIdx] - stateActionsMinIdx[stateIdx]);
+		int thisStateIdxRangeThru = packedActionsIdx + (stateActionsMaxId[stateIdx] - stateActionsMinId[stateIdx]);
 		
 		for (int si = 0; si < stateIdx; si++)
 		{
-			int checkStateIdxRangeFrom = stateActionsOffset[si] + stateActionsMinIdx[si];
-			int checkStateIdxRangeThru = stateActionsOffset[si] + stateActionsMaxIdx[si];
+			int checkStateIdxRangeFrom = stateActionsOffset[si] + stateActionsMinId[si];
+			int checkStateIdxRangeThru = stateActionsOffset[si] + stateActionsMaxId[si];
 			
 			if (indexRangesIntersect(thisStateIdxRangeFrom, thisStateIdxRangeThru, checkStateIdxRangeFrom, checkStateIdxRangeThru))
 			{
@@ -254,7 +247,7 @@ class CompressedParsingTables
 				
 				for (int pi = packIndexFrom; pi <= packIndexThru; pi++)
 				{
-					int thisStateLookaheadIndex = pi - thisStateIdxRangeFrom + stateActionsMinIdx[stateIdx];
+					int thisStateLookaheadIndex = pi - thisStateIdxRangeFrom + stateActionsMinId[stateIdx];
 					/*
 					 * Collision occurs when an action slot of one state intersects with the empty slot of another. Normally
 					 * an empty slot results in no-action for the state, i.e. in "unexpected token" in parsing. Collision
@@ -275,7 +268,7 @@ class CompressedParsingTables
 						 */
 						if (packedParserActions[pi] == 0)
 						{
-							int checkStateErrorneousLookaheadIndex = pi - checkStateIdxRangeFrom + stateActionsMinIdx[si];
+							int checkStateErrorneousLookaheadIndex = pi - checkStateIdxRangeFrom + stateActionsMinId[si];
 							/*
 							 * If indexes are different then parser will not see this action as a valid action in the other
 							 * state, but if they are the same we have a collision. 
@@ -292,7 +285,7 @@ class CompressedParsingTables
 						 * To detect collisions of the second kind we simply check whether the index of the erroneous lookahead
 						 * for the current state matches lookahead index of the packed action.  
 						 */
-						if (packedParserActionCtrlIdxs[pi] == thisStateLookaheadIndex)
+						if (packedParserActionCtrls[pi] == thisStateLookaheadIndex)
 						{
 							return true;
 						}

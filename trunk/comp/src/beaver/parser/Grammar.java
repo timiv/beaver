@@ -48,31 +48,25 @@ class Grammar
 			int lhsNtId  = productions[i].lhs.id;
 	        out.writeInt((lhsNtId << 16) | ruleSize);
         }
-		// find first non-keyword symbol
-		int id = 0;
-		for (int i = 1; i < terminals.length; i++)
-        {
-	        if (terminals[i].text == null)
-	        {
-	        	id = terminals[i].id;
-	        	break;
-	        }
-        }
-		if (id == 0)
-		{
-			id = nonterminals[0].id;
-		}
-		out.writeChar(id);
 		// all symbols
-		out.writeChar(terminals.length + nonterminals.length);
+		Symbol[] symbols = new Symbol[terminals.length + nonterminals.length];
 		for (int i = 0; i < terminals.length; i++)
 		{
-			out.writeUTF(terminals[i].toString());
+			symbols[terminals[i].id - 1] = terminals[i]; 
 		}
 		for (int i = 0; i < nonterminals.length; i++)
 		{
-			out.writeUTF(nonterminals[i].toString());
+			symbols[nonterminals[i].id - 1] = nonterminals[i]; 
 		}
+		out.writeChar(symbols.length);
+		for (int i = 0; i < symbols.length; i++)
+        {
+			if (symbols[i] == null)
+			{
+				throw new IllegalStateException("missing symbol " + (i + 1));
+			}
+			out.writeUTF(symbols[i].toString());
+        }
 		out.writeByte(4);
 	}
 	

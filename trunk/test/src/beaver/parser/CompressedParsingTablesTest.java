@@ -375,91 +375,91 @@ public class CompressedParsingTablesTest
           21: x                            
 		 */
 		assertEquals( 5, tables.states[0].id);	
-		assertEquals( 0, tables.stateActionsMinIdx[0]);
-		assertEquals( 6, tables.stateActionsMaxIdx[0]);
+		assertEquals( 1, tables.stateActionsMinId[0]);
+		assertEquals( 7, tables.stateActionsMaxId[0]);
 		
 		assertEquals( 7, tables.states[1].id);	
-		assertEquals( 0, tables.stateActionsMinIdx[1]);
-		assertEquals( 6, tables.stateActionsMaxIdx[1]);
+		assertEquals( 1, tables.stateActionsMinId[1]);
+		assertEquals( 7, tables.stateActionsMaxId[1]);
 		
 		assertEquals( 9, tables.states[2].id);	
-		assertEquals( 0, tables.stateActionsMinIdx[2]);
-		assertEquals( 6, tables.stateActionsMaxIdx[2]);
+		assertEquals( 1, tables.stateActionsMinId[2]);
+		assertEquals( 7, tables.stateActionsMaxId[2]);
 		
 		assertEquals(11, tables.states[3].id);	
-		assertEquals( 0, tables.stateActionsMinIdx[3]);
-		assertEquals( 6, tables.stateActionsMaxIdx[3]);
+		assertEquals( 1, tables.stateActionsMinId[3]);
+		assertEquals( 7, tables.stateActionsMaxId[3]);
 		
 		assertEquals(12, tables.states[4].id);	
-		assertEquals( 0, tables.stateActionsMinIdx[4]);
-		assertEquals( 6, tables.stateActionsMaxIdx[4]);
+		assertEquals( 1, tables.stateActionsMinId[4]);
+		assertEquals( 7, tables.stateActionsMaxId[4]);
 		
 		assertEquals(13, tables.states[5].id);	
-		assertEquals( 0, tables.stateActionsMinIdx[5]);
-		assertEquals( 6, tables.stateActionsMaxIdx[5]);
+		assertEquals( 1, tables.stateActionsMinId[5]);
+		assertEquals( 7, tables.stateActionsMaxId[5]);
 		
 		assertEquals(16, tables.states[6].id);	
-		assertEquals( 0, tables.stateActionsMinIdx[6]);
-		assertEquals( 6, tables.stateActionsMaxIdx[6]);
+		assertEquals( 1, tables.stateActionsMinId[6]);
+		assertEquals( 7, tables.stateActionsMaxId[6]);
 		
 		assertEquals( 1, tables.states[7].id);	
-		assertEquals( 7, tables.stateActionsMinIdx[7]);
-		assertEquals(14, tables.stateActionsMaxIdx[7]);
+		assertEquals( 8, tables.stateActionsMinId[7]);
+		assertEquals(15, tables.stateActionsMaxId[7]);
 		
 		assertEquals(18, tables.states[8].id);	
-		assertEquals( 0, tables.stateActionsMinIdx[8]);
-		assertEquals(11, tables.stateActionsMaxIdx[8]);
+		assertEquals( 1, tables.stateActionsMinId[8]);
+		assertEquals(12, tables.stateActionsMaxId[8]);
 		
 		assertEquals( 3, tables.states[9].id);	
-		assertEquals( 0, tables.stateActionsMinIdx[9]);
-		assertEquals( 4, tables.stateActionsMaxIdx[9]);
+		assertEquals( 1, tables.stateActionsMinId[9]);
+		assertEquals( 5, tables.stateActionsMaxId[9]);
 		
 		assertEquals(15, tables.states[10].id);	
-		assertEquals( 1, tables.stateActionsMinIdx[10]);
-		assertEquals( 6, tables.stateActionsMaxIdx[10]);
+		assertEquals( 2, tables.stateActionsMinId[10]);
+		assertEquals( 7, tables.stateActionsMaxId[10]);
 		
 		assertEquals(20, tables.states[11].id);	
-		assertEquals( 1, tables.stateActionsMinIdx[11]);
-		assertEquals( 5, tables.stateActionsMaxIdx[11]);
+		assertEquals( 2, tables.stateActionsMinId[11]);
+		assertEquals( 6, tables.stateActionsMaxId[11]);
 		
 		assertEquals( 4, tables.states[12].id);	
-		assertEquals( 7, tables.stateActionsMinIdx[12]);
-		assertEquals(10, tables.stateActionsMaxIdx[12]);
+		assertEquals( 8, tables.stateActionsMinId[12]);
+		assertEquals(11, tables.stateActionsMaxId[12]);
 		
 		assertEquals( 6, tables.states[13].id);	
-		assertEquals( 7, tables.stateActionsMinIdx[13]);
-		assertEquals(10, tables.stateActionsMaxIdx[13]);
+		assertEquals( 8, tables.stateActionsMinId[13]);
+		assertEquals(11, tables.stateActionsMaxId[13]);
 		
 		assertEquals( 8, tables.states[14].id);	
-		assertEquals( 7, tables.stateActionsMinIdx[14]);
-		assertEquals(10, tables.stateActionsMaxIdx[14]);
+		assertEquals( 8, tables.stateActionsMinId[14]);
+		assertEquals(11, tables.stateActionsMaxId[14]);
 		
 		assertEquals(10, tables.states[15].id);	
-		assertEquals( 7, tables.stateActionsMinIdx[15]);
-		assertEquals(10, tables.stateActionsMaxIdx[15]);
+		assertEquals( 8, tables.stateActionsMinId[15]);
+		assertEquals(11, tables.stateActionsMaxId[15]);
 		
 		assertEquals(14, tables.states[16].id);	
-		assertEquals( 7, tables.stateActionsMinIdx[16]);
-		assertEquals(10, tables.stateActionsMaxIdx[16]);
+		assertEquals( 8, tables.stateActionsMinId[16]);
+		assertEquals(11, tables.stateActionsMaxId[16]);
 		
 		assertEquals(19, tables.states[17].id);	
-		assertEquals( 7, tables.stateActionsMinIdx[17]);
-		assertEquals(10, tables.stateActionsMaxIdx[17]);
+		assertEquals( 8, tables.stateActionsMinId[17]);
+		assertEquals(11, tables.stateActionsMaxId[17]);
 		
 		assertEquals( 2, tables.states[18].id);	
-		assertEquals( 0, tables.stateActionsMinIdx[18]);
-		assertEquals( 0, tables.stateActionsMaxIdx[18]);
+		assertEquals( 1, tables.stateActionsMinId[18]);
+		assertEquals( 1, tables.stateActionsMaxId[18]);
 		
 		assertEquals(17, tables.states[19].id);	
-		assertEquals( 0, tables.stateActionsMinIdx[19]);
-		assertEquals( 0, tables.stateActionsMaxIdx[19]);
+		assertEquals( 1, tables.stateActionsMinId[19]);
+		assertEquals( 1, tables.stateActionsMaxId[19]);
 		
 		assertEquals(21, tables.states[20].id);	
-		assertEquals( 0, tables.stateActionsMinIdx[20]);
-		assertEquals( 0, tables.stateActionsMaxIdx[20]);
+		assertEquals( 1, tables.stateActionsMinId[20]);
+		assertEquals( 1, tables.stateActionsMaxId[20]);
 		
-		int[] stateActions = new int[tables.symbols.length];
-		assertEquals(15, stateActions.length);
+		int[] stateActions = new int[tables.symbols.length + 1];
+		assertEquals(16, stateActions.length);
 		/*
               EOF
               : +
@@ -490,12 +490,12 @@ public class CompressedParsingTablesTest
                EOF -> Expr = { Add } Expr + Expr ;
 		 */
 		tables.loadStateActions(0, stateActions);
-		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, -8, -8, -8, 8, 10, -8, -8, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(0, stateActions);
 		assertEquals(7, tables.packedActionsSize);
-		assertEquals(0, tables.stateActionsOffset[0]);
+		assertEquals(-1, tables.stateActionsOffset[0]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6}, getCtrlLookaheadIndexes(tables));	
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7}, getCtrlLookaheadIds(tables));	
 		/*
               EOF
               : +
@@ -526,12 +526,12 @@ public class CompressedParsingTablesTest
                EOF -> Expr = { Sub } Expr - Expr ;
 		 */
 		tables.loadStateActions(1, stateActions);
-		assertArrayEquals(new int[] {-9, -9, -9, 8, 10, -9, -9, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, -9, -9, -9, 8, 10, -9, -9, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(1, stateActions);
 		assertEquals(14, tables.packedActionsSize);
-		assertEquals(7, tables.stateActionsOffset[1]);
+		assertEquals(6, tables.stateActionsOffset[1]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -561,12 +561,12 @@ public class CompressedParsingTablesTest
                EOF -> Expr = { Mul } Expr * Expr ;
 		 */
 		tables.loadStateActions(2, stateActions);
-		assertArrayEquals(new int[] {-10, -10, -10, -10, -10, -10, -10, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, -10, -10, -10, -10, -10, -10, -10, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(2, stateActions);
 		assertEquals(21, tables.packedActionsSize);
-		assertEquals(14, tables.stateActionsOffset[2]);
+		assertEquals(13, tables.stateActionsOffset[2]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -596,12 +596,12 @@ public class CompressedParsingTablesTest
                EOF -> Expr = { Div } Expr / Expr ;
 		 */
 		tables.loadStateActions(3, stateActions);
-		assertArrayEquals(new int[] {-11, -11, -11, -11, -11, -11, -11, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, -11, -11, -11, -11, -11, -11, -11, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(3, stateActions);
 		assertEquals(28, tables.packedActionsSize);
-		assertEquals(21, tables.stateActionsOffset[3]);
+		assertEquals(20, tables.stateActionsOffset[3]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -631,12 +631,12 @@ public class CompressedParsingTablesTest
                EOF -> Expr = { Number } NUM ;
 		 */
 		tables.loadStateActions(4, stateActions);
-		assertArrayEquals(new int[] {-5, -5, -5, -5, -5, -5, -5, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, -5, -5, -5, -5, -5, -5, -5, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(4, stateActions);
 		assertEquals(35, tables.packedActionsSize);
-		assertEquals(28, tables.stateActionsOffset[4]);
+		assertEquals(27, tables.stateActionsOffset[4]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] {1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -666,12 +666,12 @@ public class CompressedParsingTablesTest
                EOF -> Expr = { Var } ID ;
 		 */
 		tables.loadStateActions(5, stateActions);
-		assertArrayEquals(new int[] {-6, -6, -6, -6, -6, -6, -6, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, -6, -6, -6, -6, -6, -6, -6, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(5, stateActions);
 		assertEquals(42, tables.packedActionsSize);
-		assertEquals(35, tables.stateActionsOffset[5]);
+		assertEquals(34, tables.stateActionsOffset[5]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -701,12 +701,12 @@ public class CompressedParsingTablesTest
                EOF -> Expr = { Nested } ( Expr ) ;
 		 */
 		tables.loadStateActions(6, stateActions);
-		assertArrayEquals(new int[] {-7, -7, -7, -7, -7, -7, -7, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, -7, -7, -7, -7, -7, -7, -7, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(6, stateActions);
 		assertEquals(49, tables.packedActionsSize);
-		assertEquals(42, tables.stateActionsOffset[6]);
+		assertEquals(41, tables.stateActionsOffset[6]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -740,12 +740,12 @@ public class CompressedParsingTablesTest
               Goal -> ACCEPT
 		 */
 		tables.loadStateActions(7, stateActions);
-		assertArrayEquals(new int[] {0, 0, 0, 0, 0, 0, 0, 14, 12, 18, 3, 0, 2, 17, -12}, stateActions);	
+		assertArrayEquals(new int[] {0, 0, 0, 0, 0, 0, 0, 0, 14, 12, 18, 3, 0, 2, 17, -12}, stateActions);	
 		tables.packStateActions(7, stateActions);
 		assertEquals(57, tables.packedActionsSize);
-		assertEquals(42, tables.stateActionsOffset[7]);
+		assertEquals(41, tables.stateActionsOffset[7]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7, 14, 12, 18, 3, 0, 2, 17, -12}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1, 12, 13, 14}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 13, 14, 15}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -775,12 +775,12 @@ public class CompressedParsingTablesTest
                EOF -> Expr = { Var } ID ;
 		 */
 		tables.loadStateActions(8, stateActions);
-		assertArrayEquals(new int[] {-6, -6, -6, -6, -6, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, -6, -6, -6, -6, -6, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0}, stateActions);	
 		tables.packStateActions(8, stateActions);
 		assertEquals(69, tables.packedActionsSize);
-		assertEquals(57, tables.stateActionsOffset[8]);
+		assertEquals(56, tables.stateActionsOffset[8]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7, 14, 12, 18, 3, 0, 2, 17, -12, -6, -6, -6, -6, -6, 0, 0, 0, 0, 0, 0, 19}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1, 12, 13, 14, 0, 1, 2, 3, 4, -1, -1, -1, -1, -1, -1, 11}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 13, 14, 15, 1, 2, 3, 4, 5, 0, 0, 0, 0, 0, 0, 12}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -809,12 +809,12 @@ public class CompressedParsingTablesTest
                EOF -> Eval = { Expr } Expr ;
 		 */
 		tables.loadStateActions(9, stateActions);
-		assertArrayEquals(new int[] {-2, 4, 6, 8, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, -2, 4, 6, 8, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(9, stateActions);
 		assertEquals(69, tables.packedActionsSize);
-		assertEquals(62, tables.stateActionsOffset[9]);
+		assertEquals(61, tables.stateActionsOffset[9]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7, 14, 12, 18, 3, 0, 2, 17, -12, -6, -6, -6, -6, -6, -2, 4, 6, 8, 10, 0, 19}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1, 12, 13, 14, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, -1, 11}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 13, 14, 15, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 0, 12}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -842,12 +842,12 @@ public class CompressedParsingTablesTest
                  ) -> 16
 		 */
 		tables.loadStateActions(10, stateActions);
-		assertArrayEquals(new int[] {0, 4, 6, 8, 10, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, 0, 4, 6, 8, 10, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(10, stateActions);
 		assertEquals(75, tables.packedActionsSize);
-		assertEquals(68, tables.stateActionsOffset[10]);
+		assertEquals(67, tables.stateActionsOffset[10]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7, 14, 12, 18, 3, 0, 2, 17, -12, -6, -6, -6, -6, -6, -2, 4, 6, 8, 10, 0, 19, 4, 6, 8, 10, 0, 16}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1, 12, 13, 14, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, -1, 11, 1, 2, 3, 4, -1, 6}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 13, 14, 15, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 0, 12, 2, 3, 4, 5, 0, 7}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -875,15 +875,15 @@ public class CompressedParsingTablesTest
                  ; -> 21
 		 */
 		tables.loadStateActions(11, stateActions);
-		assertArrayEquals(new int[] {0, 4, 6, 8, 10, 21, 0, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, 0, 4, 6, 8, 10, 21, 0, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(11, stateActions);
 		/*
 		 * Note: this state actions intersect without conflicts with actions of state 3  
 		 */
 		assertEquals(75, tables.packedActionsSize);
-		assertEquals(62, tables.stateActionsOffset[11]);
+		assertEquals(61, tables.stateActionsOffset[11]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7, 14, 12, 18, 3, 0, 2, 17, -12, -6, -6, -6, -6, -6, -2, 4, 6, 8, 10, 21, 19, 4, 6, 8, 10, 0, 16}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1, 12, 13, 14, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 11, 1, 2, 3, 4, -1, 6}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 13, 14, 15, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6, 12, 2, 3, 4, 5, 0, 7}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -910,12 +910,12 @@ public class CompressedParsingTablesTest
               Expr -> 5
 		 */
 		tables.loadStateActions(12, stateActions);
-		assertArrayEquals(new int[] {0, 0, 0, 0, 0, 0, 0, 14, 12, 13, 5, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, 0, 0, 0, 0, 0, 0, 0, 14, 12, 13, 5, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(12, stateActions);
 		assertEquals(79, tables.packedActionsSize);
-		assertEquals(68, tables.stateActionsOffset[12]);
+		assertEquals(67, tables.stateActionsOffset[12]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7, 14, 12, 18, 3, 0, 2, 17, -12, -6, -6, -6, -6, -6, -2, 4, 6, 8, 10, 21, 19, 4, 6, 8, 10, 0, 16, 14, 12, 13, 5}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1, 12, 13, 14, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 11, 1, 2, 3, 4, -1, 6, 7, 8, 9, 10}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 13, 14, 15, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6, 12, 2, 3, 4, 5, 0, 7, 8, 9, 10, 11}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -942,12 +942,12 @@ public class CompressedParsingTablesTest
               Expr -> 7
 		 */
 		tables.loadStateActions(13, stateActions);
-		assertArrayEquals(new int[] {0, 0, 0, 0, 0, 0, 0, 14, 12, 13, 7, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, 0, 0, 0, 0, 0, 0, 0, 14, 12, 13, 7, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(13, stateActions);
 		assertEquals(83, tables.packedActionsSize);
-		assertEquals(72, tables.stateActionsOffset[13]);
+		assertEquals(71, tables.stateActionsOffset[13]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7, 14, 12, 18, 3, 0, 2, 17, -12, -6, -6, -6, -6, -6, -2, 4, 6, 8, 10, 21, 19, 4, 6, 8, 10, 0, 16, 14, 12, 13, 5, 14, 12, 13, 7}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1, 12, 13, 14, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 11, 1, 2, 3, 4, -1, 6, 7, 8, 9, 10, 7, 8, 9, 10}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 13, 14, 15, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6, 12, 2, 3, 4, 5, 0, 7, 8, 9, 10, 11, 8, 9, 10, 11}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -974,12 +974,12 @@ public class CompressedParsingTablesTest
               Expr -> 9
 		 */
 		tables.loadStateActions(14, stateActions);
-		assertArrayEquals(new int[] {0, 0, 0, 0, 0, 0, 0, 14, 12, 13, 9, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, 0, 0, 0, 0, 0, 0, 0, 14, 12, 13, 9, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(14, stateActions);
 		assertEquals(87, tables.packedActionsSize);
-		assertEquals(76, tables.stateActionsOffset[14]);
+		assertEquals(75, tables.stateActionsOffset[14]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7, 14, 12, 18, 3, 0, 2, 17, -12, -6, -6, -6, -6, -6, -2, 4, 6, 8, 10, 21, 19, 4, 6, 8, 10, 0, 16, 14, 12, 13, 5, 14, 12, 13, 7, 14, 12, 13, 9}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1, 12, 13, 14, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 11, 1, 2, 3, 4, -1, 6, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 13, 14, 15, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6, 12, 2, 3, 4, 5, 0, 7, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -1006,12 +1006,12 @@ public class CompressedParsingTablesTest
               Expr -> 11
 		 */
 		tables.loadStateActions(15, stateActions);
-		assertArrayEquals(new int[] {0, 0, 0, 0, 0, 0, 0, 14, 12, 13, 11, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, 0, 0, 0, 0, 0, 0, 0, 14, 12, 13, 11, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(15, stateActions);
 		assertEquals(91, tables.packedActionsSize);
-		assertEquals(80, tables.stateActionsOffset[15]);
+		assertEquals(79, tables.stateActionsOffset[15]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7, 14, 12, 18, 3, 0, 2, 17, -12, -6, -6, -6, -6, -6, -2, 4, 6, 8, 10, 21, 19, 4, 6, 8, 10, 0, 16, 14, 12, 13, 5, 14, 12, 13, 7, 14, 12, 13, 9, 14, 12, 13, 11}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1, 12, 13, 14, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 11, 1, 2, 3, 4, -1, 6, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 13, 14, 15, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6, 12, 2, 3, 4, 5, 0, 7, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -1038,12 +1038,12 @@ public class CompressedParsingTablesTest
               Expr -> 15
 		 */
 		tables.loadStateActions(16, stateActions);
-		assertArrayEquals(new int[] {0, 0, 0, 0, 0, 0, 0, 14, 12, 13, 15, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, 0, 0, 0, 0, 0, 0, 0, 14, 12, 13, 15, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(16, stateActions);
 		assertEquals(95, tables.packedActionsSize);
-		assertEquals(84, tables.stateActionsOffset[16]);
+		assertEquals(83, tables.stateActionsOffset[16]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7, 14, 12, 18, 3, 0, 2, 17, -12, -6, -6, -6, -6, -6, -2, 4, 6, 8, 10, 21, 19, 4, 6, 8, 10, 0, 16, 14, 12, 13, 5, 14, 12, 13, 7, 14, 12, 13, 9, 14, 12, 13, 11, 14, 12, 13, 15}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1, 12, 13, 14, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 11, 1, 2, 3, 4, -1, 6, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 13, 14, 15, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6, 12, 2, 3, 4, 5, 0, 7, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -1070,12 +1070,12 @@ public class CompressedParsingTablesTest
               Expr -> 20
 		 */
 		tables.loadStateActions(17, stateActions);
-		assertArrayEquals(new int[] {0, 0, 0, 0, 0, 0, 0, 14, 12, 13, 20, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, 0, 0, 0, 0, 0, 0, 0, 14, 12, 13, 20, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(17, stateActions);
 		assertEquals(99, tables.packedActionsSize);
-		assertEquals(88, tables.stateActionsOffset[17]);
+		assertEquals(87, tables.stateActionsOffset[17]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7, 14, 12, 18, 3, 0, 2, 17, -12, -6, -6, -6, -6, -6, -2, 4, 6, 8, 10, 21, 19, 4, 6, 8, 10, 0, 16, 14, 12, 13, 5, 14, 12, 13, 7, 14, 12, 13, 9, 14, 12, 13, 11, 14, 12, 13, 15, 14, 12, 13, 20}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -1, 12, 13, 14, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 11, 1, 2, 3, 4, -1, 6, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0, 13, 14, 15, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6, 12, 2, 3, 4, 5, 0, 7, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -1099,12 +1099,12 @@ public class CompressedParsingTablesTest
                EOF -> Goal = Eval ;
 		 */
 		tables.loadStateActions(18, stateActions);
-		assertArrayEquals(new int[] {-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(18, stateActions);
 		assertEquals(99, tables.packedActionsSize);
-		assertEquals(53, tables.stateActionsOffset[18]);
+		assertEquals(52, tables.stateActionsOffset[18]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7, 14, 12, 18, 3, -1, 2, 17, -12, -6, -6, -6, -6, -6, -2, 4, 6, 8, 10, 21, 19, 4, 6, 8, 10, 0, 16, 14, 12, 13, 5, 14, 12, 13, 7, 14, 12, 13, 9, 14, 12, 13, 11, 14, 12, 13, 15, 14, 12, 13, 20}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0, 12, 13, 14, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 11, 1, 2, 3, 4, -1, 6, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1, 13, 14, 15, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6, 12, 2, 3, 4, 5, 0, 7, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -1128,12 +1128,12 @@ public class CompressedParsingTablesTest
                EOF -> Eval = { Stmt } Stmt ;
 		 */
 		tables.loadStateActions(19, stateActions);
-		assertArrayEquals(new int[] {-3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, -3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(19, stateActions);
 		assertEquals(99, tables.packedActionsSize);
-		assertEquals(73, tables.stateActionsOffset[19]);
+		assertEquals(72, tables.stateActionsOffset[19]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7, 14, 12, 18, 3, -1, 2, 17, -12, -6, -6, -6, -6, -6, -2, 4, 6, 8, 10, 21, 19, 4, 6, 8, 10, -3, 16, 14, 12, 13, 5, 14, 12, 13, 7, 14, 12, 13, 9, 14, 12, 13, 11, 14, 12, 13, 15, 14, 12, 13, 20}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0, 12, 13, 14, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 11, 1, 2, 3, 4, 0, 6, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1, 13, 14, 15, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6, 12, 2, 3, 4, 5, 1, 7, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11}, getCtrlLookaheadIds(tables));
 		/*
               EOF
               : +
@@ -1157,12 +1157,12 @@ public class CompressedParsingTablesTest
                EOF -> Stmt = ID = Expr ;
 		 */
 		tables.loadStateActions(20, stateActions);
-		assertArrayEquals(new int[] {-4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
+		assertArrayEquals(new int[] {0, -4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, stateActions);	
 		tables.packStateActions(20, stateActions);
 		assertEquals(100, tables.packedActionsSize);
-		assertEquals( 99, tables.stateActionsOffset[20]);
+		assertEquals( 98, tables.stateActionsOffset[20]);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7, 14, 12, 18, 3, -1, 2, 17, -12, -6, -6, -6, -6, -6, -2, 4, 6, 8, 10, 21, 19, 4, 6, 8, 10, -3, 16, 14, 12, 13, 5, 14, 12, 13, 7, 14, 12, 13, 9, 14, 12, 13, 11, 14, 12, 13, 15, 14, 12, 13, 20, -4}, getPackedActions(tables));	
-		assertArrayEquals(new int[] { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0, 12, 13, 14, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 11, 1, 2, 3, 4, 0, 6, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 0}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] { 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1, 13, 14, 15, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6, 12, 2, 3, 4, 5, 1, 7, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 1}, getCtrlLookaheadIds(tables));
 	}
 	
 	@Test
@@ -1170,9 +1170,9 @@ public class CompressedParsingTablesTest
 	{
 		CompressedParsingTables tables = new CompressedParsingTables(firstState);
 		assertEquals(100, tables.packedActionsSize);
-		assertArrayEquals(new int[] {0, 7, 14, 21, 28, 35, 42, 42, 57, 62, 68, 62, 68, 72, 76, 80, 84, 88, 53, 73, 99}, tables.stateActionsOffset);
+		assertArrayEquals(new int[] {-1, 6, 13, 20, 27, 34, 41, 41, 56, 61, 67, 61, 67, 71, 75, 79, 83, 87, 52, 72, 98}, tables.stateActionsOffset);
 		assertArrayEquals(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7, 14, 12, 18, 3, -1, 2, 17, -12, -6, -6, -6, -6, -6, -2, 4, 6, 8, 10, 21, 19, 4, 6, 8, 10, -3, 16, 14, 12, 13, 5, 14, 12, 13, 7, 14, 12, 13, 9, 14, 12, 13, 11, 14, 12, 13, 15, 14, 12, 13, 20, -4}, getPackedActions(tables));	
-		assertArrayEquals(new int[] {0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0, 12, 13, 14, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 11, 1, 2, 3, 4, 0, 6, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 0}, getCtrlLookaheadIndexes(tables));
+		assertArrayEquals(new int[] {1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1, 13, 14, 15, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6, 12, 2, 3, 4, 5, 1, 7, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 1}, getCtrlLookaheadIds(tables));
 	}
 	
 	@Test
@@ -1215,71 +1215,31 @@ public class CompressedParsingTablesTest
             : : : : : : : : : : : : : Stmt
             : : : : : : : : : : : : : : Goal
 		 */
-		data.writeChar(15); // number of symbols
-		writeUnsignedData(new int[] {0, 11, 5, 7, 6, 1, 2, 3, 4, 8, 9, 12, 10, 13, 14}, data);
 		data.writeChar(21); // number of states
 		/*
 		 * Sorted states order
 		 *  5  7  9 11 12 13 16  1 18  3 15 20  4  6  8 10 14 19  2 17 21
 		 *  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
 		 */
-		// stateActionsMinIdx
-		data.writeChar( 7);
-		data.writeChar( 0);
-		data.writeChar( 0);
-		data.writeChar( 7);
-		data.writeChar( 0);
-		data.writeChar( 7);
-		data.writeChar( 0);
-		data.writeChar( 7);
-		data.writeChar( 0);
-		data.writeChar( 7);
-		data.writeChar( 0);
-		data.writeChar( 0);
-		data.writeChar( 0);
-		data.writeChar( 7);
-		data.writeChar( 1);
-		data.writeChar( 0);
-		data.writeChar( 0);
-		data.writeChar( 0);
-		data.writeChar( 7);
-		data.writeChar( 1);
-		data.writeChar( 0);
-		// stateActionsMaxIdx
-		data.writeChar(14);
-		data.writeChar( 0);
-		data.writeChar( 4);
-		data.writeChar(10);
-		data.writeChar( 6);
-		data.writeChar(10);
-		data.writeChar( 6);
-		data.writeChar(10);
-		data.writeChar( 6);
-		data.writeChar(10);
-		data.writeChar( 6);
-		data.writeChar( 6);
-		data.writeChar( 6);
-		data.writeChar(10);
-		data.writeChar( 6);
-		data.writeChar( 6);
-		data.writeChar( 0);
-		data.writeChar(11);
-		data.writeChar(10);
-		data.writeChar( 5);
-		data.writeChar( 0);
+		// stateActionsMinIds
+		writeUnsignedData(new int[] { 8, 1, 1,  8, 1,  8, 1,  8, 1,  8, 1, 1, 1,  8, 2, 1, 1,  1,  8, 2, 1}, data);
+		// stateActionsMaxIds
+		writeUnsignedData(new int[] {15, 1, 5, 11, 7, 11, 7, 11, 7, 11, 7, 7, 7, 11, 7, 7, 1, 12, 11, 6, 1}, data);
 		// minOffset
-		data.writeShort(0);
+		data.writeShort(-1);
 		/*
 		 * Sorted states order
-		 *         5  7   9  11  12  13  16   1  18   3  15  20   4   6   8  10  14  19   2  17  21
+		 *          5  7   9  11  12  13  16   1  18   3  15  20   4   6   8  10  14  19   2  17  21
 		 */
-//		new int[] {0, 7, 14, 21, 28, 35, 42, 42, 57, 62, 68, 62, 68, 72, 76, 80, 84, 88, 53, 73, 99}
+//		new int[] {-1, 6, 13, 20, 27, 34, 41, 41, 56, 61, 67, 61, 67, 71, 75, 79, 83, 87, 52, 72, 98}
 		
 		writeUnsignedData(new int[] {42, 53, 62, 68, 0, 72, 7, 76, 14, 80, 21, 28, 35, 84, 68, 42, 73, 57, 88, 62, 99}, data);
 		// packed actions size
 		data.writeChar(100);
 		writeSignedData(new int[] {-8, -8, -8, 8, 10, -8, -8, -9, -9, -9, 8, 10, -9, -9, -10, -10, -10, -10, -10, -10, -10, -11, -11, -11, -11, -11, -11, -11, -5, -5, -5, -5, -5, -5, -5, -6, -6, -6, -6, -6, -6, -6, -7, -7, -7, -7, -7, -7, -7, 14, 12, 18, 3, -1, 2, 17, -12, -6, -6, -6, -6, -6, -2, 4, 6, 8, 10, 21, 19, 4, 6, 8, 10, -3, 16, 14, 12, 13, 5, 14, 12, 13, 7, 14, 12, 13, 9, 14, 12, 13, 11, 14, 12, 13, 15, 14, 12, 13, 20, -4}, data);
-		writeUnsignedData(new int[] {0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0, 12, 13, 14, 0, 1, 2, 3, 4, 0, 1, 2, 3, 4, 5, 11, 1, 2, 3, 4, 0, 6, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 7, 8, 9, 10, 0}, data);
+		writeUnsignedData(new int[] {1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1, 13, 14, 15, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 6, 12, 2, 3, 4, 5, 1, 7, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 8, 9, 10, 11, 1}, data);
+		// default reduce actions (none here)
+		writeUnsignedData(new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, data);
 		
 		data.flush();
 		byte[] expectedStream = out.toByteArray();
@@ -1298,10 +1258,10 @@ public class CompressedParsingTablesTest
 		return actions;
 	}
 	
-	private static int[] getCtrlLookaheadIndexes(CompressedParsingTables tables)
+	private static int[] getCtrlLookaheadIds(CompressedParsingTables tables)
 	{
 		int[] indexes = new int[tables.packedActionsSize];
-		System.arraycopy(tables.packedParserActionCtrlIdxs, 0, indexes, 0, indexes.length);
+		System.arraycopy(tables.packedParserActionCtrls, 0, indexes, 0, indexes.length);
 		return indexes;
 	}
 	
