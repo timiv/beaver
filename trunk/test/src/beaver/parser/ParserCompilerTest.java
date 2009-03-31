@@ -247,80 +247,10 @@ public class ParserCompilerTest
 		testWritingParserSource(getCompiler("ExprCalc", new File("/temp")), getTestGrammar(), "ParserCompilerTest_ExpectedParserSource.txt");
 	}
 	
-	private static Grammar getExprCalcGrammar()
-	{
-		GrammarFactory fact = new GrammarFactory(new String[] {"NUM", "ID"});
-		fact.def("Eval")
-     		.sym("OptStmtList")
-			.sym("OptExpr")
-    		.end();
-		fact.def("OptStmtList")
-     		.sym("StmtList")
-    		.end();
-		fact.def("OptStmtList")
-			.end();
-		fact.def("OptExpr")
-		    .sym("Expr")
-		    .end();
-		fact.def("OptExpr")
-			.end();
-		fact.def("StmtList", "New")
-     		.sym("Stmt")
-    		.end();
-		fact.def("StmtList", "Ext")
-     		.sym("StmtList")
-     		.sym("Stmt")
-    		.end();
-		fact.def("Stmt")
-			.sym("ID")
-			.txt("=")
-			.sym("Expr")
-			.txt(";")
-			.end();
-		fact.def("Expr", "Num")
-			.sym("NUM")
-			.end();
-		fact.def("Expr", "Var")
-			.sym("ID")
-			.end();
-		fact.def("Expr", "Nested")
-			.txt("(")
-			.sym("Expr")
-			.txt(")")
-			.end();
-		fact.def("Expr", "Add")
-			.sym("Expr", "left")
-			.txt("+")
-			.sym("Expr", "right")
-			.end();
-		fact.def("Expr", "Sub")
-    		.sym("Expr", "left")
-    		.txt("-")
-    		.sym("Expr", "right")
-    		.end();
-		fact.def("Expr", "Mul")
-    		.sym("Expr", "left")
-    		.txt("*")
-    		.sym("Expr", "right")
-    		.end();
-		fact.def("Expr", "Div")
-    		.sym("Expr", "left")
-    		.txt("/")
-    		.sym("Expr", "right")
-    		.end();
-		fact.left()
-		    .prec("*")
-		    .prec("/");
-		fact.left()
-		    .prec("+")
-		    .prec("-");
-		return fact.getGrammar();
-	}
-	
 	@Test
 	public void testWritingMoreRealisticExprCalc() throws IOException
 	{
-		testWritingParserSource(getCompiler("ExprCalc2", new File("/temp")), getExprCalcGrammar(), "ParserCompilerTest_ExprCalc2ParserSource.txt");
+		testWritingParserSource(getCompiler("ExprCalc2", new File("/temp")), ParserTestFixtures.getExprCalcGrammar(), "ParserCompilerTest_ExprCalc2ParserSource.txt");
 	}
 	
 	@Test
@@ -328,7 +258,7 @@ public class ParserCompilerTest
 	{
 		ParserCompiler comp = getCompiler("ExprCalc3", new File("/temp"));
 		comp.setDoNotWritePassThroughActions(true);
-		testWritingParserSource(comp, getExprCalcGrammar(), "ParserCompilerTest_ExprCalc3ParserSource.txt");
+		testWritingParserSource(comp, ParserTestFixtures.getExprCalcGrammar(), "ParserCompilerTest_ExprCalc3ParserSource.txt");
 	}
 	
 	@Test
@@ -336,6 +266,6 @@ public class ParserCompilerTest
 	{
 		ParserCompiler comp = getCompiler("ExprCalc4", new File("/temp"));
 		comp.setGenerateAstStubs(true);
-		testWritingParserSource(comp, getExprCalcGrammar(), "ParserCompilerTest_ExprCalc4ParserSource.txt");
+		testWritingParserSource(comp, ParserTestFixtures.getExprCalcGrammar(), "ParserCompilerTest_ExprCalc4ParserSource.txt");
 	}
 }

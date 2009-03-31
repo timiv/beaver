@@ -21,6 +21,7 @@ public class ParserCompiler
 	File    outputDir;
 	boolean doNotWritePassThroughActions;
 	boolean generateAstStubs;
+	boolean dumpParserStates;
 
 	public ParserCompiler(Log log, String parserName, File outputDir)
 	{
@@ -41,6 +42,11 @@ public class ParserCompiler
 			doNotWritePassThroughActions = true;
 		}
 	}
+	
+	public void setDumpParserStates(boolean flag)
+	{
+		dumpParserStates = flag;
+	}
 
 	public boolean compile(Grammar grammar)
 	{
@@ -56,7 +62,10 @@ public class ParserCompiler
 				&& writeAstTermStub(astListTypes)
 				&& writeNodeVisitor(astNodeTypes, astListTypes) 
 				&& writeTreeWalker(astNodeTypes, astListTypes)
-				);
+				)
+			&& (!dumpParserStates 
+				|| writeParserStates(firstState, grammar))
+		;
 	}
 	
 	private boolean resolveConflicts(ParserState firstState)
@@ -83,6 +92,86 @@ public class ParserCompiler
 			}
 		}
 		return _continue_;
+	}
+	
+	private boolean writeParserStates(ParserState firstState, Grammar grammar)
+	{
+		try
+		{
+			PrintWriter out = new PrintWriter(new File(outputDir, parserName + "-states.lst"));
+			// symbols
+			for (int i = 0; i < grammar.terminals.length; i++)
+			{
+				Symbol symbol = grammar.terminals[i];
+				if (symbol.id < 100)
+				{
+					out.print(' ');
+					if (symbol.id < 10)
+					{
+						out.print(' ');
+						
+					}
+					out.print(symbol.id);
+					out.print(": ");
+					out.println(symbol);
+				}
+			}
+			for (int i = 0; i < grammar.nonterminals.length; i++)
+			{
+				Symbol symbol = grammar.nonterminals[i];
+				if (symbol.id < 100)
+				{
+					out.print(' ');
+					if (symbol.id < 10)
+					{
+						out.print(' ');
+						
+					}
+					out.print(symbol.id);
+					out.print(": ");
+					out.println(symbol);
+				}
+			}
+			out.println();
+			// productions
+			for (int i = 0; i < grammar.productions.length; i++)
+			{
+				Production rule = grammar.productions[i];
+				if (rule.id < 100)
+				{
+					out.print(' ');
+					if (rule.id < 10)
+					{
+						out.print(' ');
+						
+					}
+					out.print(~rule.id);
+					out.print(": ");
+					out.println(rule);
+				}
+			}
+			out.println();
+			// states
+			for (ParserState state = firstState; state != null; state = state.next)
+			{
+	    		if (state.id < 100)
+	    		{
+	    			out.print(' ');
+	    			if (state.id < 10)
+	    			{
+	    				out.print(' ');
+	    			}
+	    		}
+				out.println(state);
+			}		
+			out.close();
+		}
+		catch (IOException e)
+		{
+			log.error("Failed writing file with a list of parser states: " + e.getMessage());
+			return false;
+		}
+		return true;
 	}
 	
 	private boolean writeParsingTables(ParserState firstState, Grammar grammar)

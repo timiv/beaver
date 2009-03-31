@@ -39,7 +39,7 @@ abstract class ParserAction
 		
 		String descr()
 		{
-			return "shift and go to state " + dest.id;
+			return "shift";
 		}
 		
 		public String toString()
@@ -123,7 +123,7 @@ abstract class ParserAction
 		public String toString()
 		{
 			StringBuffer text = new StringBuffer(100);
-	    	text.append("on ").append(action1.lookahead).append(' ').append(action1.descr()).append(" or ").append(action2.descr());
+	    	text.append("on ").append(action1.lookahead).append(": ").append(action1.descr()).append(" or ").append(action2.descr());
 	    	return text.toString();
 		}
 	}

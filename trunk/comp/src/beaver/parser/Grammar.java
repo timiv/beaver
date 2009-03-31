@@ -24,9 +24,9 @@ class Grammar
 
 	Grammar(Production[] productions, Nonterminal[] nonterminals, Terminal[] terminals)
 	{
+		assignIDs(productions, nonterminals, terminals);
 		markNullable(nonterminals);
 		buildFirstSets(productions, nonterminals, terminals);
-		assignIDs(productions, nonterminals, terminals);
 		assignPrecedences(productions);
 		// data discovered below are needed for parser source(s) generation
 		markValueProducers(nonterminals);

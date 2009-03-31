@@ -216,6 +216,8 @@ class ParserState
 	{
 		if (shift.lookahead instanceof Terminal)
 		{
+			// try precedence declarations first
+			
 			Terminal lookahead = (Terminal) shift.lookahead;
 
 			if (lookahead.precedence > reduce.production.precedence)
@@ -236,7 +238,8 @@ class ParserState
 				}
 			}
 		}
-		return null;
+		// resolve conflict by choosing to shift 
+		return reduce; 
 	}
 
 	private static ParserAction resolveConflict(ParserAction.Reduce reduce1, ParserAction.Reduce reduce2)
