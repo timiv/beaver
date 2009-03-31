@@ -146,7 +146,7 @@ class CompressedParsingTables
 		for (int stateId = 1; stateId <= states.length; stateId++)
 		{
 			ParserAction defaultReduce = states[stateIdx[stateId]].defaultReduce;
-			data.writeChar(defaultReduce != null ? defaultReduce.getId() : 0);
+			data.writeShort(defaultReduce != null ? defaultReduce.getId() : 0);
 		}
 	}
 	

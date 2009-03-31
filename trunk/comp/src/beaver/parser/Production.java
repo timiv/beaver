@@ -92,37 +92,31 @@ class Production
 	 */
 	Symbol findSingleValue()
 	{
-		Symbol sym = null;
-		for (int i = 0; i < rhs.length; i++)
-		{
-			if (rhs[i].symbol.isValueProducer())
-			{
-				if (sym != null)
-				{
-					// this rule create new symbol that represents a record of multiple values
-					return null;
-				}
-				sym = rhs[i].symbol;
-			}
-		}
-		return sym;
+		int i = findValueProducerIndex();
+		return i < 0 ? null : rhs[i].symbol; 
 	}
 	
 	RHSElement findValueProducer()
 	{
-		RHSElement e = null;
+		int i = findValueProducerIndex();
+		return i < 0 ? null : rhs[i]; 
+	}
+	
+	int findValueProducerIndex()
+	{
+		int index = -1;
 		for (int i = 0; i < rhs.length; i++)
 		{
 			if (rhs[i].symbol.isValueProducer())
 			{
-				if (e != null)
+				if (index >= 0)
 				{
-					return null;
+					return -1;
 				}
-				e = rhs[i];
+				index = i;
 			}
 		}
-		return e;
+		return index;
 	}
 	
 	void findRhsValueProducers()

@@ -17,87 +17,87 @@ public abstract class ExprCalc2 extends beaver.Parser {
 	protected abstract Expr makeSubExpr(Expr left, Expr right);
 	protected abstract Expr makeMulExpr(Expr left, Expr right);
 	protected abstract Expr makeDivExpr(Expr left, Expr right);
-	protected Symbol reduce(Symbol[] stack, int top, int rule) {
+	protected Object reduce(Object[] stack, int top, int rule) {
 		switch (rule) {
 			case 0: { // Eval = OptStmtList OptExpr
-				StmtList optStmtList = (StmtList) stack[top + 1].value();
-				Expr optExpr = (Expr) stack[top].value();
+				StmtList optStmtList = (StmtList) stack[top + 1];
+				Expr optExpr = (Expr) stack[top];
 
-				return symbol(makeEval(optStmtList, optExpr));
+				return makeEval(optStmtList, optExpr);
 			}
 			case 1: { // OptStmtList = StmtList
-				StmtList stmtList = (StmtList) stack[top].value();
+				StmtList stmtList = (StmtList) stack[top];
 
-				return symbol(makeOptStmtList(stmtList));
+				return makeOptStmtList(stmtList);
 			}
 			case 2: { // OptStmtList =
 
-				return symbol(makeOptStmtList());
+				return makeOptStmtList();
 			}
 			case 3: { // OptExpr = Expr
-				Expr expr = (Expr) stack[top].value();
+				Expr expr = (Expr) stack[top];
 
-				return symbol(makeOptExpr(expr));
+				return makeOptExpr(expr);
 			}
 			case 4: { // OptExpr =
 
-				return symbol(makeOptExpr());
+				return makeOptExpr();
 			}
 			case 5: { // StmtList = { New } Stmt
-				Stmt stmt = (Stmt) stack[top].value();
+				Stmt stmt = (Stmt) stack[top];
 
-				return symbol(makeNewStmtList(stmt));
+				return makeNewStmtList(stmt);
 			}
 			case 6: { // StmtList = { Ext } StmtList Stmt
-				StmtList stmtList = (StmtList) stack[top + 1].value();
-				Stmt stmt = (Stmt) stack[top].value();
+				StmtList stmtList = (StmtList) stack[top + 1];
+				Stmt stmt = (Stmt) stack[top];
 
-				return symbol(makeExtStmtList(stmtList, stmt));
+				return makeExtStmtList(stmtList, stmt);
 			}
 			case 7: { // Stmt = ID "=" Expr ";"
-				Term id = (Term) stack[top + 3].value();
-				Expr expr = (Expr) stack[top + 1].value();
+				Term id = (Term) stack[top + 3];
+				Expr expr = (Expr) stack[top + 1];
 
-				return symbol(makeStmt(id, expr));
+				return makeStmt(id, expr);
 			}
 			case 8: { // Expr = { Num } NUM
-				Term num = (Term) stack[top].value();
+				Term num = (Term) stack[top];
 
-				return symbol(makeNumExpr(num));
+				return makeNumExpr(num);
 			}
 			case 9: { // Expr = { Var } ID
-				Term id = (Term) stack[top].value();
+				Term id = (Term) stack[top];
 
-				return symbol(makeVarExpr(id));
+				return makeVarExpr(id);
 			}
 			case 10: { // Expr = { Nested } "(" Expr ")"
-				Expr expr = (Expr) stack[top + 1].value();
+				Expr expr = (Expr) stack[top + 1];
 
-				return symbol(makeNestedExpr(expr));
+				return makeNestedExpr(expr);
 			}
 			case 11: { // Expr = { Add } left:Expr "+" right:Expr
-				Expr left = (Expr) stack[top + 2].value();
-				Expr right = (Expr) stack[top].value();
+				Expr left = (Expr) stack[top + 2];
+				Expr right = (Expr) stack[top];
 
-				return symbol(makeAddExpr(left, right));
+				return makeAddExpr(left, right);
 			}
 			case 12: { // Expr = { Sub } left:Expr "-" right:Expr
-				Expr left = (Expr) stack[top + 2].value();
-				Expr right = (Expr) stack[top].value();
+				Expr left = (Expr) stack[top + 2];
+				Expr right = (Expr) stack[top];
 
-				return symbol(makeSubExpr(left, right));
+				return makeSubExpr(left, right);
 			}
 			case 13: { // Expr = { Mul } left:Expr "*" right:Expr
-				Expr left = (Expr) stack[top + 2].value();
-				Expr right = (Expr) stack[top].value();
+				Expr left = (Expr) stack[top + 2];
+				Expr right = (Expr) stack[top];
 
-				return symbol(makeMulExpr(left, right));
+				return makeMulExpr(left, right);
 			}
 			case 14: { // Expr = { Div } left:Expr "/" right:Expr
-				Expr left = (Expr) stack[top + 2].value();
-				Expr right = (Expr) stack[top].value();
+				Expr left = (Expr) stack[top + 2];
+				Expr right = (Expr) stack[top];
 
-				return symbol(makeDivExpr(left, right));
+				return makeDivExpr(left, right);
 			}
 		}
 		throw new IndexOutOfBoundsException("production #" + rule);

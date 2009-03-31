@@ -308,7 +308,7 @@ public class ParserCompiler
 	{
 		out.print('\t');
 		out.print("protected ");
-	    out.println("Symbol reduce(Symbol[] stack, int top, int rule) {");
+	    out.println("Object reduce(Object[] stack, int top, int rule) {");
 		out.print("\t\t");
 		out.println("switch (rule) {");
 		for (int i = 0; i < grammar.productions.length; i++)
@@ -333,56 +333,69 @@ public class ParserCompiler
 	
 	private void writeProductionReduceCase(PrintWriter out, Production rule)
 	{
-		StringBuffer argsBuffer = new StringBuffer();
     	int lastRhsItem = rule.rhs.length - 1; 
-	    String sep = "";
-	    for (int i = 0; i < rule.rhs.length; i++)
-        {
-	    	Production.RHSElement arg = rule.rhs[i];
-            if (arg.fieldType != null)
-            {
-				out.print("\t\t\t\t");
-				out.print(arg.fieldType);
-				out.print(' ');
-				out.print(arg.fieldName);
-				out.print(" = (");
-				out.print(arg.fieldType);
-				out.print(") stack[top");
-				int stackOffset = lastRhsItem - i;
-				if (stackOffset > 0)
-				{
-					out.print(" + ");
-					out.print(stackOffset);
-				}
-				out.println("].value();");
-				
-				argsBuffer.append(sep).append(arg.fieldName);
-	            sep = ", ";
-            }
-        }
-	    out.println();
-		out.print("\t\t\t\t");
-	    out.print("return ");
-	    out.print("symbol(");
-	    Production.RHSElement ruleValue;
-	    String args = argsBuffer.toString();
-		if (doNotWritePassThroughActions && args.length() == 0 && !rule.lhs.isOptionalListProducer())
-		{
-			out.print("null");
-		}
-		else if (doNotWritePassThroughActions && (ruleValue = rule.findValueProducer()) != null && getType(rule.lhs).equals(ruleValue.fieldType))
-		{
-		    out.print(args);
-		}
-		else
-		{
-		    out.print("make");
-		    out.print(rule.getFullName());
-		    out.print("(");
-		    out.print(args);
-		    out.print(")");
-		}
-	    out.println(");");    
+	    int ruleValueIndex;
+	    if (doNotWritePassThroughActions && (ruleValueIndex = rule.findValueProducerIndex()) >= 0 && getType(rule.lhs).equals(rule.rhs[ruleValueIndex].fieldType))
+	    {
+		    out.println();
+			out.print("\t\t\t\t");
+		    out.print("return ");
+			out.print("stack[top");
+			int stackOffset = lastRhsItem - ruleValueIndex;
+			if (stackOffset > 0)
+			{
+				out.print(" + ");
+				out.print(stackOffset);
+			}
+			out.println("];");
+	    }
+	    else
+	    {
+			StringBuffer argsBuffer = new StringBuffer();
+		    String sep = "";
+		    for (int i = 0; i < rule.rhs.length; i++)
+	        {
+		    	Production.RHSElement arg = rule.rhs[i];
+	            if (arg.fieldType != null)
+	            {
+					out.print("\t\t\t\t");
+					out.print(arg.fieldType);
+					out.print(' ');
+					out.print(arg.fieldName);
+					out.print(" = (");
+					out.print(arg.fieldType);
+					out.print(") ");
+					out.print("stack[top");
+					int stackOffset = lastRhsItem - i;
+					if (stackOffset > 0)
+					{
+						out.print(" + ");
+						out.print(stackOffset);
+					}
+					out.println("];");
+					
+					argsBuffer.append(sep).append(arg.fieldName);
+		            sep = ", ";
+	            }
+	        }
+		    out.println();
+			out.print("\t\t\t\t");
+		    out.print("return ");
+		    String args = argsBuffer.toString();
+			if (doNotWritePassThroughActions && args.length() == 0 && !rule.lhs.isOptionalListProducer())
+			{
+				out.print("null");
+			}
+			else
+			{
+			    out.print("make");
+			    out.print(rule.getFullName());
+			    out.print("(");
+			    out.print(args);
+			    out.print(")");
+			}
+		    out.println(";");    
+	    }
 	}
 	
 	private boolean writeAstTermStub(AstList[] lists)
