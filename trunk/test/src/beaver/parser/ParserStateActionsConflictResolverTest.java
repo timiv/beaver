@@ -15,40 +15,112 @@ public class ParserStateActionsConflictResolverTest
 	@Test
 	public void testAdderConflictResolutionWithoutPrecedence()
 	{
-		GrammarFactory fact = new GrammarFactory(new String[] {"NUM", "ID"});
-		fact.def("Expr")
+		GrammarFactory fact = new GrammarFactory(new String[] {"NUM"});
+		fact.def("OptList")
+			.sym("List")
+			.end();
+		fact.def("OptList")
+			.end();
+		fact.def("List")
+			.sym("OptNum")
+			.end();
+		fact.def("List")
+			.sym("List")
+			.sym("OptNum")
+			.end();
+		fact.def("OptNum")
 			.sym("NUM")
 			.end();
-		fact.def("Expr")
-			.sym("Expr")
-			.txt("+")
-			.sym("Expr")
+		fact.def("OptNum")
 			.end();
 		Grammar grammar = fact.getGrammar();
 		ParserState state = new ParserStatesBuilder().buildParserStates(grammar);
-		// state 1
-		assertNull(state.resolveConflicts(null));
-		state = state.next;
-		// state 2
-		assertNull(state.resolveConflicts(null));
-		state = state.next;
-		// state 3
-		assertNull(state.resolveConflicts(null));
-		state = state.next;
-		// state 4
+		/*
+		 * 1:
+		   shift:
+		       NUM -> 5
+		    OptNum -> 6
+		      List -> 3
+		   OptList -> 2
+		   reduce:
+		       NUM -> OptNum =
+		       EOF -> OptNum =
+		       EOF -> OptList =
+		   accept:
+		      Goal -> ACCEPT		
+		 */
 		ParserAction.Conflict conflict = state.resolveConflicts(null);
-		assertNotNull(conflict);
-		assertTrue(conflict.action1 instanceof ParserAction.Shift);
+		assertNotNull(conflict);	
+		assertTrue(conflict.action1 instanceof ParserAction.Reduce);
 		assertTrue(conflict.action2 instanceof ParserAction.Reduce);
-		assertEquals("\"+\"", conflict.action1.lookahead.toString());
-		ParserAction.Shift shift = (ParserAction.Shift) conflict.action1;
-		assertEquals(3, shift.dest.id);
-		ParserAction.Reduce reduce = (ParserAction.Reduce) conflict.action2;		
-		assertEquals("Expr = Expr \"+\" Expr", reduce.production.toString());
+		assertEquals("EOF", conflict.action1.lookahead.toString());
+		ParserAction.Reduce reduce = (ParserAction.Reduce) conflict.action1;		
+		assertEquals("OptNum =", reduce.production.toString());
+		reduce = (ParserAction.Reduce) conflict.action2;		
+		assertEquals("OptList =", reduce.production.toString());		
 		assertNull(conflict.next);
+		
 		state = state.next;
-		// state 5
-		assertNull(state.resolveConflicts(null));
+		/*
+		 * 2:
+		   reduce:
+		       EOF -> Goal = OptList		
+		 */
+		conflict = state.resolveConflicts(null);
+		assertNull(conflict);	
+
+		state = state.next;
+		/*
+		 * 3:
+		   shift:
+		       NUM -> 5
+		    OptNum -> 4
+		   reduce:
+		       NUM -> OptNum =
+		       EOF -> OptNum =
+		       EOF -> OptList = List		
+		 */
+		conflict = state.resolveConflicts(null);
+		assertTrue(conflict.action1 instanceof ParserAction.Reduce);
+		assertTrue(conflict.action2 instanceof ParserAction.Reduce);
+		assertEquals("EOF", conflict.action1.lookahead.toString());
+		reduce = (ParserAction.Reduce) conflict.action1;		
+		assertEquals("OptNum =", reduce.production.toString());
+		reduce = (ParserAction.Reduce) conflict.action2;		
+		assertEquals("OptList = List", reduce.production.toString());		
+		assertNull(conflict.next);
+
+		state = state.next;
+		/*
+		 * 4:
+		   reduce:
+		       NUM -> List = List OptNum
+		       EOF -> List = List OptNum
+
+		 */
+		conflict = state.resolveConflicts(null);
+		assertNull(conflict);	
+		
+		state = state.next;
+		/*
+		 * 5:
+		   reduce:
+		       NUM -> OptNum = NUM
+		       EOF -> OptNum = NUM
+				
+		 */
+		conflict = state.resolveConflicts(null);
+		assertNull(conflict);	
+
+		state = state.next;
+		/*
+		 * 6:
+		   reduce:
+		       NUM -> List = OptNum
+		       EOF -> List = OptNum	
+		 */
+		conflict = state.resolveConflicts(null);
+		assertNull(conflict);	
 		
 		assertNull(state.next);
 	}

@@ -182,7 +182,7 @@ public class ParserCompilerTest
 			    System.err.print("Error: ");
 			    System.err.println(text);
 		    }
-		}, "ExprCalc", outDir);
+		}, "ExprCalc", "test1", outDir);
 		
 		comp.compile(getTestGrammar());
 		
@@ -214,7 +214,7 @@ public class ParserCompilerTest
 			    System.err.print("Error: ");
 			    System.err.println(text);
 		    }
-		}, parserName, outDir);
+		}, parserName, "test2", outDir);
 	}
 	
 	private void testWritingParserSource(ParserCompiler comp, Grammar grammar, String fileNameOfExpectedOutput) throws IOException

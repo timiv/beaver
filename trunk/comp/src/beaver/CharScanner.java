@@ -4,11 +4,9 @@ import java.io.IOException;
 import java.io.Reader;
 
 /**
- * 
- * @author Alexander Demenchuk
- * 
+ * A Scanner that scans character streams
  */
-public abstract class CharScanner
+public abstract class CharScanner extends Scanner
 {
 	/**
 	 * Input buffer
@@ -57,20 +55,11 @@ public abstract class CharScanner
 	}
 
 	/**
-	 * This method will be generated.
-	 * 
-	 * @return an ID of the next recognized token.
-	 * @throws UnexpectedCharacterException -
-	 *             if an unexpected character is encountered
-	 */
-	public abstract int getNextToken() throws UnexpectedCharacterException, IOException;
-
-	/**
 	 * Returns characters of the current, just recognized, token.
 	 * 
 	 * @return text of the recognized token
 	 */
-	public String getTokenText()
+	public Object getTokenText()
 	{
 		return new String(text, start, cursor - start);
 	}

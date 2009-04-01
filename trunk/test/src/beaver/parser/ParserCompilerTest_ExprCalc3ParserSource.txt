@@ -1,5 +1,7 @@
+package test2;
+
 public abstract class ExprCalc3 extends beaver.Parser {
-	public ExprCalc3() {
+	public ExprCalc3() throws java.io.IOException {
 		super(ExprCalc3.class.getResourceAsStream("ExprCalc3.bpt"));
 	}
 	protected abstract Eval makeEval(StmtList optStmtList, Expr optExpr);
@@ -13,6 +15,7 @@ public abstract class ExprCalc3 extends beaver.Parser {
 	protected abstract Expr makeSubExpr(Expr left, Expr right);
 	protected abstract Expr makeMulExpr(Expr left, Expr right);
 	protected abstract Expr makeDivExpr(Expr left, Expr right);
+	protected abstract Object makeTerm(Object text, int line, int column);
 	protected Object reduce(Object[] stack, int top, int rule) {
 		switch (rule) {
 			case 0: { // Eval = OptStmtList OptExpr

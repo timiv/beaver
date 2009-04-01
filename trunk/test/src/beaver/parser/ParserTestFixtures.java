@@ -313,7 +313,7 @@ public class ParserTestFixtures
  */
 	}
 
-	public static void compileParser(Grammar grammar, String parserName, File saveDir) throws IOException
+	public static void compileParser(Grammar grammar, String parserName, String packageName, File saveDir) throws IOException
 	{
 		ParserCompiler comp = new ParserCompiler(new Log()
 		{
@@ -330,9 +330,9 @@ public class ParserTestFixtures
 			    System.err.print("Error: ");
 			    System.err.println(text);
 		    }
-		}, parserName, saveDir);
+		}, parserName, packageName, saveDir);
 		
-		comp.setDoNotWritePassThroughActions(true);
+		comp.setGenerateAstStubs(true);
 		comp.setDumpParserStates(true);
 		comp.compile(grammar);
 	}

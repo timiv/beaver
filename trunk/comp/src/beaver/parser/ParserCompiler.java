@@ -22,11 +22,13 @@ public class ParserCompiler
 	boolean doNotWritePassThroughActions;
 	boolean generateAstStubs;
 	boolean dumpParserStates;
+	String  packageName;
 
-	public ParserCompiler(Log log, String parserName, File outputDir)
+	public ParserCompiler(Log log, String parserName, String packageName, File outputDir)
 	{
 		this.log = log;
 		this.parserName = parserName;
+		this.packageName = packageName;
 		this.outputDir = outputDir;
 	}
 	
@@ -211,6 +213,10 @@ public class ParserCompiler
 
 	private void writeParserClass(PrintWriter out, Grammar grammar)
     {
+	    out.print("package ");
+	    out.print(packageName);
+	    out.println(';');
+	    out.println();
 	    out.print("public ");
 	    if (!generateAstStubs)
 	    {
@@ -232,7 +238,7 @@ public class ParserCompiler
 		out.print('\t');
 	    out.print("public ");
 	    out.print(parserName);
-		out.println("() {");
+		out.println("() throws java.io.IOException {");
 		out.print("\t\t");
 		out.print("super(");
 	    out.print(parserName);
@@ -241,6 +247,40 @@ public class ParserCompiler
 		out.println(".bpt\"));");
 		out.print('\t');
 		out.println("}");
+	}
+	
+	private void writeTermMaker(PrintWriter out)
+	{
+		out.print('\t');
+	    out.print("protected ");
+	    out.print("Object");
+	    out.print(" make");
+	    out.print("Term");
+		out.print("(Object text, int line, int column)");
+		out.println(" {");
+		out.print("\t\t");
+	    out.print("return ");
+		out.print("new ");
+	    out.print("Term");
+		out.print('(');
+	    out.print("(String) ");
+	    out.print("text");
+		out.print(')');
+	    out.println(';');
+		out.print('\t');
+		out.println("}");
+	}
+	
+	private void writeAbstractTermMaker(PrintWriter out)
+	{
+		out.print('\t');
+	    out.print("protected ");
+	    out.print("abstract ");
+	    out.print("Object");
+	    out.print(" make");
+	    out.print("Term");
+		out.print("(Object text, int line, int column)");
+		out.println(';');
 	}
 	
 	private void writeParserActions(PrintWriter out, Grammar grammar)
@@ -272,6 +312,14 @@ public class ParserCompiler
 		    	writeAbstractAction(out, rule);
 		    }
         }
+	    if (generateAstStubs)
+	    {
+	    	writeTermMaker(out);
+	    }
+	    else
+	    {
+	    	writeAbstractTermMaker(out);
+	    }
 	}
 
 	private void writeAstAction(PrintWriter out, Production rule)
@@ -492,6 +540,10 @@ public class ParserCompiler
 		try
 		{
     		PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, "Term" + ".java")));
+    	    out.print("package ");
+    	    out.print(packageName);
+    	    out.println(';');
+    	    out.println();
     		out.print("public ");
     		out.print("class ");
     		out.print("Term");
@@ -546,6 +598,10 @@ public class ParserCompiler
 	private void writeListNode(AstList node, AstList[] lists) throws IOException
 	{
 		PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, node.listType + ".java")));
+	    out.print("package ");
+	    out.print(packageName);
+	    out.println(';');
+	    out.println();
 		out.print("public ");
 		out.print("class ");
 		out.print(node.listType);
@@ -655,6 +711,10 @@ public class ParserCompiler
 	private void writeAbstractTypeStub(AstType type, AstList[] lists) throws IOException
 	{
 		PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, type.parentType + ".java")));
+	    out.print("package ");
+	    out.print(packageName);
+	    out.println(';');
+	    out.println();
 		out.print("public ");
 		out.print("abstract ");
 		out.print("class ");
@@ -679,6 +739,10 @@ public class ParserCompiler
 	private void writeAstTypeStub(AstType type, AstList[] lists) throws IOException
 	{
 		PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, type.nodeType + ".java")));
+	    out.print("package ");
+	    out.print(packageName);
+	    out.println(';');
+	    out.println();
 		out.print("public ");
 		out.print("class ");
 		out.print(type.nodeType);
@@ -756,6 +820,10 @@ public class ParserCompiler
 		try
 		{
 			PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, "NodeVisitor" + ".java")));
+		    out.print("package ");
+		    out.print(packageName);
+		    out.println(';');
+		    out.println();
 			out.print("public ");
 			out.print("interface ");
 			out.print("NodeVisitor");
@@ -790,6 +858,10 @@ public class ParserCompiler
 		try
 		{
 			PrintWriter out = new PrintWriter(new FileWriter(new File(outputDir, "AstTreeWalker" + ".java")));
+		    out.print("package ");
+		    out.print(packageName);
+		    out.println(';');
+		    out.println();
 			out.print("public class ");
 			out.print("AstTreeWalker");
 			out.print(" implements ");
@@ -805,6 +877,7 @@ public class ParserCompiler
 			{
 				allTypes.add(astTypes[i].nodeType);
 			}
+			allTypes.add("Term");
 			
 			for (int i = 0; i < astLists.length; i++)
             {
