@@ -19,6 +19,7 @@ public class ParserCompiler
 	Log     log;
 	String  parserName;
 	File    outputDir;
+	boolean preferShiftOverReduce;
 	boolean doNotWritePassThroughActions;
 	boolean generateAstStubs;
 	boolean dumpParserStates;
@@ -30,6 +31,11 @@ public class ParserCompiler
 		this.parserName = parserName;
 		this.packageName = packageName;
 		this.outputDir = outputDir;
+	}
+	
+	public void setPreferShiftOverReduce(boolean flag)
+	{
+		preferShiftOverReduce = flag;
 	}
 	
 	public void setDoNotWritePassThroughActions(boolean flag)
@@ -75,11 +81,15 @@ public class ParserCompiler
 		boolean _continue_ = true;
 		for (ParserState state = firstState; state != null; state = state.next)
 		{
-			ParserAction.Conflict conflict = state.resolveConflicts(null);
+			ParserAction.Conflict conflict = state.resolveConflicts(null, preferShiftOverReduce);
 			if (conflict != null)
 			{
 				StringBuffer text = new StringBuffer(500);
-				text.append("Cannot resolve conflict");
+				text.append("Cannot resolve ");
+				text.append(packageName);
+				text.append('.');
+				text.append(parserName);
+				text.append(" conflict");
 				if (conflict.next != null)
 				{
 					text.append('s');

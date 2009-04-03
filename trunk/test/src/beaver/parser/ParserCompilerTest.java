@@ -244,19 +244,24 @@ public class ParserCompilerTest
 	@Test
 	public void testWritingParserSource() throws IOException
 	{
-		testWritingParserSource(getCompiler("ExprCalc", new File("/temp")), getTestGrammar(), "ParserCompilerTest_ExpectedParserSource.txt");
+		ParserCompiler comp = getCompiler("ExprCalc", new File("/temp"));
+		comp.setPreferShiftOverReduce(true);
+		testWritingParserSource(comp, getTestGrammar(), "ParserCompilerTest_ExpectedParserSource.txt");
 	}
 	
 	@Test
 	public void testWritingMoreRealisticExprCalc() throws IOException
 	{
-		testWritingParserSource(getCompiler("ExprCalc2", new File("/temp")), ParserTestFixtures.getExprCalcGrammar(), "ParserCompilerTest_ExprCalc2ParserSource.txt");
+		ParserCompiler comp = getCompiler("ExprCalc2", new File("/temp"));
+		comp.setPreferShiftOverReduce(true);
+		testWritingParserSource(comp, ParserTestFixtures.getExprCalcGrammar(), "ParserCompilerTest_ExprCalc2ParserSource.txt");
 	}
 	
 	@Test
 	public void testWritingExprCalc() throws IOException
 	{
 		ParserCompiler comp = getCompiler("ExprCalc3", new File("/temp"));
+		comp.setPreferShiftOverReduce(true);
 		comp.setDoNotWritePassThroughActions(true);
 		testWritingParserSource(comp, ParserTestFixtures.getExprCalcGrammar(), "ParserCompilerTest_ExprCalc3ParserSource.txt");
 	}
@@ -265,6 +270,7 @@ public class ParserCompilerTest
 	public void testWritingExprCalcWithAst() throws IOException
 	{
 		ParserCompiler comp = getCompiler("ExprCalc4", new File("/temp"));
+		comp.setPreferShiftOverReduce(true);
 		comp.setGenerateAstStubs(true);
 		testWritingParserSource(comp, ParserTestFixtures.getExprCalcGrammar(), "ParserCompilerTest_ExprCalc4ParserSource.txt");
 	}

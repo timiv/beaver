@@ -73,7 +73,7 @@ public class CompressedParsingTablesTest
 		this.firstState = new ParserStatesBuilder().buildParserStates(grammar);
 		for (ParserState state = firstState; state != null; state = state.next)
 		{
-			ParserAction.Conflict conflict = state.resolveConflicts(null);
+			ParserAction.Conflict conflict = state.resolveConflicts(null, true);
 			if (conflict != null)
 			{
 				StringBuffer text = new StringBuffer(500);

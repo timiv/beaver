@@ -95,9 +95,9 @@ class ParserState
 		action.lookahead.numStates++;
 	}
 
-	ParserAction.Conflict resolveConflicts(ParserAction.Conflict last)
+	ParserAction.Conflict resolveConflicts(ParserAction.Conflict last, boolean preferShiftOverReduce)
 	{
-		last = resolveShiftReduceConflicts(last);
+		last = resolveShiftReduceConflicts(last, preferShiftOverReduce);
 		return resolveReduceReduceConflicts(last);
 	}
 
@@ -120,7 +120,7 @@ class ParserState
 		defaultReduce = removed;
 	}
 
-	private ParserAction.Conflict resolveShiftReduceConflicts(ParserAction.Conflict last)
+	private ParserAction.Conflict resolveShiftReduceConflicts(ParserAction.Conflict last, boolean preferShiftOverReduce)
 	{
 		if (reduce != null)
 		{
@@ -131,7 +131,7 @@ class ParserState
 				{
 					if (shift.lookahead == reduce.lookahead)
 					{
-						ParserAction remove = resolveConflict(shift, reduce);
+						ParserAction remove = resolveConflict(shift, reduce, preferShiftOverReduce);
 						if (remove == shift)
 						{
 							removeShiftAction(shift, prevShift);
@@ -212,7 +212,7 @@ class ParserState
 		action.lookahead.numStates--;
 	}
 
-	private static ParserAction resolveConflict(ParserAction.Shift shift, ParserAction.Reduce reduce)
+	private static ParserAction resolveConflict(ParserAction.Shift shift, ParserAction.Reduce reduce, boolean preferShiftOverReduce)
 	{
 		if (shift.lookahead instanceof Terminal)
 		{
@@ -238,8 +238,7 @@ class ParserState
 				}
 			}
 		}
-		// resolve conflict by choosing to shift 
-		return reduce; 
+		return (preferShiftOverReduce ? reduce : null); 
 	}
 
 	private static ParserAction resolveConflict(ParserAction.Reduce reduce1, ParserAction.Reduce reduce2)

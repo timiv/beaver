@@ -23,7 +23,7 @@ class GrammarFactory
 	String      ruleName;
 	Collection  rhs           = new ArrayList();
 	char        precedence    = '\uffff';
-	char        associativity = '\0'; 
+	char        associativity = 'N'; 
 
 	GrammarFactory(String[] terminalNames)
 	{

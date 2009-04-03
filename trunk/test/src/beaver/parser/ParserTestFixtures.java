@@ -332,6 +332,7 @@ public class ParserTestFixtures
 		    }
 		}, parserName, packageName, saveDir);
 		
+		comp.setPreferShiftOverReduce(true);
 		comp.setGenerateAstStubs(true);
 		comp.setDumpParserStates(true);
 		comp.compile(grammar);

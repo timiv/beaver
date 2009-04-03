@@ -13,7 +13,7 @@ import org.junit.Test;
 public class ParserStateActionsConflictResolverTest
 {
 	@Test
-	public void testAdderConflictResolutionWithoutPrecedence()
+	public void testConflictResolutionWithoutPrecedence()
 	{
 		GrammarFactory fact = new GrammarFactory(new String[] {"NUM"});
 		fact.def("OptList")
@@ -49,8 +49,8 @@ public class ParserStateActionsConflictResolverTest
 		   accept:
 		      Goal -> ACCEPT		
 		 */
-		ParserAction.Conflict conflict = state.resolveConflicts(null);
-		assertNotNull(conflict);	
+		ParserAction.Conflict conflict = state.resolveConflicts(null, false);
+		assertNotNull(conflict);
 		assertTrue(conflict.action1 instanceof ParserAction.Reduce);
 		assertTrue(conflict.action2 instanceof ParserAction.Reduce);
 		assertEquals("EOF", conflict.action1.lookahead.toString());
@@ -58,6 +58,14 @@ public class ParserStateActionsConflictResolverTest
 		assertEquals("OptNum =", reduce.production.toString());
 		reduce = (ParserAction.Reduce) conflict.action2;		
 		assertEquals("OptList =", reduce.production.toString());		
+		assertNotNull(conflict = conflict.next);	
+		assertTrue(conflict.action1 instanceof ParserAction.Shift);
+		assertTrue(conflict.action2 instanceof ParserAction.Reduce);
+		assertEquals("NUM", conflict.action1.lookahead.toString());
+		ParserAction.Shift shift = (ParserAction.Shift) conflict.action1;
+		assertEquals(5, shift.dest.id);
+		reduce = (ParserAction.Reduce) conflict.action2;		
+		assertEquals("OptNum =", reduce.production.toString());
 		assertNull(conflict.next);
 		
 		state = state.next;
@@ -66,7 +74,7 @@ public class ParserStateActionsConflictResolverTest
 		   reduce:
 		       EOF -> Goal = OptList		
 		 */
-		conflict = state.resolveConflicts(null);
+		conflict = state.resolveConflicts(null, false);
 		assertNull(conflict);	
 
 		state = state.next;
@@ -80,7 +88,8 @@ public class ParserStateActionsConflictResolverTest
 		       EOF -> OptNum =
 		       EOF -> OptList = List		
 		 */
-		conflict = state.resolveConflicts(null);
+		conflict = state.resolveConflicts(null, false);
+		assertNotNull(conflict);
 		assertTrue(conflict.action1 instanceof ParserAction.Reduce);
 		assertTrue(conflict.action2 instanceof ParserAction.Reduce);
 		assertEquals("EOF", conflict.action1.lookahead.toString());
@@ -88,6 +97,14 @@ public class ParserStateActionsConflictResolverTest
 		assertEquals("OptNum =", reduce.production.toString());
 		reduce = (ParserAction.Reduce) conflict.action2;		
 		assertEquals("OptList = List", reduce.production.toString());		
+		assertNotNull(conflict = conflict.next);	
+		assertTrue(conflict.action1 instanceof ParserAction.Shift);
+		assertTrue(conflict.action2 instanceof ParserAction.Reduce);
+		assertEquals("NUM", conflict.action1.lookahead.toString());
+		shift = (ParserAction.Shift) conflict.action1;
+		assertEquals(5, shift.dest.id);
+		reduce = (ParserAction.Reduce) conflict.action2;		
+		assertEquals("OptNum =", reduce.production.toString());
 		assertNull(conflict.next);
 
 		state = state.next;
@@ -98,7 +115,7 @@ public class ParserStateActionsConflictResolverTest
 		       EOF -> List = List OptNum
 
 		 */
-		conflict = state.resolveConflicts(null);
+		conflict = state.resolveConflicts(null, false);
 		assertNull(conflict);	
 		
 		state = state.next;
@@ -109,7 +126,7 @@ public class ParserStateActionsConflictResolverTest
 		       EOF -> OptNum = NUM
 				
 		 */
-		conflict = state.resolveConflicts(null);
+		conflict = state.resolveConflicts(null, false);
 		assertNull(conflict);	
 
 		state = state.next;
@@ -119,16 +136,16 @@ public class ParserStateActionsConflictResolverTest
 		       NUM -> List = OptNum
 		       EOF -> List = OptNum	
 		 */
-		conflict = state.resolveConflicts(null);
+		conflict = state.resolveConflicts(null, false);
 		assertNull(conflict);	
 		
 		assertNull(state.next);
 	}
 	
 	@Test
-	public void testAdderConflictResolutionWithPrecedence_PreferShift()
+	public void testConflictResolutionWithImplicitPreferShiftPrecedence()
 	{
-		GrammarFactory fact = new GrammarFactory(new String[] {"NUM", "ID"});
+		GrammarFactory fact = new GrammarFactory(new String[] {"NUM"});
 		fact.def("Expr")
 			.sym("NUM")
 			.end();
@@ -138,24 +155,52 @@ public class ParserStateActionsConflictResolverTest
 			.sym("Expr")
 			.end();
 		Grammar grammar = fact.getGrammar();
-		// this builder does not (yet) support precedences
-		// assign one to "+" manually
-		for (int i = 1; i < grammar.terminals.length; i++)
-		{
-			if (grammar.terminals[i].toString().equals("\"+\""))
-			{
-				grammar.terminals[i].precedence = '\uffff';
-				break;
-			}
-		}
 		ParserState state = new ParserStatesBuilder().buildParserStates(grammar);
+        /*
+            1:
+           shift:
+               NUM -> 5
+              Expr -> 2
+           accept:
+              Goal -> ACCEPT
+        
+            2:
+               shift:
+                   "+" -> 3
+               reduce:
+                   EOF -> Goal = Expr
+        
+            3:
+               shift:
+                   NUM -> 5
+                  Expr -> 4
+        
+            4:
+               shift:
+                   "+" -> 3
+               reduce:
+                   "+" -> Expr = Expr "+" Expr
+                   EOF -> Expr = Expr "+" Expr
+                   
+            5:
+               reduce:
+                   "+" -> Expr = NUM
+                   EOF -> Expr = NUM
+         */
 		// find state 4, where there is a conflict
-		state = state.next; // 1 -> 2
-		state = state.next; // 2 -> 3
-		state = state.next; // 3 -> 4
+		assertNotNull(state); 				// 1
+		assertNotNull(state = state.next); 	// 1 -> 2
+		assertNotNull(state = state.next); 	// 2 -> 3
+		assertNotNull(state = state.next);  // 3 -> 4
 		// state 4
-		assertNull(state.resolveConflicts(null));
-		
+		assertNull(state.resolveConflicts(null, true));
+		/*
+            4:
+               shift:
+                   "+" -> 3
+               reduce:
+                   EOF -> Expr = Expr "+" Expr
+		 */
 		assertNotNull(state.shift);
 		ParserAction.Shift shift = (ParserAction.Shift) state.shift;
 		assertEquals("\"+\"", shift.lookahead.toString());
@@ -168,52 +213,129 @@ public class ParserStateActionsConflictResolverTest
 		assertEquals("Expr = Expr \"+\" Expr", reduce.production.toString());
 		assertNull(reduce.next);
 		
-		state = state.next; // 4 -> 5
+		assertNotNull(state = state.next); // 4 -> 5
+		assertNull(state.next);
+	}
+	
+	
+	@Test
+	public void testConflictResolutionWithExplicitPrecedence_PreferShift()
+	{
+		GrammarFactory fact = new GrammarFactory(new String[] {"NUM"});
+		fact.def("Expr")
+			.sym("NUM")
+			.end();
+		fact.def("Expr", "Add")
+			.sym("Expr")
+			.txt("+")
+			.sym("Expr")
+			.end();
+		fact.none()
+			.prec("+");
+		fact.none()
+			.prec("Expr", "Add");
+		Grammar grammar = fact.getGrammar();
+		ParserState state = new ParserStatesBuilder().buildParserStates(grammar);
+        /*
+            1:
+           shift:
+               NUM -> 5
+              Expr -> 2
+           accept:
+              Goal -> ACCEPT
+        
+            2:
+               shift:
+                   "+" -> 3
+               reduce:
+                   EOF -> Goal = Expr
+        
+            3:
+               shift:
+                   NUM -> 5
+                  Expr -> 4
+        
+            4:
+               shift:
+                   "+" -> 3
+               reduce:
+                   "+" -> Expr = Expr "+" Expr
+                   EOF -> Expr = Expr "+" Expr
+                   
+            5:
+               reduce:
+                   "+" -> Expr = NUM
+                   EOF -> Expr = NUM
+         */
+		// find state 4, where there is a conflict
+		assertNotNull(state); 				// 1
+		assertNotNull(state = state.next); 	// 1 -> 2
+		assertNotNull(state = state.next); 	// 2 -> 3
+		assertNotNull(state = state.next);  // 3 -> 4
+		// state 4
+		assertNull(state.resolveConflicts(null, false));
+		/*
+            4:
+               shift:
+                   "+" -> 3
+               reduce:
+                   EOF -> Expr = Expr "+" Expr
+		 */
+		assertNotNull(state.shift);
+		ParserAction.Shift shift = (ParserAction.Shift) state.shift;
+		assertEquals("\"+\"", shift.lookahead.toString());
+		assertEquals(3, shift.dest.id);
+		assertNull(shift.next);
+		
+		assertNotNull(state.reduce);
+		ParserAction.Reduce reduce = (ParserAction.Reduce) state.reduce;
+		assertEquals("EOF", reduce.lookahead.toString());
+		assertEquals("Expr = { Add } Expr \"+\" Expr", reduce.production.toString());
+		assertNull(reduce.next);
+		
+		assertNotNull(state = state.next); // 4 -> 5
 		assertNull(state.next);
 	}
 	
 	@Test
-	public void testAdderConflictResolutionWithPrecedence_PreferReduce()
+	public void testConflictResolutionWithExplicitPrecedence_PreferReduce()
 	{
-		GrammarFactory fact = new GrammarFactory(new String[] {"NUM", "ID"});
-		fact.def("Expr")
+		GrammarFactory fact = new GrammarFactory(new String[] {"NUM"});
+		fact.def("Expr", "Num")
 			.sym("NUM")
 			.end();
-		fact.def("Expr")
+		fact.def("Expr", "Add")
 			.sym("Expr")
 			.txt("+")
 			.sym("Expr")
 			.end();
+		fact.none()
+			.prec("Expr", "Add");
 		Grammar grammar = fact.getGrammar();
-		// this builder does not (yet) support precedences
-		// assign one to EXPR manually
-		for (int i = 0; i < grammar.productions.length; i++)
-		{
-			if (grammar.productions[i].toString().equals("Expr = Expr \"+\" Expr"))
-			{
-				grammar.productions[i].precedence = '\uffff';
-				break;
-			}
-		}
 		ParserState state = new ParserStatesBuilder().buildParserStates(grammar);
 		// find state 4, where there is a conflict
-		state = state.next; // 1 -> 2
-		state = state.next; // 2 -> 3
-		state = state.next; // 3 -> 4
+		assertNotNull(state); 				// 1
+		assertNotNull(state = state.next); 	// 1 -> 2
+		assertNotNull(state = state.next); 	// 2 -> 3
+		assertNotNull(state = state.next);  // 3 -> 4
 		// state 4
-		assertNull(state.resolveConflicts(null));
-		
+		assertNull(state.resolveConflicts(null, false));
+		/*
+            4:
+               reduce:
+                   "+" -> Expr = Expr "+" Expr
+                   EOF -> Expr = Expr "+" Expr
+		 */
 		assertNull(state.shift);
 		
 		assertNotNull(state.reduce);
 		ParserAction.Reduce reduce = (ParserAction.Reduce) state.reduce;
-		// Notice shift-reduce conflict here
 		assertEquals("\"+\"", reduce.lookahead.toString());
-		assertEquals("Expr = Expr \"+\" Expr", reduce.production.toString());
+		assertEquals("Expr = { Add } Expr \"+\" Expr", reduce.production.toString());
 		assertNotNull(reduce.next);
 		reduce = (ParserAction.Reduce) reduce.next;
 		assertEquals("EOF", reduce.lookahead.toString());
-		assertEquals("Expr = Expr \"+\" Expr", reduce.production.toString());
+		assertEquals("Expr = { Add } Expr \"+\" Expr", reduce.production.toString());
 		assertNull(reduce.next);
 		
 		state = state.next; // 4 -> 5
@@ -221,98 +343,96 @@ public class ParserStateActionsConflictResolverTest
 	}
 
 	@Test
-	public void testAdderConflictResolutionWithSamePrecedence_RightAssoc()
+	public void testConflictResolutionWithSameExplicitPrecedence_RightAssoc()
 	{
-		GrammarFactory fact = new GrammarFactory(new String[] {"NUM", "ID"});
+		GrammarFactory fact = new GrammarFactory(new String[] {"NUM"});
 		fact.def("Expr")
 			.sym("NUM")
 			.end();
-		fact.def("Expr")
+		fact.def("Expr", "Add")
 			.sym("Expr")
 			.txt("+")
 			.sym("Expr")
 			.end();
+		fact.right()
+			.prec("+")
+			.prec("Expr", "Add");
 		Grammar grammar = fact.getGrammar();
-		// this builder does not (yet) support precedences
-		// assign one to "+" manually
-		for (int i = 1; i < grammar.terminals.length; i++)
-		{
-			if (grammar.terminals[i].toString().equals("\"+\""))
-			{
-				grammar.terminals[i].associativity = 'R';
-				break;
-			}
-		}
 		ParserState state = new ParserStatesBuilder().buildParserStates(grammar);
 		// find state 4, where there is a conflict
-		state = state.next; // 1 -> 2
-		state = state.next; // 2 -> 3
-		state = state.next; // 3 -> 4
+		assertNotNull(state); 				// 1
+		assertNotNull(state = state.next); 	// 1 -> 2
+		assertNotNull(state = state.next); 	// 2 -> 3
+		assertNotNull(state = state.next);  // 3 -> 4
 		// state 4
-		assertNull(state.resolveConflicts(null));
-		
-		assertNotNull(state.shift);
-		ParserAction.Shift shift = (ParserAction.Shift) state.shift;
-		assertEquals("\"+\"", shift.lookahead.toString());
-		assertEquals(3, shift.dest.id);
-		assertNull(shift.next);
-		
-		assertNotNull(state.reduce);
-		ParserAction.Reduce reduce = (ParserAction.Reduce) state.reduce;
-		assertEquals("EOF", reduce.lookahead.toString());
-		assertEquals("Expr = Expr \"+\" Expr", reduce.production.toString());
-		assertNull(reduce.next);
-		
-		state = state.next; // 4 -> 5
-		assertNull(state.next);
+		assertNull(state.resolveConflicts(null, false));
+		/*
+            4:
+               shift:
+                   "+" -> 3
+               reduce:
+                   EOF -> Expr = Expr "+" Expr
+    	 */
+    	assertNotNull(state.shift);
+    	ParserAction.Shift shift = (ParserAction.Shift) state.shift;
+    	assertEquals("\"+\"", shift.lookahead.toString());
+    	assertEquals(3, shift.dest.id);
+    	assertNull(shift.next);
+    	
+    	assertNotNull(state.reduce);
+    	ParserAction.Reduce reduce = (ParserAction.Reduce) state.reduce;
+    	assertEquals("EOF", reduce.lookahead.toString());
+    	assertEquals("Expr = { Add } Expr \"+\" Expr", reduce.production.toString());
+    	assertNull(reduce.next);
+    	
+    	assertNotNull(state = state.next); // 4 -> 5
+    	assertNull(state.next);
 	}
 
 	@Test
-	public void testAdderConflictResolutionWithSamePrecedence_LeftAssoc()
+	public void testConflictResolutionWithSameExplicitPrecedence_LeftAssoc()
 	{
-		GrammarFactory fact = new GrammarFactory(new String[] {"NUM", "ID"});
+		GrammarFactory fact = new GrammarFactory(new String[] {"NUM"});
 		fact.def("Expr")
 			.sym("NUM")
 			.end();
-		fact.def("Expr")
+		fact.def("Expr", "Add")
 			.sym("Expr")
 			.txt("+")
 			.sym("Expr")
 			.end();
+		fact.left()
+			.prec("+")
+			.prec("Expr", "Add");
 		Grammar grammar = fact.getGrammar();
-		// this builder does not (yet) support precedences
-		// assign one to EXPR manually
-		for (int i = 1; i < grammar.terminals.length; i++)
-		{
-			if (grammar.terminals[i].toString().equals("\"+\""))
-			{
-				grammar.terminals[i].associativity = 'L';
-				break;
-			}
-		}
 		ParserState state = new ParserStatesBuilder().buildParserStates(grammar);
 		// find state 4, where there is a conflict
-		state = state.next; // 1 -> 2
-		state = state.next; // 2 -> 3
-		state = state.next; // 3 -> 4
+		assertNotNull(state); 				// 1
+		assertNotNull(state = state.next); 	// 1 -> 2
+		assertNotNull(state = state.next); 	// 2 -> 3
+		assertNotNull(state = state.next);  // 3 -> 4
 		// state 4
-		assertNull(state.resolveConflicts(null));
-		
-		assertNull(state.shift);
-		
-		assertNotNull(state.reduce);
-		ParserAction.Reduce reduce = (ParserAction.Reduce) state.reduce;
-		// Notice shift-reduce conflict here
-		assertEquals("\"+\"", reduce.lookahead.toString());
-		assertEquals("Expr = Expr \"+\" Expr", reduce.production.toString());
-		assertNotNull(reduce.next);
-		reduce = (ParserAction.Reduce) reduce.next;
-		assertEquals("EOF", reduce.lookahead.toString());
-		assertEquals("Expr = Expr \"+\" Expr", reduce.production.toString());
-		assertNull(reduce.next);
-		
-		state = state.next; // 4 -> 5
-		assertNull(state.next);
+		assertNull(state.resolveConflicts(null, false));
+		/*
+            4:
+               reduce:
+                   "+" -> Expr = Expr "+" Expr
+                   EOF -> Expr = Expr "+" Expr
+    	 */
+    	assertNull(state.shift);
+    	
+    	assertNotNull(state.reduce);
+    	ParserAction.Reduce reduce = (ParserAction.Reduce) state.reduce;
+    	assertEquals("\"+\"", reduce.lookahead.toString());
+    	assertEquals("Expr = { Add } Expr \"+\" Expr", reduce.production.toString());
+    	assertNotNull(reduce.next);
+    	reduce = (ParserAction.Reduce) reduce.next;
+    	assertEquals("EOF", reduce.lookahead.toString());
+    	assertEquals("Expr = { Add } Expr \"+\" Expr", reduce.production.toString());
+    	assertNull(reduce.next);
+    	
+    	state = state.next; // 4 -> 5
+    	assertNull(state.next);
 	}
 	
 	@Test
@@ -427,22 +547,22 @@ public class ParserStateActionsConflictResolverTest
 		state = state.next; // 2
 		state = state.next; // 3
 		state = state.next; // 4
-		ParserAction.Conflict conflict = state.resolveConflicts(null);
+		ParserAction.Conflict conflict = state.resolveConflicts(null, false);
 		assertNull(conflict);
 		assertUniqueLookaheads(state);
 		state = state.next; // 5
 		state = state.next; // 6
-		conflict = state.resolveConflicts(null);
+		conflict = state.resolveConflicts(null, false);
 		assertNull(conflict);
 		assertUniqueLookaheads(state);		
 		state = state.next; // 7
 		state = state.next; // 8
-		conflict = state.resolveConflicts(null);
+		conflict = state.resolveConflicts(null, false);
 		assertNull(conflict);
 		assertUniqueLookaheads(state);		
 		state = state.next; // 9
 		state = state.next; // 10
-		conflict = state.resolveConflicts(null);
+		conflict = state.resolveConflicts(null, false);
 		assertNull(conflict);
 		assertUniqueLookaheads(state);		
 	}
