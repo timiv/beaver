@@ -15,6 +15,8 @@ import beaver.UnexpectedCharacterException;
 
 public class CharScannerGeneratorTest
 {
+	private static final int EOF = Short.MAX_VALUE;
+	
 	static class NoSuchScannerException extends RuntimeException
 	{
         private static final long serialVersionUID = -8923308417615916686L;
@@ -41,7 +43,7 @@ public class CharScannerGeneratorTest
 							RegExp re = (RegExp) getScannerRegExp.invoke(null);
 							NFA nfa = new NFA(re);
 							DFA dfa = new DFA(nfa);
-							byte[] bc = new CharScannerGenerator(dfa).compile(name);
+							byte[] bc = new CharScannerGenerator(dfa, EOF).compile(name);
 							
 							//new ClassReader(bc).accept(new TraceClassVisitor(new PrintWriter(System.out)), 0);
 							
@@ -139,9 +141,9 @@ public class CharScannerGeneratorTest
 		assertEquals("25.67", scanner.getTokenText());
 		assertEquals(1, scanner.getNextToken());
 		assertEquals("\n", scanner.getTokenText());
-		assertEquals(0, scanner.getNextToken());
-		assertEquals(0, scanner.getNextToken());
-		assertEquals(0, scanner.getNextToken());
+		assertEquals(EOF, scanner.getNextToken());
+		assertEquals(EOF, scanner.getNextToken());
+		assertEquals(EOF, scanner.getNextToken());
 	}
 	
 	@Test
@@ -195,9 +197,9 @@ public class CharScannerGeneratorTest
 		assertEquals("/", scanner.getTokenText());
 		assertEquals(10, scanner.getNextToken());
 		assertEquals("a1", scanner.getTokenText());
-		assertEquals(0, scanner.getNextToken());
-		assertEquals(0, scanner.getNextToken());
-		assertEquals(0, scanner.getNextToken());
+		assertEquals(EOF, scanner.getNextToken());
+		assertEquals(EOF, scanner.getNextToken());
+		assertEquals(EOF, scanner.getNextToken());
 	}
 	
 	@Test
@@ -217,6 +219,6 @@ public class CharScannerGeneratorTest
 		assertEquals("not", scanner.getTokenText());
 		assertEquals(4, scanner.getNextToken());
 		assertEquals("note", scanner.getTokenText());
-		assertEquals(0, scanner.getNextToken());
+		assertEquals(EOF, scanner.getNextToken());
 	}
 }

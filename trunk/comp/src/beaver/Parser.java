@@ -10,8 +10,6 @@ public abstract class Parser
 	/**
 	 * Array of ranges [min,max] of lookahead IDs for each state.
 	 * Each range is packed as (max << 16) | min.
-	 * To avoid index computation during lookups this array has an
-	 * unused/extra slot 0.
 	 */
 	int[]   stateLookaheadBounds;
 
@@ -26,15 +24,17 @@ public abstract class Parser
 	 * To minimize storage (and memory usage) the offsets in this array
 	 * are shifted, therefore action index is calculated with the shift:
 	 *   index = lookahead_id + offset + shift;
-	 * To reduce index computations this array has unused/extra slot 0.  
 	 */
 	char[]  stateActionsOffsets;
 
 	/**
-	 * Array of packed parser actions. Positive numbers represent shift and
-	 * the number itself a state ID parser will go to. Negative numbers are
-	 * inverted production IDs that are used to reduce the stack. Zero is a
-	 * non-action or error.  
+	 * Array of packed parser actions.
+	 * Positive numbers represent shift and the number itself a state ID
+	 * parser will go to. Note, that actions table has state IDs in [1,NumStates]
+	 * range while the parser internally uses [0,NumStates-1] range.
+	 * Negative numbers are inverted production IDs that are used to reduce
+	 * the stack.
+	 * Zero is a non-action or error.  
 	 */
 	short[] actions;
 	
@@ -47,7 +47,6 @@ public abstract class Parser
 	/**
 	 * Default action (reduce) to take in a state when nothing can be found
 	 * in the packed actions array. 
-	 * To avoid index computation this array has an unused/extra slot 0.
 	 */
 	short[] defaultActions;
 	
@@ -62,8 +61,7 @@ public abstract class Parser
 	short[] productionLhsId;
 	
 	/**
-	 * Text representations of all symbols for error reporting. The representations
-	 * are stored at slots with indexes which are 1 less then the symbol ID.
+	 * Text representations of all symbols for error reporting.
 	 */
 	protected String[] symbols;
 	
@@ -107,15 +105,15 @@ public abstract class Parser
 			throw new IllegalArgumentException("!BPT");
 		}
 		int numStates = in.readUnsignedShort();
-		stateLookaheadBounds = new int[numStates + 1];
-		for (int i = 1; i <= numStates; i++)
+		stateLookaheadBounds = new int[numStates];
+		for (int i = 0; i < numStates; i++)
 		{
 			stateLookaheadBounds[i] = in.readInt();
 		}
 		stateActionsOffsetShift = in.readShort();
 
-		stateActionsOffsets = new char[numStates + 1];
-		for (int i = 1; i <= numStates; i++)
+		stateActionsOffsets = new char[numStates];
+		for (int i = 0; i < numStates; i++)
 		{
 			stateActionsOffsets[i] = in.readChar();
 		}
@@ -132,8 +130,8 @@ public abstract class Parser
 	        actionLookaheads[i] = in.readChar();
         }
 		
-		defaultActions = new short[numStates + 1];
-		for (int i = 1; i <= numStates; i++)
+		defaultActions = new short[numStates];
+		for (int i = 0; i < numStates; i++)
 		{
 			defaultActions[i] = in.readShort();
 		}
@@ -148,8 +146,8 @@ public abstract class Parser
 			productionLhsId[i] = (short) (info >>> 16); 
         }
 		
-		symbols = new String[in.readUnsignedShort()];
-		for (int i = 0; i < symbols.length; i++)
+		symbols = new String[in.readUnsignedShort() + 1];
+		for (int i = 1; i < symbols.length; i++)
         {
 	        symbols[i] = in.readUTF();
         }
@@ -223,7 +221,7 @@ public abstract class Parser
 
 	public Object parse(Scanner input) throws SyntaxErrorException, IOException
 	{
-		stackStates[--stackTop] = 1; // starting state
+		stackStates[--stackTop] = 0; // starting state
 		
 		while (true)
 		{
@@ -245,8 +243,7 @@ public abstract class Parser
 				int action = findAction(symbolId);
 				if (action > 0)
 				{
-					// action code represents a goto state
-					shift(symbol, action);
+					shift(symbol, action - 1); // action - 1 is a goto state
 					break;
 				}
 				else if (action < 0)
@@ -257,7 +254,7 @@ public abstract class Parser
 					action = findAction(productionLhsId[ruleId]);
 					if (action > 0)
 					{
-						shift(newNonterminal, action);
+						shift(newNonterminal, action - 1);
 					}
 					else if (action == ~productionLhsId.length) // accept
 					{
@@ -360,7 +357,7 @@ public abstract class Parser
 	 */
 	protected void recoverFromError(int symbolId, Object text, int line, int column) throws SyntaxErrorException, IOException
 	{
-		throw new SyntaxErrorException("(" + line + "," + column + "): unexpected " + symbols[(symbolId >= 0 ? symbolId : -symbolId) - 1] + (symbolId < 0 ? "" : " = " + text));
+		throw new SyntaxErrorException("(" + line + "," + column + "): unexpected " + symbols[symbolId > 0 ? symbolId : -symbolId] + (symbolId > 0 ? " = " + text : ""));
 	}
 	
 }

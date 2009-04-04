@@ -69,7 +69,7 @@ public class ParserTest
 		
 		TestParser parser = new TestParser(bptFile);
 		String[] symNames = parser.getSymbolNames();
-		assertArrayEquals(new String[] {"EOF", quote("("), "NUM", "ID", quote("+"), quote("-"), quote("*"), quote("/"), quote(";"), quote(")"), "Expr", "Stmt", quote("="), "OptStmtList", "OptExpr", "StmtList", "Eval"}, symNames);	
+		assertArrayEquals(new String[] {null, "EOF", quote("("), "NUM", "ID", quote("+"), quote("-"), quote("*"), quote("/"), quote(";"), quote(")"), "Expr", "Stmt", quote("="), "OptStmtList", "OptExpr", "StmtList", "Eval"}, symNames);	
 	}
 	
 	@Test
@@ -80,7 +80,7 @@ public class ParserTest
 		
 		TestParser parser = new TestParser(bptFile);
 		parser.stackTop--;
-		parser.stackStates[parser.stackTop] = 1;
+		parser.stackStates[parser.stackTop] = 1 - 1;
 		
         assertEquals( -3, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -100,7 +100,7 @@ public class ParserTest
         assertEquals(  0, parser.findAction(11)); // Expr
         assertEquals( 24, parser.findAction(12)); // Stmt
 
-		parser.stackStates[parser.stackTop] = 2;
+		parser.stackStates[parser.stackTop] = 2 - 1;
         
         assertEquals( -5, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -120,7 +120,7 @@ public class ParserTest
         assertEquals(  4, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 3;
+        parser.stackStates[parser.stackTop] = 3 - 1;
 		
         assertEquals( -1, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -140,7 +140,7 @@ public class ParserTest
         assertEquals(  0, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 4;
+        parser.stackStates[parser.stackTop] = 4 - 1;
 		
         assertEquals( -4, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -160,7 +160,7 @@ public class ParserTest
         assertEquals(  0, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 5;
+        parser.stackStates[parser.stackTop] = 5 - 1;
         
         assertEquals(  0, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -180,7 +180,7 @@ public class ParserTest
         assertEquals(  6, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
         
-        parser.stackStates[parser.stackTop] = 6;
+        parser.stackStates[parser.stackTop] = 6 - 1;
         
         assertEquals(-12, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -200,7 +200,7 @@ public class ParserTest
         assertEquals(  0, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 7;
+        parser.stackStates[parser.stackTop] = 7 - 1;
         
         assertEquals(  0, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -220,7 +220,7 @@ public class ParserTest
         assertEquals(  8, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 8;
+        parser.stackStates[parser.stackTop] = 8 - 1;
         
         assertEquals(-13, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -240,7 +240,7 @@ public class ParserTest
         assertEquals(  0, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 9;
+        parser.stackStates[parser.stackTop] = 9 - 1;
         
         assertEquals(  0, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -260,7 +260,7 @@ public class ParserTest
         assertEquals( 10, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 10;
+        parser.stackStates[parser.stackTop] = 10 - 1;
         
         assertEquals(-14, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -280,7 +280,7 @@ public class ParserTest
         assertEquals(  0, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 11;
+        parser.stackStates[parser.stackTop] = 11 - 1;
         
         assertEquals(  0, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -300,7 +300,7 @@ public class ParserTest
         assertEquals( 12, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 12;
+        parser.stackStates[parser.stackTop] = 12 - 1;
         
         assertEquals(-15, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -320,7 +320,7 @@ public class ParserTest
         assertEquals(  0, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 13;
+        parser.stackStates[parser.stackTop] = 13 - 1;
         
         assertEquals( -9, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -340,7 +340,7 @@ public class ParserTest
         assertEquals(  0, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 14;
+        parser.stackStates[parser.stackTop] = 14 - 1;
         
         assertEquals(-10, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -360,7 +360,7 @@ public class ParserTest
         assertEquals(  0, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 15;
+        parser.stackStates[parser.stackTop] = 15 - 1;
         
         assertEquals(  0, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -380,7 +380,7 @@ public class ParserTest
         assertEquals( 16, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 16;
+        parser.stackStates[parser.stackTop] = 16 - 1;
         
         assertEquals(  0, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -400,7 +400,7 @@ public class ParserTest
         assertEquals(  0, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 17;
+        parser.stackStates[parser.stackTop] = 17 - 1;
         
         assertEquals(-11, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -420,7 +420,7 @@ public class ParserTest
         assertEquals(  0, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 18;
+        parser.stackStates[parser.stackTop] = 18 - 1;
         
         assertEquals( -2, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -440,7 +440,7 @@ public class ParserTest
         assertEquals(  0, parser.findAction(11)); // Expr
         assertEquals( 19, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 19;
+        parser.stackStates[parser.stackTop] = 19 - 1;
         
         assertEquals( -7, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -460,7 +460,7 @@ public class ParserTest
         assertEquals(  0, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 20;
+        parser.stackStates[parser.stackTop] = 20 - 1;
         
         assertEquals(  0, parser.findAction( 1)); // EOF 
         assertEquals( 21, parser.findAction(13)); // "=" 
@@ -480,7 +480,7 @@ public class ParserTest
         assertEquals(  0, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 21;
+        parser.stackStates[parser.stackTop] = 21 - 1;
         
         assertEquals(  0, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -500,7 +500,7 @@ public class ParserTest
         assertEquals( 22, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 22;
+        parser.stackStates[parser.stackTop] = 22 - 1;
         
         assertEquals(  0, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -520,7 +520,7 @@ public class ParserTest
         assertEquals(  0, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 23;
+        parser.stackStates[parser.stackTop] = 23 - 1;
         
         assertEquals( -8, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 
@@ -540,7 +540,7 @@ public class ParserTest
         assertEquals(  0, parser.findAction(11)); // Expr
         assertEquals(  0, parser.findAction(12)); // Stmt
 
-        parser.stackStates[parser.stackTop] = 24;
+        parser.stackStates[parser.stackTop] = 24 - 1;
         
         assertEquals( -6, parser.findAction( 1)); // EOF 
         assertEquals(  0, parser.findAction(13)); // "=" 

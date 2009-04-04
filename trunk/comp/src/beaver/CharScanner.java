@@ -54,6 +54,13 @@ public abstract class CharScanner extends Scanner
 		this.line = 1;
 	}
 
+	protected CharScanner(Reader in)
+	{
+		this.in = in;
+		this.text = new char[0x1000];
+		this.line = 1;
+	}
+
 	/**
 	 * Returns characters of the current, just recognized, token.
 	 * 

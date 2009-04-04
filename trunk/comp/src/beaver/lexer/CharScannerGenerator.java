@@ -12,12 +12,12 @@ import org.objectweb.asm.Opcodes;
 public class CharScannerGenerator implements Opcodes
 {
 	private DFA dfa;
-	private int eof;
+	private int eofTokenId;
 
 	public CharScannerGenerator(DFA dfa, int eofTokenId)
 	{
 		this.dfa = dfa;
-		this.eof = eofTokenId;
+		this.eofTokenId = eofTokenId;
 	}
 
 	public CharScannerGenerator(DFA dfa)
@@ -30,31 +30,30 @@ public class CharScannerGenerator implements Opcodes
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		cw.visit(V1_1, ACC_PUBLIC | ACC_SUPER, className, null, SUPER, null);
 
-		generateScannerConstructor(cw);
+		generateScannerConstructors(cw);
 		generateGetNextTokenMethod(cw);
 
 		return cw.toByteArray();
 	}
 
-	private void generateScannerConstructor(ClassWriter cw)
+	private void generateScannerConstructors(ClassWriter cw)
 	{
-		// Lets find the deepest state, i.e. the max number of characters that scanner
-		// will want to be available in the buffer
-		int maxDepth = 0;
-		for (DFAState st = dfa.start; st != null; st = st.next)
-		{
-			if (st.depth > maxDepth)
-			{
-				maxDepth = st.depth;
-			}
-		}
-
 		// public Constructor(java.io.Reader)
 
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(Ljava/io/Reader;)V", null, null);
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, ARG1);
-		generateLoadConstInsn(mv, maxDepth);
+		mv.visitMethodInsn(INVOKESPECIAL, SUPER, "<init>", "(Ljava/io/Reader;)V");
+		mv.visitInsn(RETURN);
+		mv.visitMaxs(0, 0);
+		mv.visitEnd();
+		
+		// public Constructor(java.io.Reader,int)
+
+		mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(Ljava/io/Reader;I)V", null, null);
+		mv.visitVarInsn(ALOAD, THIS);
+		mv.visitVarInsn(ALOAD, ARG1);
+		mv.visitVarInsn(ILOAD, ARG2);
 		mv.visitMethodInsn(INVOKESPECIAL, SUPER, "<init>", "(Ljava/io/Reader;I)V");
 		mv.visitInsn(RETURN);
 		mv.visitMaxs(0, 0);
@@ -104,15 +103,15 @@ public class CharScannerGenerator implements Opcodes
 		mv.visitFieldInsn(PUTFIELD, SUPER, "start", "I");
 
 		// int marker = -1;
-		mv.visitInsn(ICONST_M1);
+		generateLoadConstInsn(mv, -1);
 		mv.visitVarInsn(ISTORE, LOCAL_MARKER);
 
 		// int ctxptr = -1;
-		mv.visitInsn(ICONST_M1);
+		generateLoadConstInsn(mv, -1);
 		mv.visitVarInsn(ISTORE, LOCAL_CTXPTR);
 
-		// int accept = -2;
-		generateLoadConstInsn(mv, -2);
+		// int accept = 0;
+		generateLoadConstInsn(mv, 0);
 		mv.visitVarInsn(ISTORE, LOCAL_ACCEPT);
 	}
 
@@ -141,14 +140,14 @@ public class CharScannerGenerator implements Opcodes
 		mv.visitVarInsn(ILOAD, LOCAL_CURSOR);
 		mv.visitFieldInsn(PUTFIELD, SUPER, "cursor", "I");
 
-		// if (accept >= 0) return accept;
+		// if (accept == SKIP_ACCEPT) goto startScan;
 		mv.visitVarInsn(ILOAD, LOCAL_ACCEPT);
-		mv.visitJumpInsn(IFGE, returnAccepted);
-
-		// if (accept == -1) goto startScan;
-		mv.visitVarInsn(ILOAD, LOCAL_ACCEPT);
-		mv.visitInsn(ICONST_M1);
+		generateLoadConstInsn(mv, SKIP_ACCEPT);
 		mv.visitJumpInsn(IF_ICMPEQ, startScan);
+
+		// if (accept != 0) return accept;
+		mv.visitVarInsn(ILOAD, LOCAL_ACCEPT);
+		mv.visitJumpInsn(IFNE, returnAccepted);
 
 		mv.visitTypeInsn(NEW, "beaver/UnexpectedCharacterException");
 		mv.visitInsn(DUP);
@@ -244,7 +243,7 @@ public class CharScannerGenerator implements Opcodes
 						mv.visitVarInsn(ILOAD, LOCAL_LIMIT);
 						mv.visitVarInsn(ILOAD, LOCAL_CURSOR);
 						mv.visitJumpInsn(IF_ICMPGT, endBufferCheck);
-						generateLoadConstInsn(mv, eof);
+						generateLoadConstInsn(mv, eofTokenId);
 						mv.visitVarInsn(ISTORE, LOCAL_ACCEPT);
 						mv.visitJumpInsn(GOTO, endOfScan);
 					}
@@ -502,9 +501,12 @@ public class CharScannerGenerator implements Opcodes
 
 	private static final String   SUPER        = "beaver/CharScanner";
 	private static final String[] EXCEPTIONS   = { "beaver/UnexpectedCharacterException", "java/io/IOException" };
+	
+	private static final int      SKIP_ACCEPT  = Short.MIN_VALUE;
 
 	private static final int      THIS         = 0;
 	private static final int      ARG1         = 1;
+	private static final int      ARG2         = 2;
 
 	private static final int      LOCAL_CURSOR = 1;                                                               // points to the current character while scan is in progress
 	private static final int      LOCAL_CHAR   = 2;                                                               // keeps the current character to minimize array accesses

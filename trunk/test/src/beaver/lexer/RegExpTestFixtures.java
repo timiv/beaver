@@ -2,7 +2,8 @@ package beaver.lexer;
 
 class RegExpTestFixtures
 {
-
+	private static final int SKIP_ACCEPT = Short.MIN_VALUE;
+	
 	static RegExp getDigitalScanner()
 	{
 		return compileRules(
@@ -114,7 +115,7 @@ class RegExpTestFixtures
 	static RegExp getSimpleCalculatorScanner()
 	{
 		return compileRules(
-				makeRule(-1, new RegExp.MatchRange(new CharRange(new CharReader(" \\t\\n\\r")))),
+				makeRule(SKIP_ACCEPT, new RegExp.MatchRange(new CharRange(new CharReader(" \\t\\n\\r")))),
 				makeRule(1, matchText(";")),
 				makeRule(2, matchText("+")),
 				makeRule(3, matchText("-")),
@@ -156,7 +157,7 @@ class RegExpTestFixtures
 	static RegExp getLogicCalculatorScanner()
 	{
 		return compileRules(
-				makeRule(-1, new RegExp.MatchRange(new CharRange(new CharReader(" \\t\\n\\r")))),
+				makeRule(SKIP_ACCEPT, new RegExp.MatchRange(new CharRange(new CharReader(" \\t\\n\\r")))),
 				makeRule(1, matchText("and")),
 				makeRule(2, matchText("or")),
 				makeRule(3, matchText("not")),
