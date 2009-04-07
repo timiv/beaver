@@ -11,13 +11,22 @@ import org.objectweb.asm.Opcodes;
 
 public class CharScannerGenerator implements Opcodes
 {
-	private DFA dfa;
-	private int eofTokenId;
+	private DFA  dfa;
+	private int  numDfaEvents;
+	private int  eofTokenId;
 
 	public CharScannerGenerator(DFA dfa, int eofTokenId)
 	{
 		this.dfa = dfa;
 		this.eofTokenId = eofTokenId;
+		
+		for (DFAState st = dfa.start; st != null; st = st.next)
+		{
+			if (st.accept != null && st.accept.event != null)
+			{
+				st.accept.eventId = numDfaEvents++;
+			}
+		}
 	}
 
 	public CharScannerGenerator(DFA dfa)
@@ -25,25 +34,25 @@ public class CharScannerGenerator implements Opcodes
 		this(dfa, 0);
 	}
 
-	public byte[] compile(String className)
+	public byte[] compile(String className, String superClass)
 	{
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-		cw.visit(V1_1, ACC_PUBLIC | ACC_SUPER, className, null, SUPER, null);
+		cw.visit(V1_1, ACC_PUBLIC | ACC_SUPER, className, null, superClass, null);
 
-		generateScannerConstructors(cw);
-		generateGetNextTokenMethod(cw);
+		generateScannerConstructors(cw, superClass);
+		generateGetNextTokenMethod(cw, className);
 
 		return cw.toByteArray();
 	}
 
-	private void generateScannerConstructors(ClassWriter cw)
+	private void generateScannerConstructors(ClassWriter cw, String superClass)
 	{
 		// public Constructor(java.io.Reader)
 
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "(Ljava/io/Reader;)V", null, null);
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, ARG1);
-		mv.visitMethodInsn(INVOKESPECIAL, SUPER, "<init>", "(Ljava/io/Reader;)V");
+		mv.visitMethodInsn(INVOKESPECIAL, superClass, "<init>", "(Ljava/io/Reader;)V");
 		mv.visitInsn(RETURN);
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
@@ -54,13 +63,27 @@ public class CharScannerGenerator implements Opcodes
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, ARG1);
 		mv.visitVarInsn(ILOAD, ARG2);
-		mv.visitMethodInsn(INVOKESPECIAL, SUPER, "<init>", "(Ljava/io/Reader;I)V");
+		mv.visitMethodInsn(INVOKESPECIAL, superClass, "<init>", "(Ljava/io/Reader;I)V");
 		mv.visitInsn(RETURN);
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
 	}
-
-	private void generateGetNextTokenMethod(ClassWriter cw)
+	
+	private int[] getEvenIds()
+	{
+		int[] ids = new int[numDfaEvents];
+		int i = 0;
+		for (DFAState st = dfa.start; st != null; st = st.next)
+		{
+			if (st.accept != null && st.accept.event != null)
+			{
+				ids[i++] = st.accept.eventId;
+			}
+		}
+		return ids;
+	}
+	
+	private void generateGetNextTokenMethod(ClassWriter cw, String className)
 	{
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "getNextToken", "()I", null, EXCEPTIONS);
 		Label startScan = new Label();
@@ -68,31 +91,31 @@ public class CharScannerGenerator implements Opcodes
 		Label endOfScan = new Label();
 		Label refillBuffer = new Label();
 
-		generateGetNextTokenProlog(mv, startScan);
+		generateGetNextTokenProlog(mv, className, startScan);
 		generateGetNextTokenDFACode(mv, tokenIsRecognized, endOfScan, refillBuffer);
-		generateGetNextTokenEpilog(mv, startScan, tokenIsRecognized, endOfScan);
+		generateGetNextTokenEpilog(mv, className, startScan, tokenIsRecognized, endOfScan);
 
-		generateRefillBuffer(mv, refillBuffer);
+		generateRefillBuffer(mv, className, refillBuffer);
 
 		mv.visitMaxs(0, 0);
 		mv.visitEnd();
 	}
 
-	private static void generateGetNextTokenProlog(MethodVisitor mv, Label startScan)
+	private void generateGetNextTokenProlog(MethodVisitor mv, String className, Label startScan)
 	{
 		// char[] text = super.text;
 		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, SUPER, "text", "[C");
+		mv.visitFieldInsn(GETFIELD, className, "text", "[C");
 		mv.visitVarInsn(ASTORE, LOCAL_TEXT);
 
 		// int limit = super.limit;
 		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, SUPER, "limit", "I");
+		mv.visitFieldInsn(GETFIELD, className, "limit", "I");
 		mv.visitVarInsn(ISTORE, LOCAL_LIMIT);
 
 		// int cursor = super.cursor;
 		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, SUPER, "cursor", "I");
+		mv.visitFieldInsn(GETFIELD, className, "cursor", "I");
 		mv.visitVarInsn(ISTORE, LOCAL_CURSOR);
 
 		mv.visitLabel(startScan);
@@ -100,7 +123,7 @@ public class CharScannerGenerator implements Opcodes
 		// super.start = cursor
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ILOAD, LOCAL_CURSOR);
-		mv.visitFieldInsn(PUTFIELD, SUPER, "start", "I");
+		mv.visitFieldInsn(PUTFIELD, className, "start", "I");
 
 		// int marker = -1;
 		generateLoadConstInsn(mv, -1);
@@ -110,15 +133,22 @@ public class CharScannerGenerator implements Opcodes
 		generateLoadConstInsn(mv, -1);
 		mv.visitVarInsn(ISTORE, LOCAL_CTXPTR);
 
-		// int accept = 0;
-		generateLoadConstInsn(mv, 0);
+		// int accept = NOT_ACCEPTED;
+		generateLoadConstInsn(mv, NOT_ACCEPTED);
 		mv.visitVarInsn(ISTORE, LOCAL_ACCEPT);
+		
+		if (numDfaEvents > 0)
+		{
+			// int event  = -1;
+			generateLoadConstInsn(mv, -1);
+			mv.visitVarInsn(ISTORE, LOCAL_EVENT);
+		}
 	}
 
-	private static void generateGetNextTokenEpilog(MethodVisitor mv, Label startScan, Label tokenIsRecognized, Label endOfScan)
+	private void generateGetNextTokenEpilog(MethodVisitor mv, String className, Label startScan, Label tokenIsRecognized, Label endOfScan)
 	{
 		Label saveCursor = new Label();
-		Label returnAccepted = new Label();
+		Label throwUnexpectedCharacterException = new Label();
 
 		mv.visitLabel(tokenIsRecognized);
 		// if (ctxptr >= 0) marker = ctxptr;
@@ -138,34 +168,64 @@ public class CharScannerGenerator implements Opcodes
 		// super.cursor = cursor;
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ILOAD, LOCAL_CURSOR);
-		mv.visitFieldInsn(PUTFIELD, SUPER, "cursor", "I");
-
-		// if (accept == SKIP_ACCEPT) goto startScan;
+		mv.visitFieldInsn(PUTFIELD, className, "cursor", "I");
+		
+		// if (accept == NOT_ACCEPTED) throw UnexpectedCharacterException();
 		mv.visitVarInsn(ILOAD, LOCAL_ACCEPT);
-		generateLoadConstInsn(mv, SKIP_ACCEPT);
-		mv.visitJumpInsn(IF_ICMPEQ, startScan);
+		generateLoadConstInsn(mv, NOT_ACCEPTED);
+		mv.visitJumpInsn(IF_ICMPEQ, throwUnexpectedCharacterException);
+		
+		if (numDfaEvents > 0)
+		{
+			int[] eventIds = getEvenIds();
+			Label[] events = makeLabels(eventIds.length);
+			Label eventEnd = new Label();
+			
+			mv.visitVarInsn(ILOAD, LOCAL_EVENT);
+			mv.visitLookupSwitchInsn(eventEnd, eventIds, events);
+			
+			int i = 0;
+			for (DFAState st = dfa.start; st != null; st = st.next)
+			{
+				if (st.accept != null && st.accept.event != null)
+				{
+					if (st.accept.eventId != eventIds[i])
+					{
+						throw new IllegalStateException("event ID mismatch");
+					}
+					mv.visitLabel(events[i]);
+					mv.visitVarInsn(ALOAD, THIS);
+					mv.visitMethodInsn(INVOKEVIRTUAL, className, st.accept.event, "()V");
+					if (++i < events.length)
+					{
+						mv.visitJumpInsn(GOTO, eventEnd);
+					}
+				}
+			}
+			mv.visitLabel(eventEnd);
+		}
 
-		// if (accept != 0) return accept;
+		// if (accept == 0) goto startScan;
 		mv.visitVarInsn(ILOAD, LOCAL_ACCEPT);
-		mv.visitJumpInsn(IFNE, returnAccepted);
+		mv.visitJumpInsn(IFEQ, startScan);
+		// else return accept
+		mv.visitVarInsn(ILOAD, LOCAL_ACCEPT);
+		mv.visitInsn(IRETURN);
 
+		mv.visitLabel(throwUnexpectedCharacterException);
 		mv.visitTypeInsn(NEW, "beaver/UnexpectedCharacterException");
 		mv.visitInsn(DUP);
 		mv.visitMethodInsn(INVOKESPECIAL, "beaver/UnexpectedCharacterException", "<init>", "()V");
 		mv.visitInsn(ATHROW);
-
-		mv.visitLabel(returnAccepted);
-		mv.visitVarInsn(ILOAD, LOCAL_ACCEPT);
-		mv.visitInsn(IRETURN);
 	}
 
-	private static void generateRefillBuffer(MethodVisitor mv, Label refillBuffer)
+	private static void generateRefillBuffer(MethodVisitor mv, String className, Label refillBuffer)
 	{
 		mv.visitLabel(refillBuffer);
 
 		mv.visitVarInsn(ASTORE, LOCAL_RETURN);
 		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitMethodInsn(INVOKEVIRTUAL, SUPER, "fill", "()I");
+		mv.visitMethodInsn(INVOKEVIRTUAL, className, "fill", "()I");
 		mv.visitInsn(DUP);
 		mv.visitInsn(DUP);
 		mv.visitVarInsn(ILOAD, LOCAL_CURSOR);
@@ -182,7 +242,7 @@ public class CharScannerGenerator implements Opcodes
 		mv.visitVarInsn(ISTORE, LOCAL_CTXPTR);
 		// update local limit
 		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, SUPER, "limit", "I");
+		mv.visitFieldInsn(GETFIELD, className, "limit", "I");
 		mv.visitVarInsn(ISTORE, LOCAL_LIMIT);
 
 		mv.visitVarInsn(RET, LOCAL_RETURN);
@@ -198,10 +258,15 @@ public class CharScannerGenerator implements Opcodes
 
 			if (st.firstTransition == null)
 			{
-				if (st.accept != 0)
+				if (st.accept != null)
 				{
-					generateLoadConstInsn(mv, st.accept);
+					generateLoadConstInsn(mv, st.accept.id);
 					mv.visitVarInsn(ISTORE, LOCAL_ACCEPT);
+					if (st.accept.event != null)
+					{
+						generateLoadConstInsn(mv, st.accept.eventId);
+						mv.visitVarInsn(ISTORE, LOCAL_EVENT);
+					}
 					mv.visitJumpInsn(GOTO, tokenIsRecognized);
 				}
 				else
@@ -211,11 +276,15 @@ public class CharScannerGenerator implements Opcodes
 			}
 			else
 			{
-				if (st.accept != 0)
+				if (st.accept != null)
 				{
-					generateLoadConstInsn(mv, st.accept);
+					generateLoadConstInsn(mv, st.accept.id);
 					mv.visitVarInsn(ISTORE, LOCAL_ACCEPT);
-
+					if (st.accept.event != null)
+					{
+						generateLoadConstInsn(mv, st.accept.eventId);
+						mv.visitVarInsn(ISTORE, LOCAL_EVENT);
+					}
 					mv.visitVarInsn(ILOAD, LOCAL_CURSOR);
 					mv.visitVarInsn(ISTORE, LOCAL_MARKER);
 				}
@@ -499,22 +568,21 @@ public class CharScannerGenerator implements Opcodes
 		}
 	}
 
-	private static final String   SUPER        = "beaver/CharScanner";
 	private static final String[] EXCEPTIONS   = { "beaver/UnexpectedCharacterException", "java/io/IOException" };
 	
-	private static final int      SKIP_ACCEPT  = Short.MIN_VALUE;
-
+	private static final int      NOT_ACCEPTED = Short.MIN_VALUE;
+	
 	private static final int      THIS         = 0;
 	private static final int      ARG1         = 1;
 	private static final int      ARG2         = 2;
 
-	private static final int      LOCAL_CURSOR = 1;                                                               // points to the current character while scan is in progress
-	private static final int      LOCAL_CHAR   = 2;                                                               // keeps the current character to minimize array accesses
+	private static final int      LOCAL_CURSOR = 1;		// points to the current character while scan is in progress
+	private static final int      LOCAL_CHAR   = 2;     // keeps the current character to minimize array accesses
 	private static final int      LOCAL_ACCEPT = 3;
-	private static final int      LOCAL_TEXT   = 4;                                                               // shadow copy of super.text
-	private static final int      LOCAL_LIMIT  = 5;                                                               // shadow copy of super.limit
-	private static final int      LOCAL_MARKER = 6;                                                               // marks cursor position when a token is recognized, 
-	// but the recognition is not final
-	private static final int      LOCAL_CTXPTR = 7;                                                               // marks cursor position at the beginning of a trailing context
-	private static final int      LOCAL_RETURN = 8;                                                               // keeps return address for RET
+	private static final int      LOCAL_TEXT   = 4;		// shadow copy of super.text
+	private static final int      LOCAL_LIMIT  = 5;     // shadow copy of super.limit
+	private static final int      LOCAL_MARKER = 6;     // marks cursor position when a token is recognized, but the recognition is not final
+	private static final int      LOCAL_CTXPTR = 7;     // marks cursor position at the beginning of a trailing context
+	private static final int      LOCAL_RETURN = 8;     // keeps return address for RET
+	private static final int      LOCAL_EVENT  = 9;
 }

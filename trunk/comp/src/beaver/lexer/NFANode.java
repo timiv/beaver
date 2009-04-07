@@ -96,16 +96,11 @@ abstract class NFANode
 
 	static class Term extends NFANode
 	{
-		int accept;
+		Accept accept;
 
 		Term(RegExp.Rule op)
 		{
 			this.accept = op.acc;
-		}
-
-		Term(int accept)
-		{
-			this.accept = accept;
 		}
 
 		void accept(NodeVisitor v)

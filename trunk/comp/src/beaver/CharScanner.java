@@ -41,7 +41,7 @@ public abstract class CharScanner extends Scanner
 	 * A source line number;
 	 */
 	private int      line;
-
+	
 	/**
 	 * The "source" of characters.
 	 */
@@ -135,5 +135,20 @@ public abstract class CharScanner extends Scanner
 			text[limit] = '\uffff';
 		}
 		return shift;
+	}
+	
+	/**
+	 * When a new line sequence is recognized a scanner advances the current line
+	 * number by calling "newLine" as an event.
+	 * Note, the line number and offset are changed before the new-line token is returned,
+	 * if it is returned, thus it'll look as if the new-line token position is at the beginning
+	 * of the next line.
+	 * Let's consider this a feature ;-) as this approach allows tracking a position
+	 * in the source with the least amount of overhead.
+	 */
+	protected void newLine()
+	{
+		line++;
+		offset = cursor;
 	}
 }

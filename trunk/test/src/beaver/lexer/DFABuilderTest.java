@@ -26,7 +26,7 @@ public class DFABuilderTest
 		
 		NFAEdgeCollector edgeCollector = new NFAEdgeCollector();
 		kernel[0].accept(edgeCollector);
-		assertEquals(0, edgeCollector.accept);
+		assertNull(edgeCollector.accept);
 		
 		assertEquals(1, edgeCollector.transitions.size());
 		NFANode.Array onDigitTransitionsArray = (NFANode.Array) edgeCollector.transitions.get('0'); 
@@ -37,7 +37,7 @@ public class DFABuilderTest
 		
 		edgeCollector.reset();
 		kernel[1].accept(edgeCollector);
-		assertEquals(0, edgeCollector.accept);
+		assertNull(edgeCollector.accept);
 		assertEquals(1, edgeCollector.transitions.size());
 		NFANode.Array onWSTransitionsArray = (NFANode.Array) edgeCollector.transitions.get('\t'); 
 		assertNotNull(onWSTransitionsArray);
@@ -57,7 +57,7 @@ public class DFABuilderTest
 		
 		NFAEdgeCollector edgeCollector = new NFAEdgeCollector();
 		kernel[0].accept(edgeCollector);
-		assertEquals(0, edgeCollector.accept);
+		assertNull(edgeCollector.accept);
 		
 		assertEquals(1, edgeCollector.transitions.size());
 		NFANode.Array transitionsArray = (NFANode.Array) edgeCollector.transitions.get('0'); 
@@ -73,7 +73,7 @@ public class DFABuilderTest
 		
 		edgeCollector.reset();
 		kernel[0].accept(edgeCollector);
-		assertEquals(0, edgeCollector.accept);
+		assertNull(edgeCollector.accept);
 		
 		assertEquals(1, edgeCollector.transitions.size());
 		transitionsArray = (NFANode.Array) edgeCollector.transitions.get('.');
@@ -84,13 +84,13 @@ public class DFABuilderTest
 		
 		edgeCollector.reset();
 		kernel[1].accept(edgeCollector);
-		assertEquals(1, edgeCollector.accept);
+		assertEquals(1, edgeCollector.accept.id);
 		
 		assertEquals(0, edgeCollector.transitions.size());
 
 		edgeCollector.reset();
 		kernel[2].accept(edgeCollector);
-		assertEquals(0, edgeCollector.accept);
+		assertNull(edgeCollector.accept);
 		
 		assertEquals(1, edgeCollector.transitions.size());
 		transitionsArray = (NFANode.Array) edgeCollector.transitions.get('0');

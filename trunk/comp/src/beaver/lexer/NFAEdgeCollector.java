@@ -3,7 +3,7 @@ package beaver.lexer;
 class NFAEdgeCollector implements NFANode.NodeVisitor
 {
 	CharMap transitions = new CharMap();
-	int     accept;
+	Accept  accept;
 
 	public void visit(NFANode.Fork fork)
 	{
@@ -27,7 +27,7 @@ class NFAEdgeCollector implements NFANode.NodeVisitor
 
 	public void visit(NFANode.Term term)
 	{
-		if (accept == 0 || accept > 0 && accept > term.accept || accept < 0 && accept < term.accept)
+		if (accept == null || accept.prec < term.accept.prec)
 		{
 			accept = term.accept;
 		}
@@ -36,7 +36,7 @@ class NFAEdgeCollector implements NFANode.NodeVisitor
 	void reset()
 	{
 		transitions.clear();
-		accept = 0;
+		accept = null;
 	}
 
 }

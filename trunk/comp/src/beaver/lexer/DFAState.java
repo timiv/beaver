@@ -5,7 +5,7 @@ class DFAState
 {
 	DFAState           next;
 
-	int                accept;
+	Accept             accept;
 	boolean            isPreCtx;
 	DFAStateTransition firstTransition;
 

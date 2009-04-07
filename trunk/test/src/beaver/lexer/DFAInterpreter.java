@@ -21,12 +21,12 @@ public class DFAInterpreter
 	int next(CharReader text) throws UnexpectedCharacterException
 	{
 		DFAState st = dfa.start;
-		int acc = 0;
+		Accept acc = null;
 		int mark = text.mark();
 		end = ptr = 0;
 		do
 		{
-			if (st.accept != 0)
+			if (st.accept != null)
 			{
 				mark = text.mark();
 			}
@@ -34,13 +34,13 @@ public class DFAInterpreter
 			int c = text.readChar();
 			if (c < 0)
 			{
-				if (ptr > 0 && acc == 0)
+				if (ptr > 0 && acc == null)
 					throw new IllegalStateException("unexpected EOF");
 				else
 					break;
 			}
 
-			if (st.accept != 0)
+			if (st.accept != null)
 			{
 				acc = st.accept;
 				end = ptr;
@@ -54,7 +54,7 @@ public class DFAInterpreter
 			
 			if (tr == null)
 			{
-				if (acc == 0)
+				if (acc == null)
 					throw new UnexpectedCharacterException();
 				else
 					break;
@@ -67,7 +67,7 @@ public class DFAInterpreter
 		
 		if (st.firstTransition == null)
 		{
-			if ((acc = st.accept) == 0)
+			if ((acc = st.accept) == null)
 				throw new IllegalStateException("invalid DFA");
 			end = ptr;
 		}
@@ -75,7 +75,7 @@ public class DFAInterpreter
 		{
 			text.reset(mark);
 		}
-		return acc;
+		return acc != null ? acc.id : 0;
 	}
 
 	String text()

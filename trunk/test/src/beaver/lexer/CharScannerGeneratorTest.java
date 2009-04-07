@@ -29,6 +29,11 @@ public class CharScannerGeneratorTest
 
 	private static CharScanner getScanner(final String scannerName, Reader input)
 	{
+		return getScanner(scannerName, "beaver/CharScanner", input);
+	}
+	
+	private static CharScanner getScanner(final String scannerName, final String superClass, Reader input)
+	{
 		try
 		{
 			ClassLoader ldr = new ClassLoader()
@@ -43,7 +48,7 @@ public class CharScannerGeneratorTest
 							RegExp re = (RegExp) getScannerRegExp.invoke(null);
 							NFA nfa = new NFA(re);
 							DFA dfa = new DFA(nfa);
-							byte[] bc = new CharScannerGenerator(dfa, EOF).compile(name);
+							byte[] bc = new CharScannerGenerator(dfa, EOF).compile(name, superClass);
 							
 							//new ClassReader(bc).accept(new TraceClassVisitor(new PrintWriter(System.out)), 0);
 							
@@ -219,6 +224,59 @@ public class CharScannerGeneratorTest
 		assertEquals("not", scanner.getTokenText());
 		assertEquals(4, scanner.getNextToken());
 		assertEquals("note", scanner.getTokenText());
+		assertEquals(EOF, scanner.getNextToken());
+	}
+	
+	public static abstract class LogicCalculatorScannerBase extends CharScanner
+	{
+		protected LogicCalculatorScannerBase(Reader src)
+		{
+			super(src);
+		}
+	}
+
+	@Test
+	public void testLogicCalculatorScannerWithEvents() throws UnexpectedCharacterException, IOException
+	{
+		CharScanner scanner = getScanner( "LogicCalculatorScannerWithEvents"
+				                        , "beaver/lexer/CharScannerGeneratorTest$LogicCalculatorScannerBase"
+				                        , new StringReader(" android \n and oracle \n or not note \ndone"));
+		
+		assertEquals(4, scanner.getNextToken());
+		assertEquals("android", scanner.getTokenText());
+		assertEquals(1, scanner.getTokenLine());
+		assertEquals(2, scanner.getTokenColumn());
+		
+		assertEquals(1, scanner.getNextToken());
+		assertEquals("and", scanner.getTokenText());
+		assertEquals(2, scanner.getTokenLine());
+		assertEquals(2, scanner.getTokenColumn());
+		
+		assertEquals(4, scanner.getNextToken());
+		assertEquals("oracle", scanner.getTokenText());
+		assertEquals(2, scanner.getTokenLine());
+		assertEquals(6, scanner.getTokenColumn());
+		
+		assertEquals(2, scanner.getNextToken());
+		assertEquals("or", scanner.getTokenText());
+		assertEquals(3, scanner.getTokenLine());
+		assertEquals(2, scanner.getTokenColumn());
+		
+		assertEquals(3, scanner.getNextToken());
+		assertEquals("not", scanner.getTokenText());
+		assertEquals(3, scanner.getTokenLine());
+		assertEquals(5, scanner.getTokenColumn());
+		
+		assertEquals(4, scanner.getNextToken());
+		assertEquals("note", scanner.getTokenText());
+		assertEquals(3, scanner.getTokenLine());
+		assertEquals(9, scanner.getTokenColumn());
+
+		assertEquals(4, scanner.getNextToken());
+		assertEquals("done", scanner.getTokenText());
+		assertEquals(4, scanner.getTokenLine());
+		assertEquals(1, scanner.getTokenColumn());
+		
 		assertEquals(EOF, scanner.getNextToken());
 	}
 }

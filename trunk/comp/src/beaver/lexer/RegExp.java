@@ -129,18 +129,10 @@ public abstract class RegExp
 	{
 		RegExp  exp;
 		RegExp  ctx;
-		int     acc;
+		Accept  acc;
 		NFANode node;
 
-		// String eventName;
-
-		public Rule(RegExp exp, RegExp ctx)
-		{
-			this.exp = exp;
-			this.ctx = ctx;
-		}
-
-		public Rule(RegExp exp, RegExp ctx, int accept)
+		public Rule(RegExp exp, RegExp ctx, Accept accept)
 		{
 			this.exp = exp;
 			this.ctx = ctx;

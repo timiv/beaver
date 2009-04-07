@@ -156,7 +156,7 @@ class DFAStateBuilder
 		int lastSet = -1;
 		for (DFAState st = first; st != null; st = st.next)
 		{
-			if (st.accept != 0 && st.firstTransition == null)
+			if (st.accept != null && st.firstTransition == null)
 			{
 				int i = 0;
 				for (; i <= lastSet; i++)
@@ -179,7 +179,7 @@ class DFAStateBuilder
 		int firstSet = lastSet + 1;
 		for (DFAState st = first; st != null; st = st.next)
 		{
-			if (st.accept != 0 && st.firstTransition != null)
+			if (st.accept != null && st.firstTransition != null)
 			{
 				int i = firstSet;
 				for (; i <= lastSet; i++)
@@ -202,7 +202,7 @@ class DFAStateBuilder
 		int nextSet = lastSet + 1;
 		for (DFAState st = first; st != null; st = st.next)
 		{
-			if (st.accept == 0)
+			if (st.accept == null)
 			{
 				st.id = nextSet;
 				st.link = sets[nextSet];

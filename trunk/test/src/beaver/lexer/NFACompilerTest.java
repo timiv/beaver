@@ -56,7 +56,7 @@ public class NFACompilerTest
 		
 		NFANode.Term n9 = (NFANode.Term) n7.next;
 		assertSame(n9, n4.alt);
-		assertEquals(1, n9.accept);
+		assertEquals(1, n9.accept.id);
 		assertNull(n9.next);
 		
 		assertTrue(n0.alt instanceof NFANode.Char);
@@ -66,7 +66,7 @@ public class NFACompilerTest
 		assertTrue(n10.next instanceof NFANode.Term);
 		
 		NFANode.Term n11 = (NFANode.Term) n10.next;
-		assertEquals(2, n11.accept);
+		assertEquals(2, n11.accept.id);
 		assertNull(n11.next);
 	}
 	
