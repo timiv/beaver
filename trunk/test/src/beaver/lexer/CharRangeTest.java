@@ -35,6 +35,11 @@ public class CharRangeTest
 		range = new CharRange(new CharReader("0-9."));
 		assertEquals(".0-9", range.toString());
 		
+		range = new CharRange(new CharReader("^0-9"));
+		assertEquals("\\x00-/:-\\ufffe", range.toString());
+		
+		range = new CharRange(new CharReader("^\\x00-/:-@[-`{-\\ufffe"));
+		assertEquals("0-9A-Za-z", range.toString());
 	}
 
 	@Test
@@ -79,4 +84,39 @@ public class CharRangeTest
 		assertEquals('z', bounds[1]);
 	}
 	
+	@Test
+	public void testSubtraction_ReduceSpans()
+	{
+		CharRange range = new CharRange(new CharReader("a-ps-z"));
+		
+		range.sub(new CharRange(new CharReader("l-u")));
+		assertEquals("a-kv-z", range.toString());
+		
+		range.sub(new CharRange(new CharReader("a-dx-z")));
+		assertEquals("e-kvw", range.toString());
+		
+		range.sub(new CharRange(new CharReader("a-z")));
+		assertEquals("", range.toString());
+	}
+	
+	@Test
+	public void testSubtraction_RemoveSpans()
+	{
+		CharRange range = new CharRange(new CharReader("a-ps-z"));
+		
+		range.sub(new CharRange(new CharReader("a-p")));
+		assertEquals("s-z", range.toString());
+		
+		range.sub(new CharRange(new CharReader("s-z")));
+		assertEquals("", range.toString());
+	}
+	
+	@Test
+	public void testSubtraction_SplitSpans()
+	{
+		CharRange range = new CharRange(new CharReader("a-z"));
+		
+		range.sub(new CharRange(new CharReader("k-mt-v")));
+		assertEquals("a-jn-sw-z", range.toString());	
+	}
 }

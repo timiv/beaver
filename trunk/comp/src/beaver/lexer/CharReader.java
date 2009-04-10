@@ -96,7 +96,12 @@ public final class CharReader
 				}
 				case 'u':
 				{
-					return readDigit(16) << 12 | readDigit(16) << 8 | readDigit(16) << 4 | readDigit(16);
+					c = readDigit(16) << 12 | readDigit(16) << 8 | readDigit(16) << 4 | readDigit(16);
+					if (c == 0xffff)
+					{
+						throw new IllegalStateException("invalid Unicode decoded");
+					}
+					break;
 				}
 			}
 		}
@@ -147,6 +152,8 @@ public final class CharReader
 			case '\r':	return "\\r";
 			case '\t':	return "\\t";
 		}
+		if (c <= 0xf)
+			return "\\x0" + Integer.toHexString(c);
 		if (c <= ' ')
 			return "\\x" + Integer.toHexString(c);
 		if (c <= 0x7f)

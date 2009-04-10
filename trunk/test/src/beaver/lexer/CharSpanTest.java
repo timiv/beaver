@@ -169,4 +169,127 @@ public class CharSpanTest
 		assertEquals('d', bounds[1]);
 	}
 	
+	@Test
+	public void testSubtract_Subset()
+	{
+		try
+		{
+			CharSpan span = new CharSpan('a', 'z');
+			span.sub(new CharSpan('e','m'));
+			fail("IllegalArgumentException expected");
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals("e-m is a subset of a-z", e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testSubtract_Disjoint()
+	{
+		try
+		{
+			CharSpan span = new CharSpan('a', 'd');
+			span.sub(new CharSpan('e','m'));
+			fail("IllegalArgumentException expected");
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals("e-m does not intersect with a-d", e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testSubtract_Left()
+	{
+		CharSpan span = new CharSpan('k', 'x');
+		span.sub(new CharSpan('a','p'));
+		assertEquals(new CharSpan('q', 'x'), span);
+	}
+	
+	@Test
+	public void testSubtract_LeftEdge()
+	{
+		CharSpan span = new CharSpan('k', 'x');
+		span.sub(new CharSpan('k','p'));
+		assertEquals(new CharSpan('q', 'x'), span);
+	}
+	
+	@Test
+	public void testSubtract_LeftChar()
+	{
+		CharSpan span = new CharSpan('k', 'x');
+		span.sub(new CharSpan('a','k'));
+		assertEquals(new CharSpan('l', 'x'), span);
+	}
+	
+	@Test
+	public void testSubtract_Right()
+	{
+		CharSpan span = new CharSpan('a', 'x');
+		span.sub(new CharSpan('p','z'));
+		assertEquals(new CharSpan('a', 'o'), span);
+	}
+	
+	@Test
+	public void testSubtract_RightEdge()
+	{
+		CharSpan span = new CharSpan('a', 'x');
+		span.sub(new CharSpan('p','x'));
+		assertEquals(new CharSpan('a', 'o'), span);
+	}
+	
+	@Test
+	public void testSubtract_RightChar()
+	{
+		CharSpan span = new CharSpan('a', 'x');
+		span.sub(new CharSpan('x','z'));
+		assertEquals(new CharSpan('a', 'w'), span);
+	}
+	
+	@Test
+	public void testSubtractWithSplit_NotAnInnerSubset()
+	{
+		try
+		{
+			CharSpan span = new CharSpan('a', 'm');
+			span.subSplit(new CharSpan('n','w'));
+			fail("IllegalArgumentException expected");
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals("n-w is not a subset of a-m", e.getMessage());
+		}
+		
+		try
+		{
+			CharSpan span = new CharSpan('a', 'm');
+			span.subSplit(new CharSpan('k','w'));
+			fail("IllegalArgumentException expected");
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals("k-w is not a subset of a-m", e.getMessage());
+		}
+		
+		try
+		{
+			CharSpan span = new CharSpan('a', 'm');
+			span.subSplit(new CharSpan('k','m'));
+			fail("IllegalArgumentException expected");
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals("k-m is not a subset of a-m", e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testSubtractWithSplit()
+	{
+		CharSpan span = new CharSpan('a', 'w');
+		CharSpan rsub = span.subSplit(new CharSpan('g', 'm'));
+		assertEquals(new CharSpan('a', 'f'), span);
+		assertEquals(new CharSpan('n', 'w'), rsub);
+	}
 }

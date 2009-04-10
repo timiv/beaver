@@ -10,12 +10,12 @@ class CharSpan
 {
 	char lb, ub; // [lb,ub)
 
-	CharSpan(char lb, char ub)
+	CharSpan(char firstChar, char lastChar)
 	{
-		if (lb > ub)
-			throw new IllegalArgumentException("lb > ub");
-		this.lb = lb;
-		this.ub = (char) (ub + 1);
+		if (firstChar > lastChar)
+			throw new IllegalArgumentException("first > last");
+		this.lb = firstChar;
+		this.ub = (char) (lastChar + 1);
 	}
 	
 	CharSpan(char c)
@@ -53,6 +53,11 @@ class CharSpan
 	boolean isSubsetOf(CharSpan span)
 	{
 		return span.lb <= this.lb && this.ub <= span.ub;
+	}
+
+	boolean isInnerSubsetOf(CharSpan span)
+	{
+		return span.lb < this.lb && this.ub < span.ub;
 	}
 	
 	boolean contains(char c)
@@ -101,7 +106,7 @@ class CharSpan
 	
 	/**
 	 * Expands the current span to also include characters from the other span. 
-	 *  
+	 * 
 	 * @param span
 	 */
 	void add(CharSpan span)
@@ -132,6 +137,41 @@ class CharSpan
 		}
 	}
 	
+	/**
+	 * Removes characters from this span that are also in the other span.
+	 * 
+	 * @param span
+	 */
+	void sub(CharSpan span)
+	{
+		if (!span.intersects(this))
+			throw new IllegalArgumentException(span + " does not intersect with " + this);
+		if (span.isInnerSubsetOf(this))
+			throw new IllegalArgumentException(span + " is a subset of " + this);
+		
+		if (span.lb > this.lb)
+			this.ub = span.lb;
+		else
+			this.lb = span.ub;
+	}
+	
+	/**
+	 * Removes characters from this span that are in the inner span.
+	 * Reduces current span to the left sub-span. 
+	 *  
+	 * @param span
+	 * @return right sub-span
+	 */
+	CharSpan subSplit(CharSpan span)
+	{
+		if (!span.isInnerSubsetOf(this))
+			throw new IllegalArgumentException(span + " is not a subset of " + this);
+		
+		char curent_ub = this.ub;
+		this.ub = span.lb;
+		return new CharSpan(span.ub, --curent_ub);
+	}
+	
 	void accept(CharVisitor visitor)
 	{
 		for (char c = lb; c < ub; c++)
@@ -146,15 +186,15 @@ class CharSpan
 		{
 			case 1:
 			{
-				return Character.toString(lb);
+				return CharReader.escape(lb);
 			}
 			case 2:
 			{
-				return Character.toString(lb) + (char) (lb + 1);
+				return CharReader.escape(lb) + CharReader.escape((char)(lb + 1));
 			}
 			default:
 			{
-				return lb + "-" + (char) (ub - 1);
+				return CharReader.escape(lb) + "-" + CharReader.escape((char)(ub - 1));
 			}
 		}
 	}

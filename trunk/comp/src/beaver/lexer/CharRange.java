@@ -23,23 +23,47 @@ public class CharRange
 	/**
 	 * Compiles the range from its string representation.
 	 * 
-	 * @param str range representation (must not be an inverse range)
+	 * @param str range representation
 	 */
 	CharRange(CharReader str)
 	{
-		spans = EMPTY;
+		int strStart = str.mark();
+		boolean inv = !str.isEmpty() && str.readChar() == '^';
+		if (inv)
+		{
+			spans = new CharSpan[] { new CharSpan('\0', '\ufffe') };
+		}
+		else
+		{
+			spans = EMPTY;
+			str.reset(strStart);
+		}
 		while (!str.isEmpty())
 		{
 			char lb = (char) str.readChar();
 			if (str.isEmpty())
 			{
-				this.add(lb);
+				if (inv) 
+				{ 
+					sub(lb); 
+				} 
+				else
+				{ 
+					add(lb);
+				} 
 				break;
 			}
 			char nc = (char) str.readChar();
 			while (nc != '-') 
 			{
-				this.add(lb);
+				if (inv) 
+				{ 
+					sub(lb); 
+				} 
+				else
+				{ 
+					add(lb);
+				} 
 				if (str.isEmpty())
 				{
 					break;
@@ -52,11 +76,25 @@ public class CharRange
 			}
 			if (str.isEmpty())
 			{
-				this.add(nc);
+				if (inv)
+				{
+					sub(nc);
+				}
+				else
+				{
+					add(nc);
+				}
 				break;
 			}
 			char rb = (char) str.readChar();
-			this.add(new CharSpan(lb, rb));
+			if (inv)
+			{
+				sub(new CharSpan(lb, rb));
+			}
+			else
+			{
+				add(new CharSpan(lb, rb));
+			}
 		}
 	}
 	
@@ -161,6 +199,64 @@ public class CharRange
         {
 			this.add(new CharSpan(range.spans[i]));
         }
+	}
+
+	/**
+	 * Removes a single character from this range  
+	 * 
+	 * @param c character to remove
+	 */
+	void sub(char c)
+	{
+		sub(new CharSpan(c));
+	}
+	
+	/**
+	 * Removes characters from this range that are present in the subtrahend span  
+	 * 
+	 * @param subSpan
+	 */
+	void sub(CharSpan subSpan)
+	{
+		for (int i = 0; i < spans.length && spans.length > 0; i++) // note, "spans" array may shrink
+		{
+			CharSpan span = spans[i];
+			
+            int cmp = span.compare(subSpan);
+            if (cmp < 0)
+            	continue;
+            if (cmp > 0)
+            	break;
+            
+            if (subSpan.isInnerSubsetOf(span))
+    		{
+    			insertAt(i + 1, span.subSplit(subSpan));
+    			break;
+    		}
+    		else if (span.isSubsetOf(subSpan))
+    		{
+    			remove(i);
+    			// there is now a different span at i
+    			--i;
+    		}
+    		else if (span.intersects(subSpan))
+        	{
+    			span.sub(subSpan);
+        	}
+		}
+	}
+	
+	/**
+	 * Removes characters from this range that are present in the other range  
+	 * 
+	 * @param range to subtract
+	 */
+	void sub(CharRange range)
+	{
+		for (int i = 0; i < range.spans.length; i++)
+		{
+			this.sub(range.spans[i]);
+		}
 	}
 	
 	boolean equals(CharRange range)
