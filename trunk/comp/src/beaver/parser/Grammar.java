@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import beaver.util.BitSet;
 
-class Grammar
+public class Grammar
 {
 	/**
 	 * Symbols that are created by a scanner and represent input tokens for the parser.
@@ -75,9 +75,53 @@ class Grammar
 		return productions[0].lhs;
 	}
 
-	Terminal getEOF()
+	public Terminal getEOF()
 	{
 		return terminals[0];
+	}
+	
+	public Terminal[] getKeywords()
+	{
+		int n = 0;
+		for (int i = 1; i < terminals.length; i++)
+        {
+			if (!terminals[i].isValueProducer())
+			{
+				n++;
+			}
+        }
+		Terminal[] keywords = new Terminal[n];
+		int ix = 0;
+		for (int i = 1; i < terminals.length; i++)
+        {
+			if (!terminals[i].isValueProducer())
+			{
+				keywords[ix++] = terminals[i]; 
+			}
+        }
+		return keywords;
+	}
+	
+	public Terminal[] getTokens()
+	{
+		int n = 0;
+		for (int i = 1; i < terminals.length; i++)
+        {
+			if (terminals[i].isValueProducer())
+			{
+				n++;
+			}
+        }
+		Terminal[] tokens = new Terminal[n];
+		int ix = 0;
+		for (int i = 1; i < terminals.length; i++)
+        {
+			if (terminals[i].isValueProducer())
+			{
+				tokens[ix++] = terminals[i]; 
+			}
+        }
+		return tokens;
 	}
 	
 	int getAcceptActionId()
@@ -177,15 +221,12 @@ class Grammar
 			{
 				Nonterminal nt = nonterminals[i];
 
-				if (!nt.isValueProducer)
+				for (int j = 0; j < nt.rules.length; j++)
 				{
-					for (int j = 0; j < nt.rules.length; j++)
+					if (!nt.rules[j].isValueProducer() && nt.rules[j].markValueProducer())
 					{
-						if (nt.rules[j].markValueProducer())
-						{
-							nt.isValueProducer = true;
-							marking = true;
-						}
+						nt.isValueProducer = true;
+						marking = true;
 					}
 				}
 			}
