@@ -567,14 +567,12 @@ public class ParserCompiler
     		out.print('\t');
     		out.print("protected ");
     		out.println("Object text;");
-    		out.println();
     		out.print('\t');
     		out.print("protected ");
-    		out.println("int line;");
-    		out.println();
+    		out.println("int    line;");
     		out.print('\t');
     		out.print("protected ");
-    		out.println("int column;");
+    		out.println("int    column;");
     		out.println();
     		out.print('\t');
     		out.print("protected ");
