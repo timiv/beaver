@@ -38,7 +38,7 @@ public class ExprCalc4 extends beaver.Parser {
 		return new DivExpr(left, right);
 	}
 	protected Object makeTerm(Object text, int line, int column) {
-		return new Term((String) text);
+		return new Term(text, line, column);
 	}
 	protected Object reduce(Object[] stack, int top, int rule) {
 		switch (rule) {

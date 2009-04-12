@@ -273,8 +273,7 @@ public class ParserCompiler
 		out.print("new ");
 	    out.print("Term");
 		out.print('(');
-	    out.print("(String) ");
-	    out.print("text");
+	    out.print("text, line, column");
 		out.print(')');
 	    out.println(';');
 		out.print('\t');
@@ -567,14 +566,26 @@ public class ParserCompiler
     		}
     		out.print('\t');
     		out.print("protected ");
-    		out.println("String text;");
+    		out.println("Object text;");
+    		out.println();
+    		out.print('\t');
+    		out.print("protected ");
+    		out.println("int line;");
+    		out.println();
+    		out.print('\t');
+    		out.print("protected ");
+    		out.println("int column;");
     		out.println();
     		out.print('\t');
     		out.print("protected ");
     		out.print("Term");
-    		out.println("(String text) {");
+    		out.println("(Object text, int line, int column) {");
     		out.print("\t\t");
     		out.println("this.text = text;");
+    		out.print("\t\t");
+    		out.println("this.line = line;");
+    		out.print("\t\t");
+    		out.println("this.column = column;");
     		out.print('\t');
     		out.println("}");
     		
