@@ -19,64 +19,37 @@ public abstract class ExprCalc extends beaver.Parser {
 	protected Object reduce(Object[] stack, int top, int rule) {
 		switch (rule) {
 			case 0: { // Goal = Eval
-				Eval eval = (Eval) stack[top];
-
-				return makeGoal(eval);
+				return makeGoal((Eval) stack[top]);
 			}
 			case 1: { // Eval = { Expr } Expr
-				Expr expr = (Expr) stack[top];
-
-				return makeExprEval(expr);
+				return makeExprEval((Expr) stack[top]);
 			}
 			case 2: { // Eval = { Stmt } Stmt
-				Stmt stmt = (Stmt) stack[top];
-
-				return makeStmtEval(stmt);
+				return makeStmtEval((Stmt) stack[top]);
 			}
 			case 3: { // Stmt = ID "=" Expr ";"
-				Term id = (Term) stack[top + 3];
-				Expr expr = (Expr) stack[top + 1];
-
-				return makeStmt(id, expr);
+				return makeStmt((Term) stack[top + 3], (Expr) stack[top + 1]);
 			}
 			case 4: { // Expr = { Number } NUM
-				Term num = (Term) stack[top];
-
-				return makeNumberExpr(num);
+				return makeNumberExpr((Term) stack[top]);
 			}
 			case 5: { // Expr = { Var } ID
-				Term id = (Term) stack[top];
-
-				return makeVarExpr(id);
+				return makeVarExpr((Term) stack[top]);
 			}
 			case 6: { // Expr = { Nested } "(" Expr ")"
-				Expr expr = (Expr) stack[top + 1];
-
-				return makeNestedExpr(expr);
+				return makeNestedExpr((Expr) stack[top + 1]);
 			}
 			case 7: { // Expr = { Add } left:Expr "+" right:Expr
-				Expr left = (Expr) stack[top + 2];
-				Expr right = (Expr) stack[top];
-
-				return makeAddExpr(left, right);
+				return makeAddExpr((Expr) stack[top + 2], (Expr) stack[top]);
 			}
 			case 8: { // Expr = { Sub } left:Expr "-" right:Expr
-				Expr left = (Expr) stack[top + 2];
-				Expr right = (Expr) stack[top];
-
-				return makeSubExpr(left, right);
+				return makeSubExpr((Expr) stack[top + 2], (Expr) stack[top]);
 			}
 			case 9: { // Expr = { Mul } Expr "*" Expr
-				Expr expr = (Expr) stack[top + 2];
-				Expr expr2 = (Expr) stack[top];
-
-				return makeMulExpr(expr, expr2);
+				return makeMulExpr((Expr) stack[top + 2], (Expr) stack[top]);
 			}
 			case 10: { // Expr = { Div } Expr "/" Expr
-				Expr expr = (Expr) stack[top + 2];
-				Expr expr2 = (Expr) stack[top];
-
-				return makeDivExpr(expr, expr2);
+				return makeDivExpr((Expr) stack[top + 2], (Expr) stack[top]);
 			}
 		}
 		throw new IndexOutOfBoundsException("production #" + rule);

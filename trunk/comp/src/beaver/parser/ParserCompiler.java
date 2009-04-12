@@ -484,7 +484,6 @@ public class ParserCompiler
 	    int ruleValueIndex;
 	    if (doNotWritePassThroughActions && (ruleValueIndex = rule.findValueProducerIndex()) >= 0 && getType(rule.lhs).equals(rule.rhs[ruleValueIndex].fieldType))
 	    {
-		    out.println();
 			out.print("\t\t\t\t");
 		    out.print("return ");
 			out.print("stack[top");
@@ -498,48 +497,50 @@ public class ParserCompiler
 	    }
 	    else
 	    {
-			StringBuffer argsBuffer = new StringBuffer();
-		    String sep = "";
+	    	int argsCount = 0;
 		    for (int i = 0; i < rule.rhs.length; i++)
 	        {
 		    	Production.RHSElement arg = rule.rhs[i];
 	            if (arg.fieldType != null)
 	            {
-					out.print("\t\t\t\t");
-					out.print(arg.fieldType);
-					out.print(' ');
-					out.print(arg.fieldName);
-					out.print(" = (");
-					out.print(arg.fieldType);
-					out.print(") ");
-					out.print("stack[top");
-					int stackOffset = lastRhsItem - i;
-					if (stackOffset > 0)
-					{
-						out.print(" + ");
-						out.print(stackOffset);
-					}
-					out.println("];");
-					
-					argsBuffer.append(sep).append(arg.fieldName);
-		            sep = ", ";
+	            	++argsCount;
 	            }
 	        }
-		    out.println();
 			out.print("\t\t\t\t");
 		    out.print("return ");
-		    String args = argsBuffer.toString();
-			if (doNotWritePassThroughActions && args.length() == 0 && !rule.lhs.isOptionalListProducer())
+			if (doNotWritePassThroughActions && argsCount == 0 && !rule.lhs.isOptionalListProducer())
 			{
 				out.print("null");
 			}
 			else
-			{
+			{				
 			    out.print("make");
-			    out.print(rule.getFullName());
-			    out.print("(");
-			    out.print(args);
-			    out.print(")");
+			    String ruleFullName = rule.getFullName(); 
+			    out.print(ruleFullName);
+			    out.print('(');
+			    
+			    String sep = "";
+			    for (int i = 0; i < rule.rhs.length; i++)
+		        {
+			    	Production.RHSElement arg = rule.rhs[i];
+		            if (arg.fieldType != null)
+		            {
+						out.print(sep);
+						out.print("(");
+						out.print(arg.fieldType);
+						out.print(") ");
+						out.print("stack[top");
+						int stackOffset = lastRhsItem - i;
+						if (stackOffset > 0)
+						{
+							out.print(" + ");
+							out.print(stackOffset);
+						}
+						out.print("]");
+			            sep = ", ";
+		            }
+		        }
+				out.print(')');
 			}
 		    out.println(";");    
 	    }
