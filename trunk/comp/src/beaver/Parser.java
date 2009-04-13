@@ -236,7 +236,7 @@ public abstract class Parser
 			else
 			{
 				symbolId = tokenId;
-				symbol = makeTerm(input.getTokenText(), input.getTokenLine(), input.getTokenColumn());
+				symbol = makeTerm(tokenId, input.getTokenText(), input.getTokenLine(), input.getTokenColumn());
 			}
 			while (true)
 			{
@@ -303,12 +303,13 @@ public abstract class Parser
 	/**
 	 * When a non-keyword terminal is recognized parser has to make a Term instance out of it.
 	 * 
+	 * @param id ID of the recognized terminal. 
 	 * @param text Text of the recognized terminal. 
 	 * @param line Line where the terminal text starts.
 	 * @param column Column where the terminal text starts.
 	 * @return Term instance
 	 */
-	protected abstract Object makeTerm(Object text, int line, int column);
+	protected abstract Object makeTerm(int id, Object text, int line, int column);
 	
 	/**
 	 * Reduce the stack.

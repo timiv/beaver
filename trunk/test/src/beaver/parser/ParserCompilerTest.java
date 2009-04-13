@@ -1,6 +1,8 @@
 package beaver.parser;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutput;
@@ -271,7 +273,7 @@ public class ParserCompilerTest
 	{
 		ParserCompiler comp = getCompiler("ExprCalc4", new File("/temp"));
 		comp.setPreferShiftOverReduce(true);
-		comp.setGenerateAstStubs(true);
+		comp.setGenerateAstStubs(new String[] { "TextTerm" });
 		testWritingParserSource(comp, ParserTestFixtures.getExprCalcGrammar(), "ParserCompilerTest_ExprCalc4ParserSource.txt");
 	}
 }

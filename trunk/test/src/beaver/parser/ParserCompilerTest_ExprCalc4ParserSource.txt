@@ -1,6 +1,9 @@
 package test2;
 
-public class ExprCalc4 extends beaver.Parser {
+public abstract class ExprCalc4 extends beaver.Parser {
+	protected static final int NUM = 3;
+	protected static final int ID = 4;
+
 	public ExprCalc4() throws java.io.IOException {
 		super(ExprCalc4.class.getResourceAsStream("ExprCalc4.bpt"));
 	}
@@ -37,9 +40,7 @@ public class ExprCalc4 extends beaver.Parser {
 	protected Expr makeDivExpr(Expr left, Expr right) {
 		return new DivExpr(left, right);
 	}
-	protected Object makeTerm(Object text, int line, int column) {
-		return new Term(text, line, column);
-	}
+	protected abstract Object makeTerm(int id, Object text, int line, int column);
 	protected Object reduce(Object[] stack, int top, int rule) {
 		switch (rule) {
 			case 0: { // Eval = OptStmtList OptExpr

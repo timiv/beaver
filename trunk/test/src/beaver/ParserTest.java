@@ -1,6 +1,8 @@
 package beaver;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,16 +10,6 @@ import java.io.IOException;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import test3.AddExpr;
-import test3.Eval;
-import test3.MulExpr;
-import test3.NumExpr;
-import test3.Stmt;
-import test3.StmtList;
-import test3.SubExpr;
-import test3.Term;
-import test3.VarExpr;
 
 import beaver.parser.ParserTestFixtures;
 
@@ -30,6 +22,10 @@ public class ParserTest
 	@BeforeClass
 	public static void compileTestParser() throws IOException
 	{
+		if (!testDir.exists())
+		{
+			testDir.mkdirs();
+		}
 		ParserTestFixtures.compileParser(ParserTestFixtures.getExprCalcGrammar(), parserName, packageName, testDir);
 	}
 	
@@ -40,7 +36,7 @@ public class ParserTest
 			super(new FileInputStream(bptFile));
 		}
 		
-		protected Object makeTerm(Object text, int line, int column)
+		protected Object makeTerm(int id, Object text, int line, int column)
 		{
 			return text;
 		}
@@ -599,13 +595,13 @@ public class ParserTest
 		};
 		Parser parser = new test3.ExprParser()
 		{
-            protected Object makeTerm(Object text, int line, int column)
+            protected Object makeTerm(int id, Object text, int line, int column)
             {
-	            return new test3.Term((String) text) 
+	            return new test3.TextTerm(text, line, column) 
 	            { 
 	            	public String toString()
 	            	{
-	            		return text;
+	            		return text.toString();
 	            	}
 	            };
             }
@@ -618,57 +614,57 @@ public class ParserTest
 		{
 			StringBuilder txt = new StringBuilder(200);
 			
-            public void enter(AddExpr addExpr)
+            public void enter(test3.AddExpr addExpr)
             {
             	txt.append("+ ");
             }
 
-			public void enter(Eval eval)
+			public void enter(test3.Eval eval)
             {
 				txt.append("eval ");
             }
 
-            public void enter(MulExpr mulExpr)
+            public void enter(test3.MulExpr mulExpr)
             {
             	txt.append("* ");
             }
 
-            public void enter(NumExpr numExpr)
+            public void enter(test3.NumExpr numExpr)
             {
             	txt.append("num ");
             }
 
-            public void enter(Stmt stmt)
+            public void enter(test3.Stmt stmt)
             {
             	txt.append("def ");
             }
             
-            public void leave(Stmt stmt)
+            public void leave(test3.Stmt stmt)
             {
             	txt.append("; ");
             }
 
-            public void enter(StmtList stmtList)
+            public void enter(test3.StmtList stmtList)
             {
             	txt.append("[ ");
             }
 
-            public void leave(StmtList stmtList)
+            public void leave(test3.StmtList stmtList)
             {
             	txt.append("] ");
             }
             
-            public void enter(SubExpr subExpr)
+            public void enter(test3.SubExpr subExpr)
             {
             	txt.append("- ");
             }
 
-            public void enter(VarExpr varExpr)
+            public void enter(test3.VarExpr varExpr)
             {
             	txt.append("var ");
             }
 			
-            public void visit(Term node)
+            public void visit(test3.TextTerm node)
             {
             	txt.append(node).append(' ');
             }
