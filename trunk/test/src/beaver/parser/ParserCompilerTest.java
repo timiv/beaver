@@ -273,7 +273,7 @@ public class ParserCompilerTest
 	{
 		ParserCompiler comp = getCompiler("ExprCalc4", new File("/temp"));
 		comp.setPreferShiftOverReduce(true);
-		comp.setGenerateAstStubs(new String[] { "TextTerm" });
+		comp.setGenerateAstStubs(true);
 		testWritingParserSource(comp, ParserTestFixtures.getExprCalcGrammar(), "ParserCompilerTest_ExprCalc4ParserSource.txt");
 	}
 }

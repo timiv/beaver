@@ -24,7 +24,6 @@ public class ParserCompiler
 	boolean  generateAstStubs;
 	boolean  dumpParserStates;
 	String   packageName;
-	String[] tokenTypes;
 
 	public ParserCompiler(Log log, String parserName, String packageName, File outputDir)
 	{
@@ -44,9 +43,9 @@ public class ParserCompiler
 		doNotWritePassThroughActions = flag;
 	}
 	
-	public void setGenerateAstStubs(String[] tokenTypes)
+	public void setGenerateAstStubs(boolean flag)
 	{
-		if ((generateAstStubs = ((this.tokenTypes = tokenTypes) != null)))
+		if ((generateAstStubs = flag))
 		{
 			doNotWritePassThroughActions = true;
 		}
@@ -69,7 +68,6 @@ public class ParserCompiler
 				|| writeAstListStubs(astListTypes = findAstLists(grammar)) 
 				&& writeAstNodeStubs(astNodeTypes = findAstTypes(grammar), astListTypes)
 				&& writeAstTermStub(astListTypes)
-				&& writeAstTokenStubs()
 				&& writeNodeVisitor(astNodeTypes, astListTypes) 
 				&& writeTreeWalker(astNodeTypes, astListTypes)
 				)
@@ -230,7 +228,10 @@ public class ParserCompiler
 	    out.println(';');
 	    out.println();
 	    out.print("public ");
-    	out.print("abstract ");
+	    if (!generateAstStubs)
+	    {
+	    	out.print("abstract ");
+	    }
 	    out.print("class ");
 	    out.print(parserName);
 	    out.print(" extends ");
@@ -291,6 +292,21 @@ public class ParserCompiler
 		out.println(';');
 	}
 	
+	private void writeTermMaker(PrintWriter out)
+	{
+		out.print('\t');
+	    out.print("protected ");
+	    out.print("Object");
+	    out.print(" make");
+	    out.print("Term");
+		out.print("(int id, Object text, int line, int column)");
+		out.println(" {");
+		out.print("\t\t");
+	    out.println("return new Term(id, text, line, column);");
+		out.print('\t');
+		out.println('}');
+	}
+	
 	private void writeParserActions(PrintWriter out, Grammar grammar)
 	{
 		for (int i = 0; i < grammar.productions.length; i++)
@@ -320,7 +336,14 @@ public class ParserCompiler
 		    	writeAbstractAction(out, rule);
 		    }
         }
-    	writeAbstractTermMaker(out);
+		if (generateAstStubs)
+		{
+			writeTermMaker(out);
+		}
+		else
+		{
+			writeAbstractTermMaker(out);
+		}
 	}
 
 	private void writeAstAction(PrintWriter out, Production rule)
@@ -547,7 +570,6 @@ public class ParserCompiler
     	    out.println(';');
     	    out.println();
     		out.print("public ");
-    		out.print("abstract ");
     		out.print("class ");
     		out.print("Term");
     		out.println(" {");
@@ -559,6 +581,12 @@ public class ParserCompiler
     		}
     		out.print('\t');
     		out.print("protected ");
+    		out.println("Object value;");
+    		out.print('\t');
+    		out.print("protected ");
+    		out.println("int id;");
+    		out.print('\t');
+    		out.print("protected ");
     		out.println("int line;");
     		out.print('\t');
     		out.print("protected ");
@@ -567,18 +595,17 @@ public class ParserCompiler
     		out.print('\t');
     		out.print("protected ");
     		out.print("Term");
-    		out.println("(int line, int column) {");
+    		out.println("(int id, Object value, int line, int column) {");
+    		out.print("\t\t");
+    		out.println("this.id = id;");
+    		out.print("\t\t");
+    		out.println("this.value = value;");
     		out.print("\t\t");
     		out.println("this.line = line;");
     		out.print("\t\t");
     		out.println("this.column = column;");
     		out.print('\t');
     		out.println("}");
-    		
-			out.print('\t');
-			out.print("abstract ");
-			out.print("void dispatch(NodeVisitor visitor)");
-			out.println(';');
 
     		out.println("}");
     		out.close();
@@ -589,64 +616,6 @@ public class ParserCompiler
 			return false;
 		}
 		return true;
-	}
-	
-	private boolean writeAstTokenStubs()
-	{
-		boolean success = true;
-		for (int i = 0; i < tokenTypes.length; i++)
-        {
-	        File tokenTermFile = new File(outputDir, tokenTypes[i] + ".java");
-	        if (!tokenTermFile.exists())
-	        {
-	    		try
-	    		{
-	        		PrintWriter out = new PrintWriter(new FileWriter(tokenTermFile));
-	        	    out.print("package ");
-	        	    out.print(packageName);
-	        	    out.println(';');
-	        	    out.println();
-	        		out.print("public ");
-	        		out.print("class ");
-	        		out.print(tokenTypes[i]);
-	        		out.print(" extends ");
-	        		out.print("Term");
-	        		out.println(" {");
-	        		out.print('\t');
-	        		out.print("protected ");
-	        		out.println("Object text;");
-	        		out.println();
-	        		out.print('\t');
-	        		out.print("protected ");
-	        		out.print(tokenTypes[i]);
-	        		out.println("(Object text, int line, int column) {");
-	        		out.print("\t\t");
-	        		out.println("super(line, column);");
-	        		out.print("\t\t");
-	        		out.println("this.text = text;");
-	        		out.print('\t');
-	        		out.println("}");
-	        		
-	        		out.print('\t');
-	        		out.print("void dispatch(NodeVisitor visitor)");
-	        		out.println(" {");
-	        		out.print("\t\t");
-	        		out.println("visitor.visit(this);");
-	        		out.print('\t');
-	        		out.println("}");
-
-	        		out.println("}");
-	        		out.close();
-	    		}
-	    		catch (IOException e)
-	    		{
-	    			log.error("Failed writing AST Term source file: " + e.getMessage());
-	    			return false;
-	    		}
-	    		return true;
-	        }
-        }
-		return success;
 	}
 	
 	private boolean writeAstListStubs(AstList[] lists)
@@ -907,14 +876,11 @@ public class ParserCompiler
             {
         		writeVisitorMethods(out, astTypes[i].nodeType);
             }
-			for (int i = 0; i < tokenTypes.length; i++)
-            {
-				out.print('\t');
-				out.print("void visit(");
-				out.print(tokenTypes[i]);
-				out.print(" term)");
-				out.println(';');
-            }
+			out.print('\t');
+			out.print("void visit(");
+			out.print("Term");
+			out.print(" term)");
+			out.println(';');
 			out.println("}");
 			out.close();
 		}
@@ -950,6 +916,7 @@ public class ParserCompiler
 			{
 				allTypes.add(astTypes[i].nodeType);
 			}
+			allTypes.add("Term");
 			
 			for (int i = 0; i < astLists.length; i++)
             {
@@ -959,17 +926,15 @@ public class ParserCompiler
             {
         		writeWalkerMethods(out, astTypes[i], allTypes);
             }
-			for (int i = 0; i < tokenTypes.length; i++)
-            {
-				out.print('\t');
-				out.print("public ");
-				out.print("void visit(");
-				out.print(tokenTypes[i]);
-				out.print(" term)");
-				out.println(" {");
-				out.print('\t');
-				out.println("}");
-            }		
+			out.print('\t');
+			out.print("public ");
+			out.print("void visit(");
+			out.print("Term");
+			out.print(" term)");
+			out.println(" {");
+			out.print('\t');
+			out.println("}");
+			
 			out.println("}");
 			out.close();
 		}

@@ -597,11 +597,11 @@ public class ParserTest
 		{
             protected Object makeTerm(int id, Object text, int line, int column)
             {
-	            return new test3.TextTerm(text, line, column) 
+	            return new test3.Term(id, text, line, column) 
 	            { 
 	            	public String toString()
 	            	{
-	            		return text.toString();
+	            		return value.toString();
 	            	}
 	            };
             }
@@ -664,7 +664,7 @@ public class ParserTest
             	txt.append("var ");
             }
 			
-            public void visit(test3.TextTerm node)
+            public void visit(test3.Term node)
             {
             	txt.append(node).append(' ');
             }
