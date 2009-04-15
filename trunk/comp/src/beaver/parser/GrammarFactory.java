@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Builds a Grammar
  */
-class GrammarFactory
+public class GrammarFactory
 {
 	Map         symbols       = new HashMap();
 	Map         keywords      = new HashMap();
@@ -25,7 +25,7 @@ class GrammarFactory
 	char        precedence    = '\uffff';
 	char        associativity = 'N'; 
 
-	GrammarFactory(String[] terminalNames)
+	public GrammarFactory(String[] terminalNames)
 	{
 		for (int i = 0; i < terminalNames.length; i++)
 		{
@@ -39,7 +39,7 @@ class GrammarFactory
 		}
 	}
 
-	GrammarFactory def(String symbolName, String ruleName)
+	public GrammarFactory def(String symbolName, String ruleName)
 	{
 		if (lhs != null)
 		{
@@ -55,12 +55,12 @@ class GrammarFactory
 		return this;
 	}
 
-	GrammarFactory def(String symbolName)
+	public GrammarFactory def(String symbolName)
 	{
 		return def(symbolName, null);
 	}
 
-	GrammarFactory sym(String symbolName, String referenceName)
+	public GrammarFactory sym(String symbolName, String referenceName)
 	{
 		Symbol symbol = (Symbol) symbols.get(symbolName);
 		if (symbol == null)
@@ -72,12 +72,12 @@ class GrammarFactory
 		return this;
 	}
 
-	GrammarFactory sym(String symbolName)
+	public GrammarFactory sym(String symbolName)
 	{
 		return sym(symbolName, null);
 	}
 
-	GrammarFactory txt(String text)
+	public GrammarFactory txt(String text)
 	{
 		Symbol symbol = (Symbol) keywords.get(text);
 		if (symbol == null)
@@ -89,7 +89,7 @@ class GrammarFactory
 		return this;
 	}
 
-	GrammarFactory end()
+	public GrammarFactory end()
 	{
 		productions.add(
 				new Production(
@@ -103,28 +103,28 @@ class GrammarFactory
 		return this;
 	}
 	
-	GrammarFactory left()
+	public GrammarFactory left()
 	{
 		precedence--;
 		associativity = 'L';
 		return this;	
 	}
 	
-	GrammarFactory right()
+	public GrammarFactory right()
 	{
 		precedence--;
 		associativity = 'R';
 		return this;	
 	}
 	
-	GrammarFactory none()
+	public GrammarFactory none()
 	{
 		precedence--;
 		associativity = 'N';
 		return this;	
 	}
 	
-	GrammarFactory prec(String sym)
+	public GrammarFactory prec(String sym)
 	{
 		Symbol symbol = (Symbol) symbols.get(sym);
 		if (symbol == null)
@@ -146,7 +146,7 @@ class GrammarFactory
 		return this;
 	}
 
-	GrammarFactory prec(String sym, String name)
+	public GrammarFactory prec(String sym, String name)
 	{
 		Symbol symbol = (Symbol) symbols.get(sym);
 		if (!(symbol instanceof Nonterminal))
@@ -172,7 +172,7 @@ class GrammarFactory
 		return this;
 	}
 
-	Grammar getGrammar()
+	public Grammar getGrammar()
 	{
 		ensureGrammarHasRules();
 		/*

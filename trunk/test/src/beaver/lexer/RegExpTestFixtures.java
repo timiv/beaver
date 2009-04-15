@@ -73,8 +73,8 @@ class RegExpTestFixtures
 	{
 		return compileRules(
 				makeRule(1, new RegExp.MatchRange(new CharRange(new CharReader(" \\t\\n\\r")))),
-				makeRule(2, matchText("print")),
-				makeRule(3, matchText("set")),
+				makeRule(2, RegExp.matchText("print")),
+				makeRule(3, RegExp.matchText("set")),
 				makeRule(4, new RegExp.MatchChar('+')),
 				makeRule(5, new RegExp.MatchChar('-')),
 				makeRule(6, new RegExp.MatchChar('*')),
@@ -114,14 +114,14 @@ class RegExpTestFixtures
 	{
 		return compileRules(
 				makeRule(0, new RegExp.MatchRange(new CharRange(new CharReader(" \\t\\n\\r")))),
-				makeRule(1, matchText(";")),
-				makeRule(2, matchText("+")),
-				makeRule(3, matchText("-")),
-				makeRule(4, matchText("*")),
-				makeRule(5, matchText("/")),
-				makeRule(6, matchText("=")),
-				makeRule(7, matchText("(")),
-				makeRule(8, matchText(")")),
+				makeRule(1, RegExp.matchText(";")),
+				makeRule(2, RegExp.matchText("+")),
+				makeRule(3, RegExp.matchText("-")),
+				makeRule(4, RegExp.matchText("*")),
+				makeRule(5, RegExp.matchText("/")),
+				makeRule(6, RegExp.matchText("=")),
+				makeRule(7, RegExp.matchText("(")),
+				makeRule(8, RegExp.matchText(")")),
 				makeRule(9, // literal number
     					new RegExp.Cat(
     							new RegExp.Close(
@@ -156,9 +156,9 @@ class RegExpTestFixtures
 	{
 		return compileRules(
 				makeRule(0, new RegExp.MatchRange(new CharRange(new CharReader(" \\t\\n\\r")))),
-				makeRule(1, matchText("and")),
-				makeRule(2, matchText("or")),
-				makeRule(3, matchText("not")),
+				makeRule(1, RegExp.matchText("and")),
+				makeRule(2, RegExp.matchText("or")),
+				makeRule(3, RegExp.matchText("not")),
 				makeRule(4, // identifier
 						new RegExp.Cat(
 								new RegExp.MatchRange(new CharRange(new CharReader("a-zA-Z_"))),
@@ -176,9 +176,9 @@ class RegExpTestFixtures
 		return compileRules(
 				makeRule(0, new RegExp.MatchRange(new CharRange(new CharReader(" \\t")))),
 				makeRule(0, new RegExp.MatchRange(new CharRange(new CharReader("\\n\\r"))), "newLine"),
-				makeRule(1, matchText("and")),
-				makeRule(2, matchText("or")),
-				makeRule(3, matchText("not")),
+				makeRule(1, RegExp.matchText("and")),
+				makeRule(2, RegExp.matchText("or")),
+				makeRule(3, RegExp.matchText("not")),
 				makeRule(4, // identifier
 						new RegExp.Cat(
 								new RegExp.MatchRange(new CharRange(new CharReader("a-zA-Z_"))),
@@ -189,20 +189,6 @@ class RegExpTestFixtures
 						)
 				)
 		);
-	}
-	
-	private static RegExp matchText(String text)
-	{
-		if (text.isEmpty())
-			return new RegExp.Null();
-		
-		RegExp re = new RegExp.MatchChar(text.charAt(0));
-		int n = text.length();
-		for (int i = 1; i < n; i++)
-		{
-			re = new RegExp.Cat(re, new RegExp.MatchChar(text.charAt(i)));
-		}
-		return re;
 	}
 	
 	private static RegExp makeRule(int id, RegExp re)

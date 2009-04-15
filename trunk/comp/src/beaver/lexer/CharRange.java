@@ -19,6 +19,12 @@ public class CharRange
 	{
 		spans = new CharSpan[] { span };
 	}
+	
+	CharRange(CharRange range)
+	{
+		spans = new CharSpan[range.spans.length];
+		System.arraycopy(range.spans, 0, spans, 0, spans.length);
+	}
 
 	/**
 	 * Compiles the range from its string representation.
@@ -63,16 +69,14 @@ public class CharRange
 				else
 				{ 
 					add(lb);
-				} 
+				}
+				
 				if (str.isEmpty())
 				{
 					break;
 				}
-				else
-				{
-					lb = nc;
-					nc = (char) str.readChar();
-				}
+				lb = nc;
+				nc = (char) str.readChar();
 			}
 			if (str.isEmpty())
 			{
@@ -96,6 +100,11 @@ public class CharRange
 				add(new CharSpan(lb, rb));
 			}
 		}
+	}
+	
+	public CharRange(String str)
+	{
+		this(new CharReader(str));
 	}
 	
 	public String toString()

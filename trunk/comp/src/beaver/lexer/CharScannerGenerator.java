@@ -15,6 +15,11 @@ public class CharScannerGenerator implements Opcodes
 	private int  numDfaEvents;
 	private int  eofTokenId;
 
+	public CharScannerGenerator(RegExp re, int eofTokenId)
+	{
+		this(new DFA(new NFA(re)), eofTokenId);
+	}
+	
 	public CharScannerGenerator(DFA dfa, int eofTokenId)
 	{
 		this.dfa = dfa;

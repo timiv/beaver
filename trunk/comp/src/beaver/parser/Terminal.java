@@ -1,6 +1,6 @@
 package beaver.parser;
 
-class Terminal extends Symbol
+public class Terminal extends Symbol
 {
 	/**
 	 * Precedence: 0 - undefined (lowest), 0xffff - highest
@@ -42,7 +42,7 @@ class Terminal extends Symbol
 	/**
 	 * Terminal produces a value when it matches a non-static/non-keyword text.
 	 */
-	boolean isValueProducer()
+	public boolean isValueProducer()
 	{
 		return text == null;
 	}
@@ -50,5 +50,10 @@ class Terminal extends Symbol
 	public String toString()
 	{
 		return text != null ? '"' + text + '"' : name;
+	}
+	
+	public String getText()
+	{
+		return text;
 	}
 }

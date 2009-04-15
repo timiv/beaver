@@ -2,7 +2,7 @@ package beaver.parser;
 
 import java.util.Comparator;
 
-abstract class Symbol
+public abstract class Symbol
 {
 	/**
 	 * Symbol's ID
@@ -20,6 +20,11 @@ abstract class Symbol
 	Symbol(String name)
 	{
 		this.name = name;
+	}
+	
+	public int getId()
+	{
+		return id;
 	}
 
 	public String toString()
@@ -42,7 +47,7 @@ abstract class Symbol
 	 * 
 	 * @return true is symbol carries a value
 	 */
-	abstract boolean isValueProducer();
+	public abstract boolean isValueProducer();
 	
 	static Comparator CMP_NUM_STATES = new Comparator()
 	{

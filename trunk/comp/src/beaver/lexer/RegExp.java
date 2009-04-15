@@ -147,19 +147,50 @@ public abstract class RegExp
 
 	static interface Visitor
 	{
-		void visit(Null op);
+		void visit(RegExp.Null op);
 
-		void visit(MatchChar op);
+		void visit(RegExp.MatchChar op);
 
-		void visit(MatchRange op);
+		void visit(RegExp.MatchRange op);
 
-		void visit(Alt op);
+		void visit(RegExp.Alt op);
 
-		void visit(Cat op);
+		void visit(RegExp.Cat op);
 
-		void visit(Close op);
+		void visit(RegExp.Close op);
 
-		void visit(Rule op);
+		void visit(RegExp.Rule op);
 	}
 
+	public static RegExp matchText(String text)
+    {
+    	if (text.isEmpty())
+    		return new Null();
+    	
+    	RegExp re = new RegExp.MatchChar(text.charAt(0));
+    	int n = text.length();
+    	for (int i = 1; i < n; i++)
+    	{
+    		re = new RegExp.Cat(re, new RegExp.MatchChar(text.charAt(i)));
+    	}
+    	return re;
+    }
+	
+	public static RegExp diff(RegExp re1, RegExp re2)
+	{
+		if (!(re1 instanceof MatchRange && re2 instanceof MatchRange))
+			throw new IllegalArgumentException("Range regexp expected");
+		CharRange range = new CharRange(((MatchRange) re1).range);
+		range.sub(((MatchRange) re2).range);
+		return new RegExp.MatchRange(range);
+	}
+	
+	public static RegExp diff(RegExp re, CharRange subRange)
+	{
+		if (!(re instanceof MatchRange))
+			throw new IllegalArgumentException("Range regexp expected");
+		CharRange range = new CharRange(((MatchRange) re).range);
+		range.sub(subRange);
+		return new RegExp.MatchRange(range);
+	}
 }

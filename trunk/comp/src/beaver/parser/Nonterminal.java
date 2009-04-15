@@ -57,7 +57,7 @@ class Nonterminal extends Symbol
 	/**
 	 * Nonterminal is a value producer if at least one of its defining rules produces a value.
 	 */
-	boolean isValueProducer()
+	public boolean isValueProducer()
 	{
 		return isValueProducer;
 	}
