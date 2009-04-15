@@ -276,4 +276,14 @@ public class ParserCompilerTest
 		comp.setGenerateAstStubs(true);
 		testWritingParserSource(comp, ParserTestFixtures.getExprCalcGrammar(), "ParserCompilerTest_ExprCalc4ParserSource.txt");
 	}
+	
+	@Test
+	public void testWritingExprCalcWithInlinedActions() throws IOException
+	{
+		ParserCompiler comp = getCompiler("ExprCalc5", new File("/temp"));
+		comp.setPreferShiftOverReduce(true);
+		comp.setGenerateAstStubs(true);
+		comp.setInlineParserActions(true);
+		testWritingParserSource(comp, ParserTestFixtures.getExprCalcGrammar(), "ParserCompilerTest_ExprCalc5ParserSource.txt");
+	}
 }

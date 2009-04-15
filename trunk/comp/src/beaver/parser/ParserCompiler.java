@@ -22,6 +22,7 @@ public class ParserCompiler
 	boolean  preferShiftOverReduce;
 	boolean  doNotWritePassThroughActions;
 	boolean  generateAstStubs;
+	boolean  inlineParserActions;
 	boolean  dumpParserStates;
 	String   packageName;
 
@@ -51,6 +52,11 @@ public class ParserCompiler
 		}
 	}
 	
+	public void setInlineParserActions(boolean flag)
+	{
+		inlineParserActions = flag;
+	}
+	
 	public void setDumpParserStates(boolean flag)
 	{
 		dumpParserStates = flag;
@@ -58,6 +64,10 @@ public class ParserCompiler
 
 	public boolean compile(Grammar grammar)
 	{
+		if (!generateAstStubs)
+		{
+			inlineParserActions = false;
+		}
 		AstList[] astListTypes;
 		AstType[] astNodeTypes;
 		ParserState firstState = new ParserStatesBuilder().buildParserStates(grammar);
@@ -309,33 +319,36 @@ public class ParserCompiler
 	
 	private void writeParserActions(PrintWriter out, Grammar grammar)
 	{
-		for (int i = 0; i < grammar.productions.length; i++)
-        {
-			Production rule = grammar.productions[i];
-			if (doNotWritePassThroughActions)
-			{
-				if (rule.isValueProducer())
-				{
-					Production.RHSElement ruleValue = rule.findValueProducer();
-					if (ruleValue != null && getType(rule.lhs).equals(ruleValue.fieldType))
-					{
-						continue;
-					}
-				}
-				else if (!rule.lhs.isOptionalListProducer())
-				{
-					continue;
-				}
-			}
-		    if (generateAstStubs)
-		    {
-		    	writeAstAction(out, rule);
-		    }
-		    else
-		    {
-		    	writeAbstractAction(out, rule);
-		    }
-        }
+		if (!inlineParserActions)
+		{
+    		for (int i = 0; i < grammar.productions.length; i++)
+            {
+    			Production rule = grammar.productions[i];
+    			if (doNotWritePassThroughActions)
+    			{
+    				if (rule.isValueProducer())
+    				{
+    					Production.RHSElement ruleValue = rule.findValueProducer();
+    					if (ruleValue != null && getType(rule.lhs).equals(ruleValue.fieldType))
+    					{
+    						continue;
+    					}
+    				}
+    				else if (!rule.lhs.isOptionalListProducer())
+    				{
+    					continue;
+    				}
+    			}
+    		    if (generateAstStubs)
+    		    {
+    		    	writeAstAction(out, rule);
+    		    }
+    		    else
+    		    {
+    		    	writeAbstractAction(out, rule);
+    		    }
+            }
+		}
 		if (generateAstStubs)
 		{
 			writeTermMaker(out);
@@ -356,9 +369,9 @@ public class ParserCompiler
 	    out.print(rule.getFullName());
 	    out.print("(");	    
 	    String sep = "";
-	    for (int j = 0; j < rule.rhs.length; j++)
+	    for (int i = 0; i < rule.rhs.length; i++)
         {
-	    	Production.RHSElement arg = rule.rhs[j];
+	    	Production.RHSElement arg = rule.rhs[i];
             if (arg.fieldType != null)
             {
 	            out.print(sep);
@@ -370,13 +383,13 @@ public class ParserCompiler
         }
 	    out.println(") {");
 		out.print("\t\t");
+	    out.print("return ");
 	    if (rule.lhs.isListProducer())
 	    {
-		    out.print("return ");
 	    	boolean isAdd = false;
-		    for (int j = 0; j < rule.rhs.length; j++)
+		    for (int i = 0; i < rule.rhs.length; i++)
 	        {
-		    	Production.RHSElement arg = rule.rhs[j];
+		    	Production.RHSElement arg = rule.rhs[i];
 	            if (arg.fieldType != null)
 	            {
 	            	if (arg.fieldType.equals(returnType))
@@ -408,7 +421,6 @@ public class ParserCompiler
 	    	{
 	    		throw new IllegalStateException();
 	    	}
-		    out.print("return ");
     		out.print("new ");
     		out.print(returnType);
     		out.print("(");
@@ -417,7 +429,6 @@ public class ParserCompiler
 	    }
 	    else
 	    {
-		    out.print("return ");
 		    out.print("new ");
 		    out.print(rule.getFullName());
 		    out.print("(");	    
@@ -494,9 +505,10 @@ public class ParserCompiler
 	
 	private void writeProductionReduceCase(PrintWriter out, Production rule)
 	{
+		String returnType = getType(rule.lhs);
     	int lastRhsItem = rule.rhs.length - 1; 
 	    int ruleValueIndex;
-	    if (doNotWritePassThroughActions && (ruleValueIndex = rule.findValueProducerIndex()) >= 0 && getType(rule.lhs).equals(rule.rhs[ruleValueIndex].fieldType))
+	    if (doNotWritePassThroughActions && (ruleValueIndex = rule.findValueProducerIndex()) >= 0 && returnType.equals(rule.rhs[ruleValueIndex].fieldType))
 	    {
 			out.print("\t\t\t\t");
 		    out.print("return ");
@@ -526,11 +538,59 @@ public class ParserCompiler
 			{
 				out.print("null");
 			}
+			else if (inlineParserActions && rule.lhs.isListProducer())
+			{
+		    	boolean isAdd = false;
+			    for (int i = 0; i < rule.rhs.length; i++)
+		        {
+			    	Production.RHSElement arg = rule.rhs[i];
+		            if (arg.fieldType != null)
+		            {
+		            	if (arg.fieldType.equals(returnType))
+		            	{
+		            		out.print("(");
+		            		printStackArg(out, rule, i);
+		            		out.print(").add(");
+		            		isAdd = true;
+		            	}
+		            	else if (isAdd)
+		            	{
+		            		printStackArg(out, rule, i);
+		            		out.print(")");
+		            	}
+		            	else
+		            	{
+		            		out.print("new ");
+		            		out.print(returnType);
+		            		out.print("(");
+		            		printStackArg(out, rule, i);
+		            		out.print(")");
+		            	}
+		            }
+		        }
+			}
+		    else if (inlineParserActions && rule.lhs.isOptionalListProducer())
+		    {
+		    	if (rule.rhs.length != 0)
+		    	{
+		    		throw new IllegalStateException();
+		    	}
+	    		out.print("new ");
+	    		out.print(returnType);
+	    		out.print("(");
+	    		out.print(")");
+		    }
 			else
 			{				
-			    out.print("make");
-			    String ruleFullName = rule.getFullName(); 
-			    out.print(ruleFullName);
+				if (inlineParserActions)
+				{
+				    out.print("new ");
+				}
+				else
+				{
+    			    out.print("make");
+				}
+			    out.print(rule.getFullName());
 			    out.print('(');
 			    
 			    String sep = "";
@@ -540,17 +600,7 @@ public class ParserCompiler
 		            if (arg.fieldType != null)
 		            {
 						out.print(sep);
-						out.print("(");
-						out.print(arg.fieldType);
-						out.print(") ");
-						out.print("stack[top");
-						int stackOffset = lastRhsItem - i;
-						if (stackOffset > 0)
-						{
-							out.print(" + ");
-							out.print(stackOffset);
-						}
-						out.print("]");
+	            		printStackArg(out, rule, i);
 			            sep = ", ";
 		            }
 		        }
@@ -558,6 +608,23 @@ public class ParserCompiler
 			}
 		    out.println(";");    
 	    }
+	}
+	
+	private void printStackArg(PrintWriter out, Production rule, int rhsItemIdx)
+	{
+    	Production.RHSElement arg = rule.rhs[rhsItemIdx];
+		out.print("(");
+		out.print(arg.fieldType);
+		out.print(") ");
+		out.print("stack[top");
+    	int lastRhsItem = rule.rhs.length - 1; 
+		int stackOffset = lastRhsItem - rhsItemIdx;
+		if (stackOffset > 0)
+		{
+			out.print(" + ");
+			out.print(stackOffset);
+		}
+		out.print("]");
 	}
 	
 	private boolean writeAstTermStub(AstList[] lists)

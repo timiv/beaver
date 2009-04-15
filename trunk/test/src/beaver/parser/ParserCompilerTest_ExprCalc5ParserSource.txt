@@ -1,0 +1,63 @@
+package test2;
+
+public class ExprCalc5 extends beaver.Parser {
+	protected static final int NUM = 3;
+	protected static final int ID = 4;
+
+	public ExprCalc5() throws java.io.IOException {
+		super(ExprCalc5.class.getResourceAsStream("ExprCalc5.bpt"));
+	}
+	protected Object makeTerm(int id, Object text, int line, int column) {
+		return new Term(id, text, line, column);
+	}
+	protected Object reduce(Object[] stack, int top, int rule) {
+		switch (rule) {
+			case 0: { // Eval = OptStmtList OptExpr
+				return new Eval((StmtList) stack[top + 1], (Expr) stack[top]);
+			}
+			case 1: { // OptStmtList = StmtList
+				return stack[top];
+			}
+			case 2: { // OptStmtList =
+				return new StmtList();
+			}
+			case 3: { // OptExpr = Expr
+				return stack[top];
+			}
+			case 4: { // OptExpr =
+				return null;
+			}
+			case 5: { // StmtList = { New } Stmt
+				return new StmtList((Stmt) stack[top]);
+			}
+			case 6: { // StmtList = { Ext } StmtList Stmt
+				return ((StmtList) stack[top + 1]).add((Stmt) stack[top]);
+			}
+			case 7: { // Stmt = ID "=" Expr ";"
+				return new Stmt((Term) stack[top + 3], (Expr) stack[top + 1]);
+			}
+			case 8: { // Expr = { Num } NUM
+				return new NumExpr((Term) stack[top]);
+			}
+			case 9: { // Expr = { Var } ID
+				return new VarExpr((Term) stack[top]);
+			}
+			case 10: { // Expr = { Nested } "(" Expr ")"
+				return stack[top + 1];
+			}
+			case 11: { // Expr = { Add } left:Expr "+" right:Expr
+				return new AddExpr((Expr) stack[top + 2], (Expr) stack[top]);
+			}
+			case 12: { // Expr = { Sub } left:Expr "-" right:Expr
+				return new SubExpr((Expr) stack[top + 2], (Expr) stack[top]);
+			}
+			case 13: { // Expr = { Mul } left:Expr "*" right:Expr
+				return new MulExpr((Expr) stack[top + 2], (Expr) stack[top]);
+			}
+			case 14: { // Expr = { Div } left:Expr "/" right:Expr
+				return new DivExpr((Expr) stack[top + 2], (Expr) stack[top]);
+			}
+		}
+		throw new IndexOutOfBoundsException("production #" + rule);
+	}
+}
