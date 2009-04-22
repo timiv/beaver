@@ -175,7 +175,12 @@ class RegExpTestFixtures
 	{
 		return compileRules(
 				makeRule(0, new RegExp.MatchRange(new CharRange(new CharReader(" \\t")))),
-				makeRule(0, new RegExp.MatchRange(new CharRange(new CharReader("\\n\\r"))), "newLine"),
+				makeRule(0, new RegExp.Alt( RegExp.matchText("\r")
+								          , new RegExp.Alt( RegExp.matchText("\n")
+								                          ,	RegExp.matchText("\r\n")
+								          				  )
+								          )
+							, "newLine"),
 				makeRule(1, RegExp.matchText("and")),
 				makeRule(2, RegExp.matchText("or")),
 				makeRule(3, RegExp.matchText("not")),

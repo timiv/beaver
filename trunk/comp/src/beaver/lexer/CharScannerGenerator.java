@@ -2,7 +2,10 @@ package beaver.lexer;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -11,9 +14,9 @@ import org.objectweb.asm.Opcodes;
 
 public class CharScannerGenerator implements Opcodes
 {
-	private DFA  dfa;
-	private int  numDfaEvents;
-	private int  eofTokenId;
+	private DFA      dfa;
+	private String[] dfaEvents;
+	private int      eofTokenId;
 
 	public CharScannerGenerator(RegExp re, int eofTokenId)
 	{
@@ -25,13 +28,33 @@ public class CharScannerGenerator implements Opcodes
 		this.dfa = dfa;
 		this.eofTokenId = eofTokenId;
 		
+		Map events = new HashMap();			
 		for (DFAState st = dfa.start; st != null; st = st.next)
 		{
 			if (st.accept != null && st.accept.event != null)
 			{
-				st.accept.eventId = numDfaEvents++;
+				Integer eventId = (Integer) events.get(st.accept.event);
+				if (eventId != null)
+				{
+					st.accept.eventId = eventId.intValue();
+				}
+				else
+				{
+					st.accept.eventId = events.size();
+					events.put(st.accept.event, new Integer(st.accept.eventId));
+				}
 			}
 		}
+		
+		dfaEvents = new String[events.size()];
+		for (Iterator i = events.entrySet().iterator(); i.hasNext();)
+        {
+	        Map.Entry e = (Map.Entry) i.next();
+	        String name = (String) e.getKey();
+	        Integer val = (Integer) e.getValue();
+	        
+	        dfaEvents[val.intValue()] = name;
+        }
 	}
 
 	public CharScannerGenerator(DFA dfa)
@@ -74,31 +97,16 @@ public class CharScannerGenerator implements Opcodes
 		mv.visitEnd();
 	}
 	
-	private int[] getEvenIds()
-	{
-		int[] ids = new int[numDfaEvents];
-		int i = 0;
-		for (DFAState st = dfa.start; st != null; st = st.next)
-		{
-			if (st.accept != null && st.accept.event != null)
-			{
-				ids[i++] = st.accept.eventId;
-			}
-		}
-		return ids;
-	}
-	
 	private void generateGetNextTokenMethod(ClassWriter cw, String className)
 	{
 		MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "getNextToken", "()I", null, EXCEPTIONS);
 		Label startScan = new Label();
-		Label tokenIsRecognized = new Label();
 		Label endOfScan = new Label();
 		Label refillBuffer = new Label();
 
 		generateGetNextTokenProlog(mv, className, startScan);
-		generateGetNextTokenDFACode(mv, tokenIsRecognized, endOfScan, refillBuffer);
-		generateGetNextTokenEpilog(mv, className, startScan, tokenIsRecognized, endOfScan);
+		generateGetNextTokenDFACode(mv, endOfScan, refillBuffer);
+		generateGetNextTokenEpilog(mv, className, startScan, endOfScan);
 
 		generateRefillBuffer(mv, className, refillBuffer);
 
@@ -142,7 +150,7 @@ public class CharScannerGenerator implements Opcodes
 		generateLoadConstInsn(mv, NOT_ACCEPTED);
 		mv.visitVarInsn(ISTORE, LOCAL_ACCEPT);
 		
-		if (numDfaEvents > 0)
+		if (dfaEvents.length > 0)
 		{
 			// int event  = -1;
 			generateLoadConstInsn(mv, -1);
@@ -150,19 +158,19 @@ public class CharScannerGenerator implements Opcodes
 		}
 	}
 
-	private void generateGetNextTokenEpilog(MethodVisitor mv, String className, Label startScan, Label tokenIsRecognized, Label endOfScan)
+	private void generateGetNextTokenEpilog(MethodVisitor mv, String className, Label startScan, Label endOfScan)
 	{
-		Label saveCursor = new Label();
+		Label saveCursor = new Label(), resetCursor = new Label();
 		Label throwUnexpectedCharacterException = new Label();
 
-		mv.visitLabel(tokenIsRecognized);
+		mv.visitLabel(endOfScan);
 		// if (ctxptr >= 0) marker = ctxptr;
 		mv.visitVarInsn(ILOAD, LOCAL_CTXPTR);
-		mv.visitJumpInsn(IFLT, endOfScan);
+		mv.visitJumpInsn(IFLT, resetCursor);
 		mv.visitVarInsn(ILOAD, LOCAL_CTXPTR);
 		mv.visitVarInsn(ISTORE, LOCAL_MARKER);
 
-		mv.visitLabel(endOfScan);
+		mv.visitLabel(resetCursor);
 		// if (marker >= 0) cursor = marker;
 		mv.visitVarInsn(ILOAD, LOCAL_MARKER);
 		mv.visitJumpInsn(IFLT, saveCursor);
@@ -180,31 +188,28 @@ public class CharScannerGenerator implements Opcodes
 		generateLoadConstInsn(mv, NOT_ACCEPTED);
 		mv.visitJumpInsn(IF_ICMPEQ, throwUnexpectedCharacterException);
 		
-		if (numDfaEvents > 0)
+		if (dfaEvents.length > 0)
 		{
-			int[] eventIds = getEvenIds();
+			int[] eventIds = new int[dfaEvents.length];
+			for (int i = 0; i < eventIds.length; i++)
+            {
+				eventIds[i] = i;
+            }
 			Label[] events = makeLabels(eventIds.length);
 			Label eventEnd = new Label();
 			
 			mv.visitVarInsn(ILOAD, LOCAL_EVENT);
 			mv.visitLookupSwitchInsn(eventEnd, eventIds, events);
-			
-			int i = 0;
-			for (DFAState st = dfa.start; st != null; st = st.next)
+
+			int lastEvent = events.length - 1;
+			for (int i = 0; i < events.length; i++)
 			{
-				if (st.accept != null && st.accept.event != null)
+				mv.visitLabel(events[i]);
+				mv.visitVarInsn(ALOAD, THIS);
+				mv.visitMethodInsn(INVOKEVIRTUAL, className, dfaEvents[i], "()V");
+				if (i < lastEvent)
 				{
-					if (st.accept.eventId != eventIds[i])
-					{
-						throw new IllegalStateException("event ID mismatch");
-					}
-					mv.visitLabel(events[i]);
-					mv.visitVarInsn(ALOAD, THIS);
-					mv.visitMethodInsn(INVOKEVIRTUAL, className, st.accept.event, "()V");
-					if (++i < events.length)
-					{
-						mv.visitJumpInsn(GOTO, eventEnd);
-					}
+					mv.visitJumpInsn(GOTO, eventEnd);
 				}
 			}
 			mv.visitLabel(eventEnd);
@@ -253,7 +258,7 @@ public class CharScannerGenerator implements Opcodes
 		mv.visitVarInsn(RET, LOCAL_RETURN);
 	}
 
-	private void generateGetNextTokenDFACode(MethodVisitor mv, Label tokenIsRecognized, Label endOfScan, Label refillBuffer)
+	private void generateGetNextTokenDFACode(MethodVisitor mv, Label endOfScan, Label refillBuffer)
 	{
 		Label[] dfaStates = makeLabels(dfa.numStates);
 
@@ -272,7 +277,9 @@ public class CharScannerGenerator implements Opcodes
 						generateLoadConstInsn(mv, st.accept.eventId);
 						mv.visitVarInsn(ISTORE, LOCAL_EVENT);
 					}
-					mv.visitJumpInsn(GOTO, tokenIsRecognized);
+					mv.visitVarInsn(ILOAD, LOCAL_CURSOR);
+					mv.visitVarInsn(ISTORE, LOCAL_MARKER);
+					mv.visitJumpInsn(GOTO, endOfScan);
 				}
 				else
 				{
@@ -359,7 +366,6 @@ public class CharScannerGenerator implements Opcodes
 				}
 			}
 		}
-		mv.visitJumpInsn(GOTO, endOfScan);
 	}
 
 	private static Label compileCharSpanTransitions(MethodVisitor mv, DFAState fromState, Label[] dfaStates, Label endOfScan)

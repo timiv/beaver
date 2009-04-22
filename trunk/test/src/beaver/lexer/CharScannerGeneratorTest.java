@@ -50,7 +50,8 @@ public class CharScannerGeneratorTest
 							DFA dfa = new DFA(nfa);
 							byte[] bc = new CharScannerGenerator(dfa, EOF).compile(name, superClass);
 							
-							//new ClassReader(bc).accept(new TraceClassVisitor(new PrintWriter(System.out)), 0);
+							// DFAPrinter.print(dfa);
+							// new ClassReader(bc).accept(new TraceClassVisitor(new PrintWriter(System.out)), 0);
 							
 							return defineClass(name, bc, 0, bc.length);
 						}
@@ -240,13 +241,13 @@ public class CharScannerGeneratorTest
 	{
 		CharScanner scanner = getScanner( "LogicCalculatorScannerWithEvents"
 				                        , "beaver/lexer/CharScannerGeneratorTest$LogicCalculatorScannerBase"
-				                        , new StringReader(" android \n and oracle \n or not note \ndone"));
+				                        , new StringReader(" android\r\n and oracle \r\n or not note \r\ndone"));
 		
 		assertEquals(4, scanner.getNextToken());
 		assertEquals("android", scanner.getTokenText());
 		assertEquals(1, scanner.getTokenLine());
 		assertEquals(2, scanner.getTokenColumn());
-		
+
 		assertEquals(1, scanner.getNextToken());
 		assertEquals("and", scanner.getTokenText());
 		assertEquals(2, scanner.getTokenLine());
