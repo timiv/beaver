@@ -280,4 +280,21 @@ public class CharScannerGeneratorTest
 		
 		assertEquals(EOF, scanner.getNextToken());
 	}
+	
+	@Test
+	public void testTextScanner() throws UnexpectedCharacterException, IOException
+	{
+		CharScanner scanner = getScanner( "TextScanner", new StringReader(" \"abc\" \"\\a\" \"\\\\\" "));
+
+		assertEquals(1, scanner.getNextToken());
+		assertEquals("\"abc\"", scanner.getTokenText());
+
+		assertEquals(1, scanner.getNextToken());
+		assertEquals("\"\\a\"", scanner.getTokenText());
+
+		assertEquals(1, scanner.getNextToken());
+		assertEquals("\"\\\\\"", scanner.getTokenText());
+		
+		assertEquals(EOF, scanner.getNextToken());
+	}		
 }

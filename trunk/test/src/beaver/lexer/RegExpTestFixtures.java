@@ -196,6 +196,42 @@ class RegExpTestFixtures
 		);
 	}
 	
+	static RegExp getTextScanner()
+	{
+		RegExp any    = new RegExp.MatchRange(new CharRange("^"));
+		RegExp eol    = new RegExp.MatchRange(new CharRange("\\r\\n"));
+		RegExp dot    = RegExp.diff(any, eol);
+		RegExp esc    = RegExp.diff(dot, new CharRange("\\"));
+
+		return compileRules(
+				makeRule(0, new RegExp.MatchRange(new CharRange(new CharReader(" \\t")))),
+				makeRule(0, new RegExp.Alt( RegExp.matchText("\r")
+								          , new RegExp.Alt( RegExp.matchText("\n")
+								                          ,	RegExp.matchText("\r\n")
+								          				  )
+								          )
+							),
+				makeRule(1, 
+						new RegExp.Cat( 
+								RegExp.matchText("\""),
+								new RegExp.Cat(
+										new RegExp.Close(
+												new RegExp.Alt(
+													RegExp.diff( esc, new CharRange("\""))
+												,	new RegExp.Cat(
+															RegExp.matchText("\\")
+													,		dot)
+												)
+										, 		'*'
+										)
+								,	 	RegExp.matchText("\"")
+								) 
+					    )
+				)
+		);
+		
+	}
+	
 	private static RegExp makeRule(int id, RegExp re)
 	{
 		return new RegExp.Rule(re, new RegExp.Null(), new Accept(id, Short.MAX_VALUE - id));

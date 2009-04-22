@@ -23,7 +23,10 @@ public class CharRange
 	CharRange(CharRange range)
 	{
 		spans = new CharSpan[range.spans.length];
-		System.arraycopy(range.spans, 0, spans, 0, spans.length);
+		for (int i = 0; i < spans.length; i++)
+        {
+	        spans[i] = new CharSpan(range.spans[i]);
+        }
 	}
 
 	/**
