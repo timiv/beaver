@@ -120,7 +120,7 @@ public class ParserCompiler
 	{
 		try
 		{
-			PrintWriter out = new PrintWriter(new File(outputDir, parserName + "-states.lst"));
+			PrintWriter out = new PrintWriter(new File(outputDir, parserName + ".bst"));
 			// symbols
 			for (int i = 0; i < grammar.terminals.length; i++)
 			{
@@ -261,7 +261,7 @@ public class ParserCompiler
 			if (grammar.terminals[i].isValueProducer())
 			{
 				out.print('\t');
-			    out.print("protected ");
+			    out.print("public ");
 			    out.print("static ");
 			    out.print("final ");
 			    out.print("int ");
@@ -270,7 +270,7 @@ public class ParserCompiler
 			    out.print(grammar.terminals[i].id);
 			    out.println(';');
 			}
-        }
+        }	
 	    out.println();
 	}
 	
@@ -647,20 +647,19 @@ public class ParserCompiler
         		out.println(" next;");
     		}
     		out.print('\t');
-    		out.print("protected ");
+    		out.print("public ");
     		out.println("Object value;");
     		out.print('\t');
-    		out.print("protected ");
+    		out.print("public ");
     		out.println("int id;");
     		out.print('\t');
-    		out.print("protected ");
+    		out.print("public ");
     		out.println("int line;");
     		out.print('\t');
-    		out.print("protected ");
+    		out.print("public ");
     		out.println("int column;");
     		out.println();
     		out.print('\t');
-    		out.print("protected ");
     		out.print("Term");
     		out.println("(int id, Object value, int line, int column) {");
     		out.print("\t\t");
@@ -830,7 +829,6 @@ public class ParserCompiler
 		if (isListElementType(type.parentType, lists))
 		{
 			out.print('\t');
-    		out.print("protected ");
 			out.print(type.parentType);
 			out.println(" next;");
     		out.println();
@@ -862,7 +860,6 @@ public class ParserCompiler
 		if (isListElementType(type.nodeType, lists))
 		{
 			out.print('\t');
-    		out.print("protected ");
 			out.print(type.nodeType);
 			out.println(" next;");
 		}
@@ -870,7 +867,7 @@ public class ParserCompiler
 		for (AstNodeField field = type.firstField; field != null; field = field.next)
         {
     		out.print('\t');
-    		out.print("protected ");
+    		out.print("public ");
     		out.print(field.type);
     		out.print(' ');
     		out.print(field.name);
@@ -881,7 +878,6 @@ public class ParserCompiler
 		for (AstNodeConstructor constructor = type.firstConstructor; constructor != null; constructor = constructor.next)
 		{
     		out.print('\t');
-    		out.print("protected ");
     		out.print(type.nodeType);
     		out.print('(');
     		String sep = "";
@@ -946,7 +942,7 @@ public class ParserCompiler
 			out.print('\t');
 			out.print("void visit(");
 			out.print("Term");
-			out.print(" term)");
+			out.print(" _)");
 			out.println(';');
 			out.println("}");
 			out.close();
@@ -1015,24 +1011,23 @@ public class ParserCompiler
 	
 	private static void writeVisitorMethods(PrintWriter out, String nodeType)
 	{
-		String argName = typeToName(nodeType);
 		out.print('\t');
 		out.print("void enter(");
 		out.print(nodeType);
 		out.print(' ');
-		out.print(argName);
+		out.print('_');
 		out.println(");");
 		out.print('\t');
 		out.print("void visit(");
 		out.print(nodeType);
 		out.print(' ');
-		out.print(argName);
+		out.print('_');
 		out.println(");");
 		out.print('\t');
 		out.print("void leave(");
 		out.print(nodeType);
 		out.print(' ');
-		out.print(argName);
+		out.print('_');
 		out.println(");");
 	}
 
@@ -1312,6 +1307,11 @@ public class ParserCompiler
 			name = rhs.fieldName;
 			canBeNull = rhs.symbol instanceof Nonterminal && ((Nonterminal) rhs.symbol).isOptional() && !((Nonterminal) rhs.symbol).isOptionalListProducer(); 
 		}
+		
+		boolean equals(AstNodeField anotherField)
+		{
+			return type.equals(anotherField.type) && name.equals(anotherField.name);
+		}
 	}
 	
 	private static class AstNodeConstructor
@@ -1334,6 +1334,18 @@ public class ParserCompiler
 				}
 				lastArg.next = arg;
 			}
+		}
+		
+		boolean has(AstNodeField field)
+		{
+			for (AstNodeField arg = firstArg; arg != null; arg = arg.next)
+			{
+				if (arg.equals(field))
+				{
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 	
@@ -1401,9 +1413,30 @@ public class ParserCompiler
             }
     	    type.add(constructor);
         }	
-		return (AstType[]) types.toArray(new AstType[types.size()]);
+		AstType[] astTypes = (AstType[]) types.toArray(new AstType[types.size()]);
+		// mark fields that can be left uninitialized
+		for (int i = 0; i < astTypes.length; i++)
+        {
+			AstType type = astTypes[i];
+			for (AstNodeField field = type.firstField; field != null; field = field.next)
+			{
+				if (!field.canBeNull)
+				{
+					for (AstNodeConstructor constructor = type.firstConstructor; constructor != null; constructor = constructor.next)
+					{
+						if (!constructor.has(field))
+						{
+							field.canBeNull = true;
+							break;
+						}
+					}
+				}
+			}			
+        }
+		
+		return astTypes;
 	}
-
+	
 	private static boolean isListElementType(String typeName, AstList[] lists)
 	{
 		for (int i = 0; i < lists.length; i++)

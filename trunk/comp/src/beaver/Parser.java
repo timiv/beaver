@@ -158,7 +158,7 @@ public abstract class Parser
 		}
 	}
 
-	private void clearStack()
+	void clearStack()
 	{
 		for (int i = 0; i < stackSymbols.length; i++)
         {
@@ -177,7 +177,7 @@ public abstract class Parser
 	 * @return ID of the just recognized terminal
 	 * @throws IOException that originated in a scanner
 	 */
-	private int read(Scanner input) throws IOException
+	int read(Scanner input) throws IOException
 	{
 		while (true)
 		{

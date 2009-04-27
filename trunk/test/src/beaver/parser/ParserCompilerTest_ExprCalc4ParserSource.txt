@@ -1,8 +1,8 @@
 package test2;
 
 public class ExprCalc4 extends beaver.Parser {
-	protected static final int NUM = 3;
-	protected static final int ID = 4;
+	public static final int NUM = 3;
+	public static final int ID = 4;
 
 	public ExprCalc4() throws java.io.IOException {
 		super(ExprCalc4.class.getResourceAsStream("ExprCalc4.bpt"));
