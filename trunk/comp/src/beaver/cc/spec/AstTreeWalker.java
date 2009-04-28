@@ -105,8 +105,8 @@ public class AstTreeWalker implements NodeVisitor {
 	public void visit(Spec spec) {
 		enter(spec);
 		visit(spec.ruleList);
-		visit(spec.optPrecedenceList);
-		visit(spec.optMacroList);
+		visit(spec.precedenceList);
+		visit(spec.macroList);
 		visit(spec.tokenList);
 		leave(spec);
 	}
@@ -129,7 +129,7 @@ public class AstTreeWalker implements NodeVisitor {
 		if (altDef.optRuleName != null) { 
 			visit(altDef.optRuleName);
 		}
-		visit(altDef.optRhsItemList);
+		visit(altDef.rhsItemList);
 		leave(altDef);
 	}
 	public void leave(AltDef altDef) {

@@ -19,4 +19,16 @@ public class PrecedenceList {
 	public int size() {
 		return size;
 	}
+
+	public boolean equals(PrecedenceList list) {
+		if (this.size == list.size) {
+			for (Precedence this_precedence = this.first, list_precedence = list.first; this_precedence != null; this_precedence = this_precedence.next, list_precedence = list_precedence.next) {
+				if (!this_precedence.equals(list_precedence)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 }

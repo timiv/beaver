@@ -9,4 +9,8 @@ public class Rule {
 		this.id = id;
 		this.altDefList = altDefList;
 	}
+
+	public boolean equals(Rule rule) {
+		return id.equals(rule.id) && altDefList.equals(rule.altDefList);
+	}
 }

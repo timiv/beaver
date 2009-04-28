@@ -20,4 +20,16 @@ public class CatRegExprList {
 	public int size() {
 		return size;
 	}
+
+	public boolean equals(CatRegExprList list) {
+		if (this.size == list.size) {
+			for (CatRegExpr this_catRegExpr = this.first, list_catRegExpr = list.first; this_catRegExpr != null; this_catRegExpr = this_catRegExpr.next, list_catRegExpr = list_catRegExpr.next) {
+				if (!this_catRegExpr.equals(list_catRegExpr)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 }

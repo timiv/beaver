@@ -9,4 +9,8 @@ public class Precedence {
 		this.precSymbolList = precSymbolList;
 		this.assoc = assoc;
 	}
+
+	public boolean equals(Precedence precedence) {
+		return precSymbolList.equals(precedence.precSymbolList) && assoc.equals(precedence.assoc);
+	}
 }

@@ -12,4 +12,8 @@ public class Term {
 		this.line = line;
 		this.column = column;
 	}
+
+	public boolean equals(Term term) {
+		return this.id == term.id && this.value.equals(term.value);
+	}
 }

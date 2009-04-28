@@ -19,4 +19,16 @@ public class AltRegExprList {
 	public int size() {
 		return size;
 	}
+
+	public boolean equals(AltRegExprList list) {
+		if (this.size == list.size) {
+			for (CatRegExprList this_catRegExprList = this.first, list_catRegExprList = list.first; this_catRegExprList != null; this_catRegExprList = this_catRegExprList.next, list_catRegExprList = list_catRegExprList.next) {
+				if (!this_catRegExprList.equals(list_catRegExprList)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 }

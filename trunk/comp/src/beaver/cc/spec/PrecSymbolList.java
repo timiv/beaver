@@ -19,4 +19,16 @@ public class PrecSymbolList {
 	public int size() {
 		return size;
 	}
+
+	public boolean equals(PrecSymbolList list) {
+		if (this.size == list.size) {
+			for (PrecSymbol this_precSymbol = this.first, list_precSymbol = list.first; this_precSymbol != null; this_precSymbol = this_precSymbol.next, list_precSymbol = list_precSymbol.next) {
+				if (!this_precSymbol.equals(list_precSymbol)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 }

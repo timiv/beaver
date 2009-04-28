@@ -19,4 +19,16 @@ public class AltDefList {
 	public int size() {
 		return size;
 	}
+
+	public boolean equals(AltDefList list) {
+		if (this.size == list.size) {
+			for (AltDef this_altDef = this.first, list_altDef = list.first; this_altDef != null; this_altDef = this_altDef.next, list_altDef = list_altDef.next) {
+				if (!this_altDef.equals(list_altDef)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 }

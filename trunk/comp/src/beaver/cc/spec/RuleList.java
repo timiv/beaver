@@ -19,4 +19,16 @@ public class RuleList {
 	public int size() {
 		return size;
 	}
+
+	public boolean equals(RuleList list) {
+		if (this.size == list.size) {
+			for (Rule this_rule = this.first, list_rule = list.first; this_rule != null; this_rule = this_rule.next, list_rule = list_rule.next) {
+				if (!this_rule.equals(list_rule)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 }

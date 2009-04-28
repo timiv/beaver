@@ -11,6 +11,15 @@ public class SymbolRhsItem extends RhsItem {
 		this.ref = ref;
 		this.rhsSymbol = rhsSymbol;
 	}
+
+	public boolean equals(RhsItem rhsItem) {
+		return rhsItem instanceof SymbolRhsItem && equals((SymbolRhsItem) rhsItem);
+	}
+
+	public boolean equals(SymbolRhsItem symbolRhsItem) {
+		return (ref == null && symbolRhsItem.ref == null || ref != null && ref.equals(symbolRhsItem.ref)) && rhsSymbol.equals(symbolRhsItem.rhsSymbol);
+	}
+
 	void dispatch(NodeVisitor visitor) {
 		visitor.visit(this);
 	}

@@ -8,4 +8,8 @@ public class RhsSymbol {
 		this.id = id;
 		this.optQuant = optQuant;
 	}
+
+	public boolean equals(RhsSymbol rhsSymbol) {
+		return id.equals(rhsSymbol.id) && (optQuant == null && rhsSymbol.optQuant == null || optQuant != null && optQuant.equals(rhsSymbol.optQuant));
+	}
 }

@@ -13,4 +13,8 @@ public class Token {
 		this.optContext = optContext;
 		this.optEvent = optEvent;
 	}
+
+	public boolean equals(Token token) {
+		return id.equals(token.id) && altRegExprList.equals(token.altRegExprList) && (optContext == null && token.optContext == null || optContext != null && optContext.equals(token.optContext)) && (optEvent == null && token.optEvent == null || optEvent != null && optEvent.equals(token.optEvent));
+	}
 }

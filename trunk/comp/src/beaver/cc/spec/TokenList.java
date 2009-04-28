@@ -19,4 +19,16 @@ public class TokenList {
 	public int size() {
 		return size;
 	}
+
+	public boolean equals(TokenList list) {
+		if (this.size == list.size) {
+			for (Token this_token = this.first, list_token = list.first; this_token != null; this_token = this_token.next, list_token = list_token.next) {
+				if (!this_token.equals(list_token)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 }

@@ -9,4 +9,8 @@ public class Macro {
 		this.id = id;
 		this.altRegExprList = altRegExprList;
 	}
+
+	public boolean equals(Macro macro) {
+		return id.equals(macro.id) && altRegExprList.equals(macro.altRegExprList);
+	}
 }

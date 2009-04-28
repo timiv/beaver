@@ -19,4 +19,16 @@ public class MacroList {
 	public int size() {
 		return size;
 	}
+
+	public boolean equals(MacroList list) {
+		if (this.size == list.size) {
+			for (Macro this_macro = this.first, list_macro = list.first; this_macro != null; this_macro = this_macro.next, list_macro = list_macro.next) {
+				if (!this_macro.equals(list_macro)) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
 }
