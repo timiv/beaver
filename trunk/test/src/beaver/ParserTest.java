@@ -593,19 +593,7 @@ public class ParserTest
 	            return tokenText[index];
             }
 		};
-		Parser parser = new test3.ExprParser()
-		{
-            protected Object makeTerm(int id, Object text, int line, int column)
-            {
-	            return new test3.Term(id, text, line, column) 
-	            { 
-	            	public String toString()
-	            	{
-	            		return value.toString();
-	            	}
-	            };
-            }
-		};
+		Parser parser = new test3.ExprParser();
 		Object goal = parser.parse(input);
 		assertTrue(goal instanceof test3.Eval);
 		test3.Eval eval = (test3.Eval) goal;
@@ -666,7 +654,7 @@ public class ParserTest
 			
             public void visit(test3.Term node)
             {
-            	txt.append(node).append(' ');
+            	txt.append(node.value).append(' ');
             }
             
             public String toString()

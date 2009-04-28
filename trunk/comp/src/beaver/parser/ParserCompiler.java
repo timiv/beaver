@@ -658,6 +658,7 @@ public class ParserCompiler
     		out.print('\t');
     		out.print("public ");
     		out.println("int column;");
+    		
     		out.println();
     		out.print('\t');
     		out.print("Term");
@@ -673,6 +674,18 @@ public class ParserCompiler
     		out.print('\t');
     		out.println("}");
 
+    		out.println();
+    		out.print('\t');
+    		out.print("public ");
+    		out.print("boolean ");
+    		out.print("equals(");
+    		out.print("Term");
+    		out.println(" term) {");
+    		out.print("\t\t");
+    		out.println("return this.id == term.id && this.value.equals(term.value);");
+    		out.print('\t');
+    		out.println("}");   		
+    		
     		out.println("}");
     		out.close();
 		}
@@ -787,6 +800,55 @@ public class ParserCompiler
 		out.print('\t');
 		out.println("}");
 
+		out.println();
+		out.print('\t');
+		out.print("public ");
+		out.print("boolean ");
+		out.print("equals(");
+		out.print(node.listType);
+		out.println(" list) {");
+		out.print("\t\t");
+		out.println("if (this.size == list.size) {");
+		out.print("\t\t\t");
+		out.print("for (");
+		out.print(node.itemType);
+		out.print(" this_");
+		out.print(node.itemName);
+		out.print(" = this.first, list_");
+		out.print(node.itemName);
+		out.print(" = list.first; this_");
+		out.print(node.itemName);
+		out.print(" != null; this_");
+		out.print(node.itemName);
+		out.print(" = this_");
+		out.print(node.itemName);
+		out.print(".next, list_");
+		out.print(node.itemName);
+		out.print(" = list_");
+		out.print(node.itemName);
+		out.println(".next) {");
+		out.print("\t\t\t\t");
+		out.print("if (!");
+		out.print("this_");
+		out.print(node.itemName);
+		out.print(".equals(list_");
+		out.print(node.itemName);
+		out.println(")) {");
+		out.print("\t\t\t\t\t");
+		out.println("return false;");
+		out.print("\t\t\t\t");
+		out.println("}");   		
+		out.print("\t\t\t");
+		out.println("}");   		
+		out.print("\t\t\t");
+		out.println("return true;");   		
+		out.print("\t\t");
+		out.println("}");   		
+		out.print("\t\t");
+		out.println("return false;");   		
+		out.print('\t');
+		out.println("}");   		
+		
 		out.println("}");
 		out.close();
 	}
@@ -833,6 +895,16 @@ public class ParserCompiler
 			out.println(" next;");
     		out.println();
 		}
+		out.print('\t');
+		out.print("public ");
+		out.print("abstract ");
+		out.print("boolean ");
+		out.print("equals(");
+		out.print(type.parentType);
+		out.print(' ');
+		out.print(typeToName(type.parentType));
+		out.print(")");
+		out.println(';');
 		out.print('\t');
 		out.print("abstract ");
 		out.print("void dispatch(NodeVisitor visitor)");
@@ -903,9 +975,79 @@ public class ParserCompiler
     		out.print('\t');
     		out.println("}");
 		}
+
+		if (type.parentType != null)
+		{
+			String argName = typeToName(type.parentType);
+			out.println();
+			out.print('\t');
+			out.print("public ");
+			out.print("boolean ");
+			out.print("equals(");
+			out.print(type.parentType);
+			out.print(' ');
+			out.print(argName);
+			out.println(") {");
+			out.print("\t\t");
+			out.print("return ");
+			out.print(argName);
+			out.print(" instanceof ");
+			out.print(type.nodeType);
+			out.print(" && equals((");
+			out.print(type.nodeType);
+			out.print(") ");
+			out.print(argName);
+			out.println(");");
+			out.print('\t');
+			out.println('}');
+		}
+
+		String argName = typeToName(type.nodeType);
+		out.println();
+		out.print('\t');
+		out.print("public ");
+		out.print("boolean ");
+		out.print("equals(");
+		out.print(type.nodeType);
+		out.print(' ');
+		out.print(argName);
+		out.println(") {");
+		out.print("\t\t");
+		String sep = "return ";
+		for (AstNodeField field = type.firstField; field != null; field = field.next)
+		{
+			out.print(sep);
+			if (field.canBeNull)
+			{
+				out.print('(');
+				out.print(field.name);
+				out.print(" == null && ");
+				out.print(argName);
+				out.print('.');
+				out.print(field.name);
+				out.print(" == null || ");
+				out.print(field.name);
+				out.print(" != null && ");				
+			}
+			out.print(field.name);
+			out.print(".equals(");
+			out.print(argName);
+			out.print('.');
+			out.print(field.name);
+			out.print(")");
+			if (field.canBeNull)
+			{
+				out.print(')');
+			}
+			sep = " && ";
+		}
+		out.println(';');
+		out.print('\t');
+		out.println('}');
 		
 		if (type.parentType != null)
 		{
+			out.println();
     		out.print('\t');
     		out.print("void dispatch(NodeVisitor visitor)");
     		out.println(" {");
