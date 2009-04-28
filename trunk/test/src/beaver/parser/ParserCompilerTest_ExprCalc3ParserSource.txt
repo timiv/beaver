@@ -7,7 +7,7 @@ public abstract class ExprCalc3 extends beaver.Parser {
 	public ExprCalc3() throws java.io.IOException {
 		super(ExprCalc3.class.getResourceAsStream("ExprCalc3.bpt"));
 	}
-	protected abstract Eval makeEval(StmtList optStmtList, Expr optExpr);
+	protected abstract Eval makeEval(StmtList stmtList, Expr optExpr);
 	protected abstract StmtList makeOptStmtList();
 	protected abstract StmtList makeNewStmtList(Stmt stmt);
 	protected abstract StmtList makeExtStmtList(StmtList stmtList, Stmt stmt);

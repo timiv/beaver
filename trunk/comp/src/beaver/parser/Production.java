@@ -148,7 +148,7 @@ class Production
                 	{
                 		argType = ntArg.delegate.name;
                 	}
-                	argName = arg.name != null ? arg.name : Character.toLowerCase(ntArg.name.charAt(0)) + ntArg.name.substring(1); 
+                	argName = arg.name != null ? arg.name : (ntArg.isOptionalListProducer() ? Character.toLowerCase(ntArg.delegate.name.charAt(0)) + ntArg.delegate.name.substring(1) : Character.toLowerCase(ntArg.name.charAt(0)) + ntArg.name.substring(1)); 
                 }
                 String nameProbe = argName;
                 int argNameCount = 1;

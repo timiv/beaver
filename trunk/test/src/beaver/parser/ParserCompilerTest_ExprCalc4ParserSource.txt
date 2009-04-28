@@ -7,8 +7,8 @@ public class ExprCalc4 extends beaver.Parser {
 	public ExprCalc4() throws java.io.IOException {
 		super(ExprCalc4.class.getResourceAsStream("ExprCalc4.bpt"));
 	}
-	protected Eval makeEval(StmtList optStmtList, Expr optExpr) {
-		return new Eval(optStmtList, optExpr);
+	protected Eval makeEval(StmtList stmtList, Expr optExpr) {
+		return new Eval(stmtList, optExpr);
 	}
 	protected StmtList makeOptStmtList() {
 		return new StmtList();
