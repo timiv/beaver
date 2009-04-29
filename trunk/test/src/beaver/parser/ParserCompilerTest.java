@@ -11,10 +11,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 import org.junit.Test;
 
+import beaver.TestTools;
 import beaver.cc.Log;
 
 public class ParserCompilerTest
@@ -230,15 +230,8 @@ public class ParserCompilerTest
 		in.read(buf);
 		in.close();
 //		srcFile.delete();
-		String actualSource = new String(buf);
-		
-		InputStreamReader is = new InputStreamReader(this.getClass().getResourceAsStream(fileNameOfExpectedOutput));
-		StringBuilder txt = new StringBuilder(buf.length);
-		for (int cnt = is.read(buf); cnt > 0; cnt = is.read(buf))
-		{
-			txt.append(buf, 0, cnt);
-		}
-		String expectedSource = txt.toString();
+		String actualSource = new String(buf);	
+		String expectedSource = TestTools.readResource(this.getClass(), fileNameOfExpectedOutput);
 		
 		assertEquals(expectedSource, actualSource);
 	}

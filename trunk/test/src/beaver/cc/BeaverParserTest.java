@@ -4,19 +4,20 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.junit.Test;
 
 import beaver.SyntaxErrorException;
+import beaver.TestTools;
 import beaver.cc.spec.AltDef;
 import beaver.cc.spec.AltDefList;
 import beaver.cc.spec.AltRegExprList;
 import beaver.cc.spec.AstTreeWalker;
 import beaver.cc.spec.CatRegExpr;
 import beaver.cc.spec.CatRegExprList;
+import beaver.cc.spec.Compiler;
 import beaver.cc.spec.DiffRangeExpr;
 import beaver.cc.spec.InlineRhsItem;
 import beaver.cc.spec.KeywordRhsItem;
@@ -47,7 +48,7 @@ import beaver.cc.spec.TokenList;
 
 public class BeaverParserTest
 {
-	private static NodeVisitor specAstPrinter = new AstTreeWalker()
+	public static NodeVisitor specAstPrinter = new AstTreeWalker()
 	{		
 		StringWriter txt = new StringWriter(4096);
 		PrintWriter out = new PrintWriter(txt);
@@ -419,31 +420,21 @@ public class BeaverParserTest
 
 		public String toString()
 		{
-			return txt.toString();
+			String str = txt.toString();
+			txt.getBuffer().setLength(0);
+			return str;
 		}
 	};
-	
-	public String readResource(String name) throws IOException
-	{
-		InputStreamReader is = new InputStreamReader(this.getClass().getResourceAsStream(name));
-		StringBuilder txt = new StringBuilder(4096);
-		char[] buf = new char[1024];
-		for (int cnt = is.read(buf); cnt > 0; cnt = is.read(buf))
-		{
-			txt.append(buf, 0, cnt);
-		}
-		return txt.toString();
-	}
 	
 	@Test
 	public void testSpecAST() throws IOException, SyntaxErrorException
 	{
 		File specFile = new File("../comp/src/beaver/cc/Beaver.bps");
 		assertTrue(specFile.exists());
-		Spec spec = Compile.parse(specFile);
+		Spec spec = Compiler.parse(specFile);
 		specAstPrinter.visit(spec);
 		String printOut = specAstPrinter.toString();
-		String expected = readResource("BeaverParserTest_ExpectedSpecPrintout.txt"); 
+		String expected = TestTools.readResource(this.getClass(), "BeaverParserTest_ExpectedSpecPrintout.txt"); 
 		assertEquals(expected, printOut);
 	}
 	

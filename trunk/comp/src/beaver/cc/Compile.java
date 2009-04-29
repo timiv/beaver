@@ -1,15 +1,10 @@
 package beaver.cc;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 
-import beaver.CharScanner;
-import beaver.Parser;
 import beaver.SyntaxErrorException;
-import beaver.cc.spec.BeaverParser;
-import beaver.cc.spec.BeaverScanner;
+import beaver.cc.spec.Compiler;
 import beaver.cc.spec.Spec;
 
 public class Compile
@@ -54,9 +49,11 @@ public class Compile
 		}
 		try
 		{			
-			Spec spec = parse(specFile);
+			Spec spec = Compiler.parse(specFile);
 			if (spec != null)
 			{
+				Compiler.collateProductions(spec.ruleList);
+				Compiler.expandQuantifiedSymbols(spec.ruleList);
 			}
 		}
 		catch (IOException e)
@@ -66,21 +63,6 @@ public class Compile
 		catch (SyntaxErrorException e)
 		{
 			log.error("Syntax -- " + e.getMessage());
-		}
-	}
-	
-	static Spec parse(File specFile) throws IOException, SyntaxErrorException
-	{
-		Reader specReader = new FileReader(specFile);
-		try
-		{
-			CharScanner lexer = new BeaverScanner(specReader);
-			Parser specParser = new BeaverParser();
-			return (Spec) specParser.parse(lexer);
-		}
-		finally
-		{
-			specReader.close();
 		}
 	}
 	
