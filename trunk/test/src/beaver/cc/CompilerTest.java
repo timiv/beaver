@@ -31,4 +31,23 @@ public class CompilerTest
 		String expected = TestTools.readResource(this.getClass(), "CompilerTest_ExpectedSpecPrintout.txt"); 
 		assertEquals(expected, printOut);
 	}
+	
+	@Test
+	public void testSpecASTAfterFullDequantification() throws IOException, SyntaxErrorException
+	{
+		File specFile = new File("../comp/src/beaver/cc/Beaver.bps");
+		assertTrue(specFile.exists());
+		Spec spec = Compiler.parse(specFile);
+		assertNotNull(spec);
+		Compiler.collateProductions(spec.ruleList);
+		Compiler.expandQuantifiedSymbols(spec.ruleList);	
+		if (Compiler.checkInlineRulesCorrectness(spec.ruleList, TestTools.consoleLog))
+		{
+			Compiler.extractInlinedSymbols(spec.ruleList);
+		}
+		specAstPrinter.visit(spec);
+		String printOut = specAstPrinter.toString();
+		String expected = TestTools.readResource(this.getClass(), "CompilerTest_ExpectedSpecPrintout2.txt"); 
+		assertEquals(expected, printOut);
+	}
 }

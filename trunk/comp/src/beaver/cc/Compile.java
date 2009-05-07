@@ -54,6 +54,10 @@ public class Compile
 			{
 				Compiler.collateProductions(spec.ruleList);
 				Compiler.expandQuantifiedSymbols(spec.ruleList);
+				if (Compiler.checkInlineRulesCorrectness(spec.ruleList, log))
+				{
+					Compiler.extractInlinedSymbols(spec.ruleList);
+				}
 			}
 		}
 		catch (IOException e)
